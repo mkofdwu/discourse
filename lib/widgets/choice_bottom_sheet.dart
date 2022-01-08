@@ -1,6 +1,6 @@
+import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:discourse/widgets/pressed_feedback.dart';
 
 class ChoiceBottomSheet extends StatelessWidget {
   final String title;
@@ -18,7 +18,7 @@ class ChoiceBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Get.theme.backgroundColor,
+        color: Get.theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -44,16 +44,16 @@ class ChoiceBottomSheet extends StatelessWidget {
                 ),
               SizedBox(height: 24),
               ...choices
-                  .map((choice) => PressedFeedback(
-                        child: Padding(
+                  .map((choice) => PressedBuilder(
+                        builder: (pressed) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(choice, style: TextStyle(fontSize: 16)),
                         ),
                         onPressed: () => Get.back(result: choice),
                       ))
                   .toList(),
-              PressedFeedback(
-                child: Padding(
+              PressedBuilder(
+                builder: (pressed) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text('Cancel', style: TextStyle(fontSize: 16)),
                 ),

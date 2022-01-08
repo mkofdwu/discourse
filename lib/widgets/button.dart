@@ -1,18 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:discourse/constants/palette.dart';
+import 'dart:async';
+
 import 'package:discourse/widgets/pressed_builder.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MyButton extends StatelessWidget {
   final String text;
-  final bool isDark;
+  final bool isPrimary;
   final bool fillWidth;
-  final Function onPressed;
+  final bool isLoading;
+  final FutureOr<dynamic> Function() onPressed;
 
   const MyButton({
     Key? key,
     required this.text,
-    this.isDark = true,
+    this.isPrimary = true,
     this.fillWidth = false,
+    this.isLoading = false,
     required this.onPressed,
   }) : super(key: key);
 
@@ -20,34 +24,33 @@ class MyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return PressedBuilder(
       onPressed: onPressed,
-      builder: (pressed) => Transform.scale(
-        scale: pressed ? 0.96 : 1,
-        child: fillWidth
-            ? _buildDisplay(context)
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [_buildDisplay(context)],
+      builder: (pressed) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // 12
+        decoration: BoxDecoration(
+          color: isPrimary
+              ? Get.theme.colorScheme.primary.withOpacity(pressed ? 0.8 : 1)
+              : Get.theme.primaryColorLight,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        alignment: fillWidth ? Alignment.center : null,
+        child: isLoading
+            ? SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  color: isPrimary ? Colors.black : Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                text,
+                style: TextStyle(
+                  color: isPrimary ? Colors.black : Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
       ),
     );
   }
-
-  Widget _buildDisplay(BuildContext context) => Container(
-        height: 40,
-        decoration: BoxDecoration(
-          color:
-              isDark ? Theme.of(context).colorScheme.secondary : Palette.light0,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 26),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      );
 }

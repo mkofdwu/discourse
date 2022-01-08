@@ -45,7 +45,7 @@ class AuthService extends GetxService implements BaseAuthService {
     required String password,
   }) async {
     final errors = {
-      if (email.isEmpty) 'email': 'Please enter a email',
+      if (email.isEmpty) 'email': 'Please enter an email',
       if (password.isEmpty) 'password': 'Please enter a password'
     };
     if (errors.isNotEmpty) return errors;
@@ -67,7 +67,7 @@ class AuthService extends GetxService implements BaseAuthService {
     required String confirmPassword,
   }) async {
     final errors = {
-      if (email.isEmpty) 'email': 'Please enter a email',
+      if (email.isEmpty) 'email': 'Please enter an email',
       if (password.isEmpty) 'password': 'Please enter a password',
       if (confirmPassword != password)
         'confirmPassword': 'The passwords entered do not match',

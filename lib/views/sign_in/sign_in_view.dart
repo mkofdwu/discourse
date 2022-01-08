@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:discourse/constants/palette.dart';
-import 'package:discourse/widgets/app_info_links.dart';
+import 'package:discourse/widgets/text_field.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:get/get.dart';
 
@@ -12,81 +13,87 @@ class SignInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SignInController>(
+      init: SignInController(),
       builder: _builder,
     );
   }
 
   Widget _builder(SignInController controller) => Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Padding(
-          padding: const EdgeInsets.only(
-            top: 80,
-            bottom: 40,
-            left: 60,
-            right: 60,
-          ),
-          child: Column(
-            children: [
-              Image.asset(
-                'assets/images/icon.png',
-              ),
-              SizedBox(height: 36),
-              Text(
-                'simple chat',
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500),
-              ),
-              Spacer(flex: 2),
-              _buildTextField(
-                controller: controller.emailController,
-                hintText: 'Email',
-                obscureText: false,
-                error: controller.inputErrors['email'],
-              ),
-              SizedBox(height: 16),
-              _buildTextField(
-                controller: controller.passwordController,
-                hintText: 'Password',
-                obscureText: true,
-                error: controller.inputErrors['password'],
-              ),
-              SizedBox(height: 18),
-              Spacer(),
-              MyButton(
-                text: 'Sign in',
-                onPressed: controller.signIn,
-              ),
-              SizedBox(height: 60),
-              AppInfoLinks(),
-            ],
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(60, 80, 60, 80),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.signingUp ? 'Sign up' : 'Sign in',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+                ),
+                SizedBox(height: 14),
+                RichText(
+                  text: TextSpan(
+                    text: controller.signingUp
+                        ? 'Enter your details below. Already have an account? '
+                        : "Please enter your username and password. Don't have an account? ",
+                    style: TextStyle(fontFamily: 'Avenir', height: 1.3),
+                    children: [
+                      TextSpan(
+                        text: controller.signingUp ? 'Sign in' : 'Sign up',
+                        style: TextStyle(
+                          color: Palette.orange,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = controller.toggleSigningUp,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 40),
+                Container(
+                  width: 70,
+                  height: 1,
+                  color: Get.theme.colorScheme.onBackground,
+                ),
+                Spacer(),
+                MyTextField(
+                  controller: controller.emailController,
+                  hintText: 'Email',
+                  error: controller.inputErrors['email'],
+                ),
+                SizedBox(height: 24),
+                if (controller.signingUp)
+                  MyTextField(
+                    controller: controller.usernameController,
+                    hintText: 'Username',
+                    error: controller.inputErrors['username'],
+                  ),
+                if (controller.signingUp) SizedBox(height: 24),
+                MyTextField(
+                  controller: controller.passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  error: controller.inputErrors['password'],
+                ),
+                if (controller.signingUp) SizedBox(height: 24),
+                if (controller.signingUp)
+                  MyTextField(
+                    controller: controller.confirmPasswordController,
+                    hintText: 'Confirm password',
+                    obscureText: true,
+                    error: controller.inputErrors['confirmPassword'],
+                  ),
+                SizedBox(height: 18),
+                Spacer(),
+                MyButton(
+                  text: 'Submit',
+                  isLoading: controller.isLoading,
+                  onPressed: controller.submit,
+                ),
+              ],
+            ),
           ),
         ),
       );
-
-  Widget _buildTextField({
-    TextEditingController? controller,
-    String? hintText,
-    required bool obscureText,
-    String? error,
-  }) {
-    final border = OutlineInputBorder(
-      borderSide: error != null
-          ? BorderSide(color: Palette.red, width: 1)
-          : BorderSide.none,
-      borderRadius: BorderRadius.circular(10),
-    );
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        errorText: error,
-        filled: true,
-        fillColor: Palette.light0,
-        enabledBorder: border,
-        focusedBorder: border,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      ),
-      obscureText: obscureText,
-    );
-  }
 }

@@ -7,12 +7,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 
-class StorageService {
-  final _auth = Get.find<AuthService>();
-
+class StorageService extends GetxService {
   final _storageRef = FirebaseStorage.instance.ref();
 
-  Future<void> uploadPhoto(Photo photo, String prefix) async {
+  Future<void> uploadPhoto(Photo photo, String userId, String prefix) async {
     assert(photo.isLocal && photo.file != null);
     final tempDir = await getTemporaryDirectory();
     final id = _randomString();
@@ -21,7 +19,7 @@ class StorageService {
       '${tempDir.path}/$id.jpg',
       quality: 70,
     );
-    final storagePath = 'photos/${_auth.currentUser.id}/${prefix}_$id.jpg';
+    final storagePath = 'photos/${userId}/${prefix}_$id.jpg';
     final taskSnapshot =
         await _storageRef.child(storagePath).putFile(compressedFile!);
     photo.url = await taskSnapshot.ref.getDownloadURL();

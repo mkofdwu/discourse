@@ -34,7 +34,7 @@ class _InputBottomSheetState extends State<InputBottomSheet> {
     return Container(
       padding: EdgeInsets.only(left: 30, top: 24, right: 30, bottom: 30),
       decoration: BoxDecoration(
-        color: Get.theme.backgroundColor,
+        color: Get.theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -78,7 +78,7 @@ class _InputBottomSheetState extends State<InputBottomSheet> {
               Expanded(
                 child: MyButton(
                   text: 'Cancel',
-                  isDark: false,
+                  isPrimary: false,
                   fillWidth: true,
                   onPressed: () => Get.back(result: null),
                 ),

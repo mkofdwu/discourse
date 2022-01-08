@@ -8,7 +8,7 @@ import 'package:googleapis/drive/v2.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:discourse/utils/format_date_time.dart';
 
-class ChatExportService {
+class ChatExportService extends GetxService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _chatApi = Get.find<ChatDbService>();

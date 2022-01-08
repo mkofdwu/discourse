@@ -9,15 +9,14 @@ class StartupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<StartupController>(
-      builder: _builder,
-    );
-  }
-
-  Widget _builder(StartupController controller) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
+      init: StartupController(),
+      builder: (StartupController controller) {
+        return Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,14 +1,15 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/user_chat.dart';
+import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/storage.dart';
 
-class MessageSenderService extends GetxController {
-  // TODO: controller or service; how to update?
+class MessageSenderController extends GetxController {
+  final _auth = Get.find<AuthService>();
   final _chatDb = Get.find<ChatDbService>();
   final _storageService = Get.find<StorageService>();
 
@@ -60,7 +61,11 @@ class MessageSenderService extends GetxController {
 
   Future<void> _uploadMessagePhoto(UnsentMessage message) async {
     if (message.photo != null && message.photo!.isLocal) {
-      await _storageService.uploadPhoto(message.photo!, 'messagephoto');
+      await _storageService.uploadPhoto(
+        message.photo!,
+        _auth.currentUser.id,
+        'messagephoto',
+      );
     }
   }
 }

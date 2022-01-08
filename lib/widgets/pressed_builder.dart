@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class PressedBuilder extends StatefulWidget {
-  final Function onPressed;
+  final FutureOr<dynamic> Function() onPressed;
   final Widget Function(bool) builder;
 
   const PressedBuilder(
@@ -21,7 +23,7 @@ class _PressedNotifierState extends State<PressedBuilder> {
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
         setState(() => _pressed = false);
-        widget.onPressed();
+        Future.delayed(const Duration(milliseconds: 200), widget.onPressed);
       },
       onTapCancel: () => setState(() => _pressed = false),
       child: widget.builder(_pressed),

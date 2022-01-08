@@ -1,6 +1,7 @@
 import 'package:discourse/models/message.dart';
+import 'package:get/get.dart';
 
-class MessageSelectionService {
+class MessageSelectionController extends GetxController {
   final selectedMessages = <Message>[];
 
   bool get isSelecting => selectedMessages.isNotEmpty;

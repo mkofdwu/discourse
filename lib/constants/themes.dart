@@ -1,23 +1,30 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:flutter/material.dart';
 
+// no idea how material design guidelines work, for now:
+// primaryColor: color for text
+// primaryColorLight: subtler color on background
+// colorScheme.primary: accent color (orange)
+
 final kLightTheme = ThemeData(
-  backgroundColor: Color(0xfff8f8f8),
+  fontFamily: 'Avenir',
   scaffoldBackgroundColor: Color(0xfff8f8f8),
+  primaryColor: Colors.black,
+  // primaryColorLight: Colors.black,
   appBarTheme: AppBarTheme(elevation: 0),
-  colorScheme: ColorScheme.light(
-    primary: Colors.white,
-    secondary: Palette.accent,
-    error: Palette.red,
-  ),
+  colorScheme: ColorScheme.light(primary: Palette.orange),
 );
 
-final kDarkTheme = kLightTheme.copyWith(
-  backgroundColor: Color(0xff1e1e1e),
-  scaffoldBackgroundColor: Color(0xff1e1e1e),
+final kDarkTheme = ThemeData(
+  fontFamily: 'Avenir',
+  scaffoldBackgroundColor: Palette.black1,
+  primaryColor: Colors.white,
+  primaryColorLight: Palette.black2,
+  textTheme: TextTheme(
+    bodyText1: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+  ),
   colorScheme: ColorScheme.dark(
-    primary: Colors.black,
-    secondary: Palette.accentDark,
-    error: Palette.red,
+    primary: Colors.orange,
+    onPrimary: Colors.black,
   ),
 );

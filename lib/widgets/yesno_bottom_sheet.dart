@@ -17,7 +17,7 @@ class YesNoBottomSheet extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(left: 30, top: 24, right: 30, bottom: 30),
       decoration: BoxDecoration(
-        color: Get.theme.backgroundColor,
+        color: Get.theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -50,6 +50,7 @@ class YesNoBottomSheet extends StatelessWidget {
               Expanded(
                 child: MyButton(
                   text: 'Cancel',
+                  isPrimary: false,
                   fillWidth: true,
                   onPressed: () => Get.back(result: false),
                 ),
