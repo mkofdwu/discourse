@@ -13,44 +13,51 @@ class ChatsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ChatsController>(
       init: ChatsController(),
-      builder: (controller) => SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'Good evening',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+      builder: (controller) => Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(FluentIcons.add_20_filled, size: 20),
+          onPressed: () {},
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      'Good evening',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                    ),
+                    // TODO: show if has new activity
+                    Icon(FluentIcons.alert_24_regular),
+                  ],
+                ),
+                SizedBox(height: 40),
+                Text(
+                  'Stories',
+                  style: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.4),
+                    fontWeight: FontWeight.w700,
                   ),
-                  // TODO: show if has new activity
-                  Icon(FluentIcons.alert_24_regular),
-                ],
-              ),
-              SizedBox(height: 36),
-              Text(
-                'Stories',
-                style: TextStyle(
-                  color: Get.theme.primaryColor.withOpacity(0.4),
-                  fontWeight: FontWeight.w700,
                 ),
-              ),
-              SizedBox(height: 20),
-              _buildStories(),
-              SizedBox(height: 40),
-              Text(
-                'Friends',
-                style: TextStyle(
-                  color: Get.theme.primaryColor.withOpacity(0.4),
-                  fontWeight: FontWeight.w700,
+                SizedBox(height: 20),
+                _buildStories(),
+                SizedBox(height: 40),
+                Text(
+                  'Friends',
+                  style: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.4),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              SizedBox(height: 20),
-              _buildChatsList(),
-            ],
+                SizedBox(height: 20),
+                _buildChatsList(),
+              ],
+            ),
           ),
         ),
       ),

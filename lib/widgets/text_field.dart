@@ -3,16 +3,18 @@ import 'package:get/get.dart';
 
 class MyTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String? hintText;
+  final String? label;
   final bool obscureText;
   final String? error;
+  final Function(String)? onChanged;
 
   const MyTextField({
     Key? key,
     required this.controller,
-    this.hintText,
+    this.label,
     this.obscureText = false,
     this.error,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -20,16 +22,16 @@ class MyTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (hintText != null)
+        if (label != null)
           Text(
-            hintText!,
+            label!,
             style: TextStyle(
               color: Get.theme.primaryColor.withOpacity(0.4),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
-        if (hintText != null) SizedBox(height: 8),
+        if (label != null) SizedBox(height: 8),
         TextField(
           controller: controller,
           decoration: InputDecoration(
@@ -59,6 +61,7 @@ class MyTextField extends StatelessWidget {
           ),
           cursorColor: Get.theme.primaryColor,
           obscureText: obscureText,
+          onChanged: onChanged,
         ),
       ],
     );

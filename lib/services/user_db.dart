@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:get/get.dart';
 
 abstract class BaseUserDbService {

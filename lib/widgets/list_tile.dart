@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -76,8 +77,8 @@ class MyListTile extends StatelessWidget {
               suffixIcons
                   .map((iconData, onTapIcon) => MapEntry(
                         iconData,
-                        GestureDetector(
-                          onTap: onTapIcon,
+                        OpacityFeedback(
+                          onPressed: onTapIcon,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 16),
                             child: Icon(iconData, size: 20),

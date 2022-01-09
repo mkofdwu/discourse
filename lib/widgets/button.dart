@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:discourse/widgets/pressed_builder.dart';
+import 'package:discourse/constants/palette.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,14 +23,14 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PressedBuilder(
+    return OpacityFeedback(
       onPressed: onPressed,
-      builder: (pressed) => Container(
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // 12
         decoration: BoxDecoration(
           color: isPrimary
-              ? Get.theme.colorScheme.primary.withOpacity(pressed ? 0.8 : 1)
-              : Get.theme.primaryColorLight,
+              ? Get.theme.colorScheme.primary
+              : Palette.black3, // Get.theme.primaryColorLight,
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: fillWidth ? Alignment.center : null,

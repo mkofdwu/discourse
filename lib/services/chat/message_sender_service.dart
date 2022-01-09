@@ -1,6 +1,6 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
-import 'package:discourse/models/user_chat.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat_db.dart';
 import 'package:flutter/material.dart';

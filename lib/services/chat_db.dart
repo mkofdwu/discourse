@@ -1,42 +1,65 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:discourse/models/chat_data.dart';
-import 'package:discourse/models/chat_participant.dart';
-import 'package:discourse/models/message.dart';
+import 'package:discourse/models/db_objects/chat_data.dart';
+import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
-import 'package:discourse/models/user.dart';
-import 'package:discourse/models/user_chat.dart';
+import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ChatDbService extends GetxService {
+abstract class BaseChatDbService {
+  Future<UserPrivateChat> _getPrivateChat(String id);
+  Future<UserGroupChat> _getGroupChat(String id);
+  Future<PrivateChatData> _getPrivateChatData(String id);
+  Future<GroupChatData> _getGroupChatData(String id);
+  Future<Message> _messageFromDoc(DocumentSnapshot<Map<String, dynamic>> doc);
+  Future<Member> _memberFromDoc(DocumentSnapshot<Map<String, dynamic>> doc);
+  Future<List<UserPrivateChat>> myPrivateChats();
+  Future<List<UserGroupChat>> myGroupChats();
+  Future<UserPrivateChat> getChatWith(DiscourseUser otherUser);
+  Future<void> requestPrivateChat(DiscourseUser otherUser);
+  Future<UserGroupChat> newGroup(GroupChatData data);
+  Stream<List<Message>> streamMessages(String chatId, int numMessages);
+  Future<Message> getLastMessage(String chatId);
+  Future<Message> sendMessage(UnsentMessage unsentMessage);
+  Future<void> deleteMessages(List<Message> messages);
+  Future<void> leaveChat(String chatId);
+  Future<void> updateChatData(String chatId, GroupChatData data);
+  Future<void> addMembers(String chatId, List<String> userIds);
+  Future<void> removeMember(String chatId, String userId);
+  Future<void> updateMemberRole(
+    String chatId,
+    String userId,
+    MemberRole newRole,
+  );
+}
+
+class ChatDbService extends GetxService implements BaseChatDbService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
-  final _chatsRef = FirebaseFirestore.instance.collection('chats');
+  final _privateChatsRef =
+      FirebaseFirestore.instance.collection('privateChats');
+  final _groupChatsRef = FirebaseFirestore.instance.collection('groupChats');
 
   UserChat? currentChat;
 
   String get _userId => _auth.currentUser.id;
 
-  Future<List<UserChat>> getUserChats() async {
+  Future<List<UserPrivateChat>> myPrivateChats() async {
     final chatsSnapshot =
-        await _usersRef.doc(_userId).collection('chats').get();
-    final userChats = <UserChat>[];
+        await _usersRef.doc(_userId).collection('privateChats').get();
+    final userChats = <UserPrivateChat>[];
     for (final doc in chatsSnapshot.docs) {
-      // check if chat has messages
-      // final messagesSnapshot =
-      //     await _chatsRef.doc(doc.id).collection('messages').limit(1).get();
-      // if (messagesSnapshot.docs.isEmpty) continue;
-
-      // serialize chat
-      userChats.add(await getUserChat(doc));
+      userChats.add(await _getPrivateChat(doc.id));
     }
     return userChats;
   }
@@ -45,27 +68,26 @@ class ChatDbService extends GetxService {
     final doc = await _chatsRef.doc(chatId).get();
     final data = doc.data()!;
     final chatType = ChatType.values[data['type']];
-    final participants = await _loadParticipants(
-        List<Map<String, dynamic>>.from(data['participants']));
+    final members =
+        await _loadMembers(List<Map<String, dynamic>>.from(data['members']));
     switch (chatType) {
       case ChatType.private:
-        return PrivateChatData.fromDoc(doc, participants);
+        return PrivateChatData.fromDoc(doc, members);
       case ChatType.group:
-        return GroupChatData.fromDoc(doc, participants);
+        return GroupChatData.fromDoc(doc, members);
     }
   }
 
-  Future<List<Participant>> _loadParticipants(
-      List<Map<String, dynamic>> pMaps) async {
-    final participants = <Participant>[];
+  Future<List<Member>> _loadMembers(List<Map<String, dynamic>> pMaps) async {
+    final members = <Member>[];
     for (final pMap in pMaps) {
-      participants.add(Participant(
-        user: await Get.find<UserDbService>().getUser(pMap['userId']),
+      members.add(Member(
+        user: await _userDb.getUser(pMap['userId']),
         color: Color(pMap['color']),
-        role: ParticipantRole.values[pMap['role']],
+        role: MemberRole.values[pMap['role']],
       ));
     }
-    return participants;
+    return members;
   }
 
   Stream<List<Message>> streamMessages(String chatId, int numMessages) {
@@ -82,15 +104,15 @@ class ChatDbService extends GetxService {
         );
   }
 
-  Future<List<DocumentSnapshot<Map<String, dynamic>>>> getAllMessageDocs(
-      String chatId) async {
-    final querySnapshot = await _chatsRef
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('sentTimestamp', descending: false)
-        .get();
-    return querySnapshot.docs;
-  }
+  // Future<List<DocumentSnapshot<Map<String, dynamic>>>> getAllMessageDocs(
+  //     String chatId) async {
+  //   final querySnapshot = await _chatsRef
+  //       .doc(chatId)
+  //       .collection('messages')
+  //       .orderBy('sentTimestamp', descending: false)
+  //       .get();
+  //   return querySnapshot.docs;
+  // }
 
   Future<UserChat> getUserChat(
     DocumentSnapshot<Map<String, dynamic>> doc,
@@ -178,6 +200,8 @@ class ChatDbService extends GetxService {
     );
   }
 
+  // refactor into separate service
+
   Stream<String?> typingTextStream(String chatId) {
     return _chatsRef.doc(chatId).snapshots().asyncMap((doc) async {
       final userIds = List<String>.from(doc.data()!['typing']);
@@ -219,9 +243,9 @@ class ChatDbService extends GetxService {
     if (querySnapshot.docs.isEmpty) {
       return NonExistentChat(
         otherUser: user,
-        participants: [
-          Participant.create(user),
-          Participant.create(_auth.currentUser),
+        members: [
+          Member.create(user),
+          Member.create(_auth.currentUser),
         ],
       );
     }
@@ -257,9 +281,9 @@ class ChatDbService extends GetxService {
 
   Future<UserGroupChat> newGroup(GroupChatData data) async {
     final chatDoc = await _chatsRef.add(data.toData());
-    for (final participant in data.participants) {
+    for (final member in data.members) {
       await _usersRef
-          .doc(participant.user.id)
+          .doc(member.user.id)
           .collection('chats')
           .doc(chatDoc.id)
           .set({'type': 1, 'lastReadId': null});
@@ -279,7 +303,7 @@ class ChatDbService extends GetxService {
   }
 
   Future<void> leaveChat(String chatId) async {
-    await removeParticipant(chatId, _auth.currentUser.id);
+    await removeMember(chatId, _auth.currentUser.id);
     await _usersRef
         .doc(_auth.currentUser.id)
         .collection('chats')
@@ -293,30 +317,33 @@ class ChatDbService extends GetxService {
     await _chatsRef.doc(chatId).update(newData.toData());
   }
 
-  Future<void> addParticipants(
+  Future<void> addMembers(
     String chatId,
-    List<Participant> participants,
+    List<Member> members,
   ) async {
+    // await _chatsRef.doc(chatId).collection('members').doc()
+    //   'members': FieldValue.arrayUnion(
+    //     members.map((p) => p.toData()).toList(),
+    //   ),
+    // });
+  }
+
+  Future<void> removeMember(String chatId, String userId) async {
     await _chatsRef.doc(chatId).update({
-      'participants': FieldValue.arrayUnion(
-        participants.map((p) => p.toData()).toList(),
-      ),
+      'members.$userId': FieldValue.delete(),
     });
   }
 
-  Future<void> removeParticipant(String chatId, String userId) async {
-    await _chatsRef.doc(chatId).update({
-      'participants.$userId': FieldValue.delete(),
-    });
-  }
-
-  Future<void> updateParticipantRole(
+  @override
+  Future<void> updateMemberRole(
     String chatId,
-    int participantIndex,
-    ParticipantRole newRole,
+    String userId,
+    MemberRole newRole,
   ) async {
-    await _chatsRef.doc(chatId).update({
-      'participants.$participantIndex': {'role': newRole.index},
-    });
+    await _groupChatsRef
+        .doc(chatId)
+        .collection('members')
+        .doc(userId)
+        .update({'role': newRole.index});
   }
 }

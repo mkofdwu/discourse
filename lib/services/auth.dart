@@ -1,4 +1,4 @@
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';

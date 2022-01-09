@@ -59,20 +59,20 @@ class SignInView extends StatelessWidget {
                 Spacer(),
                 MyTextField(
                   controller: controller.emailController,
-                  hintText: 'Email',
+                  label: 'Email',
                   error: controller.inputErrors['email'],
                 ),
                 SizedBox(height: 24),
                 if (controller.signingUp)
                   MyTextField(
                     controller: controller.usernameController,
-                    hintText: 'Username',
+                    label: 'Username',
                     error: controller.inputErrors['username'],
                   ),
                 if (controller.signingUp) SizedBox(height: 24),
                 MyTextField(
                   controller: controller.passwordController,
-                  hintText: 'Password',
+                  label: 'Password',
                   obscureText: true,
                   error: controller.inputErrors['password'],
                 ),
@@ -80,7 +80,7 @@ class SignInView extends StatelessWidget {
                 if (controller.signingUp)
                   MyTextField(
                     controller: controller.confirmPasswordController,
-                    hintText: 'Confirm password',
+                    label: 'Confirm password',
                     obscureText: true,
                     error: controller.inputErrors['confirmPassword'],
                   ),

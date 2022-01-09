@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
 
 class Message {
   final String id;
   String chatId;
-  // Participant sender;
   DiscourseUser sender;
   RepliedMessage? repliedMessage;
   Photo? photo;

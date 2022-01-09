@@ -1,16 +1,16 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/user.dart';
 
-enum ParticipantRole { member, admin, owner, removed }
+enum MemberRole { member, admin, owner, removed }
 
-class Participant {
-  DiscourseUser user;
+class Member {
+  final DiscourseUser user;
   Color color;
-  ParticipantRole role;
+  MemberRole role;
 
-  Participant({
+  Member({
     required this.user,
     required this.color,
     required this.role,
@@ -31,30 +31,30 @@ class Participant {
   // temporary function, in the future come up with a predefined list of colors
   static Color _randomColor() => _colors[Random().nextInt(_colors.length)];
 
-  factory Participant.create(
+  factory Member.create(
     DiscourseUser user, {
-    role = ParticipantRole.member,
+    role = MemberRole.member,
   }) {
-    return Participant(
+    return Member(
       user: user,
       color: _randomColor(),
       role: role,
     );
   }
 
-  factory Participant.removed(DiscourseUser user) {
-    return Participant(
+  factory Member.removed(DiscourseUser user) {
+    return Member(
       user: user,
       color: Color(0xFFDDDDDD),
-      role: ParticipantRole.removed,
+      role: MemberRole.removed,
     );
   }
 
   Map<String, dynamic> toData() {
+    // user id is the actual doc id
     return {
-      'userId': user.id,
       'color': color.value,
-      'role': ParticipantRole.values.indexOf(role),
+      'role': role.index,
     };
   }
 }

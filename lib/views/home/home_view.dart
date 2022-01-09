@@ -23,7 +23,7 @@ class HomeView extends StatelessWidget {
           child: _buildBody(controller),
         ),
         bottomNavigationBar: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 54, vertical: 14),
           color: Get.theme.primaryColorLight,
           child: Theme(
             data: Get.theme.copyWith(

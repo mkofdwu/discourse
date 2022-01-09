@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:discourse/services/auth.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -19,7 +18,7 @@ class StorageService extends GetxService {
       '${tempDir.path}/$id.jpg',
       quality: 70,
     );
-    final storagePath = 'photos/${userId}/${prefix}_$id.jpg';
+    final storagePath = 'photos/$userId/${prefix}_$id.jpg';
     final taskSnapshot =
         await _storageRef.child(storagePath).putFile(compressedFile!);
     photo.url = await taskSnapshot.ref.getDownloadURL();

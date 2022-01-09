@@ -1,16 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/user_settings.dart';
 
 class DiscourseUser {
   final String id;
   String email;
   String username;
   String? photoUrl;
+  UserSettings settings;
 
   DiscourseUser({
     required this.id,
     required this.email,
     required this.username,
     this.photoUrl,
+    required this.settings,
   });
 
   factory DiscourseUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -20,6 +23,7 @@ class DiscourseUser {
       email: data['email'],
       username: data['username'],
       photoUrl: data['photoUrl'],
+      settings: UserSettings.fromMap(data['settings']),
     );
   }
 
@@ -28,6 +32,7 @@ class DiscourseUser {
       'email': email,
       'username': username,
       'photoUrl': photoUrl,
+      'settings': settings.toMap(),
     };
   }
 

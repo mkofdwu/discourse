@@ -1,4 +1,4 @@
-import 'package:discourse/models/message.dart';
+import 'package:discourse/models/db_objects/message.dart';
 import 'package:get/get.dart';
 
 class MessageSelectionController extends GetxController {

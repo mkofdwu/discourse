@@ -24,7 +24,9 @@ final kDarkTheme = ThemeData(
     bodyText1: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
   ),
   colorScheme: ColorScheme.dark(
-    primary: Colors.orange,
+    primary: Palette.orange,
+    secondary: Palette.orange,
     onPrimary: Colors.black,
+    onSecondary: Colors.black,
   ),
 );

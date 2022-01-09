@@ -1,6 +1,6 @@
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
-import 'package:discourse/models/user_chat.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,7 +48,7 @@ class ChatExportService extends GetxService {
   Future<String> _getSenderUserame(String senderId, UserChat userChat) async {
     if (senderId == _auth.currentUser.id) return _auth.currentUser.username;
     if (userChat is UserPrivateChat) {
-      return userChat.otherParticipant.user.username;
+      return userChat.otherMember.user.username;
     }
     if (userChat is UserGroupChat) {
       final user = await _userDb.getUser(senderId);

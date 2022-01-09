@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/photo.dart';
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/user.dart';
 
 class RepliedMessage {
   final String id;

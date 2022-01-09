@@ -17,16 +17,14 @@ class ChoiceBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Get.theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 24, 30, 30),
+          padding: const EdgeInsets.fromLTRB(30, 26, 30, 26),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -39,24 +37,30 @@ class ChoiceBottomSheet extends StatelessWidget {
               if (subtitle != null)
                 Text(
                   subtitle!,
-                  style:
-                      TextStyle(color: Get.theme.primaryColor.withOpacity(0.6)),
+                  style: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               SizedBox(height: 24),
               ...choices
-                  .map((choice) => PressedBuilder(
-                        builder: (pressed) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(choice, style: TextStyle(fontSize: 16)),
+                  .map((choice) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: PressedBuilder(
+                          builder: (pressed) => Text(
+                            choice,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          onPressed: () => Get.back(result: choice),
                         ),
-                        onPressed: () => Get.back(result: choice),
                       ))
                   .toList(),
               PressedBuilder(
-                builder: (pressed) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text('Cancel', style: TextStyle(fontSize: 16)),
-                ),
+                builder: (pressed) =>
+                    Text('Cancel', style: TextStyle(fontSize: 16)),
                 onPressed: () => Get.back(result: null),
               ),
             ],

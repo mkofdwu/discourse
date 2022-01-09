@@ -1,16 +1,21 @@
-import 'package:discourse/models/chat_data.dart';
-import 'package:discourse/models/chat_participant.dart';
-import 'package:discourse/models/user.dart';
+import 'package:discourse/models/db_objects/chat_data.dart';
+import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
 
 abstract class UserChat {
   final String id;
   String? lastReadId;
-  // bool starred;
+  bool pinned;
   ChatData data;
 
-  UserChat({required this.id, this.lastReadId, required this.data});
+  UserChat({
+    required this.id,
+    this.lastReadId,
+    required this.pinned,
+    required this.data,
+  });
 
   String get title;
   String? get subtitle;
@@ -29,20 +34,17 @@ class UserPrivateChat extends UserChat {
   UserPrivateChat({
     required String id,
     String? lastReadId,
+    required bool pinned,
     required PrivateChatData data,
   }) : super(
           id: id,
           lastReadId: lastReadId,
+          pinned: pinned,
           data: data,
         );
 
-  Participant get otherParticipant {
-    final userId = Get.find<AuthService>().currentUser.id;
-    return data.participants.firstWhere((p) => p.user.id != userId);
-  }
-
   @override
-  String get title => otherParticipant.user.username;
+  String get title => (data as PrivateChatData).otherUser.username;
 
   @override
   String? get subtitle => null;
@@ -52,34 +54,35 @@ class UserGroupChat extends UserChat {
   UserGroupChat({
     required String id,
     String? lastReadId,
+    required bool pinned,
     required GroupChatData data,
   }) : super(
           id: id,
           lastReadId: lastReadId,
+          pinned: pinned,
           data: data,
         );
 
   @override
   String get title => (data as GroupChatData).name;
   @override
-  String get subtitle =>
-      '${(data as GroupChatData).participants.length} participants';
+  String get subtitle => '${(data as GroupChatData).members.length} members';
 }
 
 class NonExistentChat extends UserChat {
   // private chat that does not have any messages yet
-  final DiscourseUser otherUser;
 
   NonExistentChat({
-    required this.otherUser,
-    required List<Participant> participants,
+    required DiscourseUser otherUser,
+    required List<Member> members,
   }) : super(
           id: '',
-          data: NonExistentChatData(participants: participants),
+          pinned: false,
+          data: NonExistentChatData(otherUser: otherUser),
         );
 
   @override
-  String get title => otherUser.username;
+  String get title => (data as NonExistentChatData).otherUser.username;
 
   @override
   String? get subtitle => null;

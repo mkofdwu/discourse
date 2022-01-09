@@ -1,3 +1,4 @@
+import 'package:discourse/constants/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/widgets/button.dart';
@@ -15,13 +16,11 @@ class YesNoBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 30, top: 24, right: 30, bottom: 30),
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(30, 26, 30, 26),
       decoration: BoxDecoration(
         color: Get.theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,11 +31,8 @@ class YesNoBottomSheet extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 12),
-          Text(
-            subtitle,
-            style: TextStyle(color: Get.theme.primaryColor.withOpacity(0.6)),
-          ),
-          SizedBox(height: 30),
+          Text(subtitle),
+          SizedBox(height: 28),
           Row(
             children: [
               Expanded(
