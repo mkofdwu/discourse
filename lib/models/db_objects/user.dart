@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/user_settings.dart';
+import 'package:discourse/services/relationships.dart';
 
 class DiscourseUser {
   final String id;
@@ -7,6 +8,7 @@ class DiscourseUser {
   String username;
   String? photoUrl;
   UserSettings settings;
+  Map<String, RelationshipStatus> relationships;
 
   DiscourseUser({
     required this.id,
@@ -14,6 +16,7 @@ class DiscourseUser {
     required this.username,
     this.photoUrl,
     required this.settings,
+    required this.relationships,
   });
 
   factory DiscourseUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -24,6 +27,9 @@ class DiscourseUser {
       username: data['username'],
       photoUrl: data['photoUrl'],
       settings: UserSettings.fromMap(data['settings']),
+      relationships: data['relationships'].map(
+        (userId, rsIdx) => MapEntry(userId, RelationshipStatus.values[rsIdx]),
+      ),
     );
   }
 

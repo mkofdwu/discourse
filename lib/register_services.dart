@@ -1,4 +1,4 @@
-import 'package:discourse/services/chat/chat_export_service.dart';
+import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/storage.dart';

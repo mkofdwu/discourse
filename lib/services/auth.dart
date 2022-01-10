@@ -1,4 +1,5 @@
 import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/models/db_objects/user_settings.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -80,6 +81,12 @@ class AuthService extends GetxService implements BaseAuthService {
         id: credential.user!.uid,
         email: email,
         username: username,
+        settings: UserSettings(
+          enableNotifications: true,
+          showStoryTo: null,
+          publicAccount: true, // for now to let everyone find each other
+        ),
+        relationships: {},
       ));
       await refreshCurrentUser();
       return {};

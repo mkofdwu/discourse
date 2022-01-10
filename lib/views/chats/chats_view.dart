@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -14,8 +15,8 @@ class ChatsView extends StatelessWidget {
     return GetBuilder<ChatsController>(
       init: ChatsController(),
       builder: (controller) => Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Icon(FluentIcons.add_20_filled, size: 20),
+        floatingActionButton: MyFloatingActionButton(
+          iconData: FluentIcons.add_20_filled,
           onPressed: () {},
         ),
         body: SingleChildScrollView(

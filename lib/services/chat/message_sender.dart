@@ -2,7 +2,8 @@ import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
-import 'package:discourse/services/chat_db.dart';
+import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/photo.dart';
@@ -10,7 +11,8 @@ import 'package:discourse/services/storage.dart';
 
 class MessageSenderController extends GetxController {
   final _auth = Get.find<AuthService>();
-  final _chatDb = Get.find<ChatDbService>();
+  final _messagesDb = Get.find<MessagesDbService>();
+  final _privateChatDb = Get.find<PrivateChatDb>();
   final _storageService = Get.find<StorageService>();
 
   final textController = TextEditingController();
@@ -20,7 +22,7 @@ class MessageSenderController extends GetxController {
 
   Future<void> send() async {
     final unsentMessage = UnsentMessage(
-      chatId: _chatDb.currentChat!.id,
+      chatId: _messagesDb.currentChat!.id,
       repliedMessage: repliedMessage,
       photo: photo,
       text: textController.text,
@@ -29,10 +31,9 @@ class MessageSenderController extends GetxController {
     photo = null;
     repliedMessage = null;
     unsentMessages.add(unsentMessage);
-    // _userChat.data.lastMessageText = message.text; NOT WORKING
     update();
 
-    if (_chatDb.currentChat is NonExistentChat) {
+    if (_messagesDb.currentChat is NonExistentChat) {
       // chat hasn't been created yet
       if (unsentMessages.length == 1) {
         await _createChatThenSendUnsentMessages();
@@ -42,18 +43,18 @@ class MessageSenderController extends GetxController {
     } else {
       // send the message
       await _uploadMessagePhoto(unsentMessage);
-      await _chatDb.sendMessage(unsentMessage);
+      await _messagesDb.sendMessage(unsentMessage);
       unsentMessages.remove(unsentMessage);
       update();
     }
   }
 
   Future<void> _createChatThenSendUnsentMessages() async {
-    await _chatDb
-        .createChatWith((_chatDb.currentChat as NonExistentChat).otherUser);
+    await _privateChatDb.createChatWith(
+        (_messagesDb.currentChat as NonExistentChat).data.otherUser);
     for (final unsent in List.from(unsentMessages)) {
       await _uploadMessagePhoto(unsent);
-      await _chatDb.sendMessage(unsent);
+      await _messagesDb.sendMessage(unsent);
       unsentMessages.remove(unsent);
     }
     update();

@@ -25,7 +25,6 @@ class GroupChatData extends ChatData {
     required this.description,
     this.photoUrl,
     required this.members,
-    String? lastMessageText,
   });
 
   factory GroupChatData.fromDoc(
@@ -38,7 +37,6 @@ class GroupChatData extends ChatData {
       description: data['description'],
       photoUrl: data['photoUrl'],
       members: members,
-      lastMessageText: data['lastMessageText'],
     );
   }
 
