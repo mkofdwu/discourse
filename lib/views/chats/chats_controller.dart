@@ -2,10 +2,9 @@ import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/widgets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/services/chat_db.dart';
 
 class ChatsController extends GetxController {
-  final _privateChatDb = Get.find<PrivateChatDb>();
+  final _privateChatDb = Get.find<PrivateChatDbService>();
 
   bool _loading = false;
   List<UserPrivateChat> _chats = [];

@@ -7,13 +7,14 @@ import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
-abstract class BasePrivateChatDb {
+abstract class BasePrivateChatDbService {
   Future<List<UserPrivateChat>> myPrivateChats();
   Future<UserChat> getChatWith(DiscourseUser user);
   Future<String> createChatWith(DiscourseUser otherUser);
 }
 
-class PrivateChatDb extends GetxService implements BasePrivateChatDb {
+class PrivateChatDbService extends GetxService
+    implements BasePrivateChatDbService {
   final _usersRef = FirebaseFirestore.instance.collection('users');
   final _privateChatsRef =
       FirebaseFirestore.instance.collection('privateChats');

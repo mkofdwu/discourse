@@ -11,7 +11,7 @@ import 'package:discourse/services/requests.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
-abstract class BaseGroupChatDb {
+abstract class BaseGroupChatDbService {
   Future<List<UserGroupChat>> myGroupChats();
   Future<UserGroupChat> newGroup(GroupChatData data);
   Future<void> updateChatData(String chatId, GroupChatData data);
@@ -25,7 +25,7 @@ abstract class BaseGroupChatDb {
   Future<void> leaveGroup(String chatId);
 }
 
-class GroupChatDb extends GetxService implements BaseGroupChatDb {
+class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   final _usersRef = FirebaseFirestore.instance.collection('users');
   final _groupChatsRef = FirebaseFirestore.instance.collection('groupChats');
 

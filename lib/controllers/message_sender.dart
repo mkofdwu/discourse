@@ -12,7 +12,7 @@ import 'package:discourse/services/storage.dart';
 class MessageSenderController extends GetxController {
   final _auth = Get.find<AuthService>();
   final _messagesDb = Get.find<MessagesDbService>();
-  final _privateChatDb = Get.find<PrivateChatDb>();
+  final _privateChatDb = Get.find<PrivateChatDbService>();
   final _storageService = Get.find<StorageService>();
 
   final textController = TextEditingController();
