@@ -3,14 +3,13 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
-import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
 abstract class BaseMessagesDbService {
   Stream<List<Message>> streamMessages(String chatId, int numMessages);
-  Future<Message> getLastMessage(String chatId);
+  Stream<Message> lastMessageStream(String chatId);
   Future<Message> sendMessage(UnsentMessage unsentMessage);
   Future<void> deleteMessages(List<Message> messages);
 }
@@ -20,8 +19,6 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
   final _userDb = Get.find<UserDbService>();
 
   final _messagesRef = FirebaseFirestore.instance.collection('messages');
-
-  UserChat? currentChat;
 
   Future<Message> _messageFromDoc(
       DocumentSnapshot<Map<String, dynamic>> doc) async {
@@ -77,15 +74,8 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
   }
 
   @override
-  Future<Message> getLastMessage(String chatId) async {
-    final snapshot = await _messagesRef
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('sentTimestamp', descending: true)
-        .limit(1)
-        .get();
-    return _messageFromDoc(snapshot.docs.single);
-  }
+  Stream<Message> lastMessageStream(String chatId) =>
+      streamMessages(chatId, 1).asyncMap((list) => list.single);
 
   @override
   Future<Message> sendMessage(UnsentMessage message) async {

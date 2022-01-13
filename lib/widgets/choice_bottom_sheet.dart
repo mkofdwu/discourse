@@ -1,3 +1,4 @@
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -46,8 +47,8 @@ class ChoiceBottomSheet extends StatelessWidget {
               ...choices
                   .map((choice) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: PressedBuilder(
-                          builder: (pressed) => Text(
+                        child: OpacityFeedback(
+                          child: Text(
                             choice,
                             style: TextStyle(
                               fontSize: 16,
@@ -58,9 +59,8 @@ class ChoiceBottomSheet extends StatelessWidget {
                         ),
                       ))
                   .toList(),
-              PressedBuilder(
-                builder: (pressed) =>
-                    Text('Cancel', style: TextStyle(fontSize: 16)),
+              OpacityFeedback(
+                child: Text('Cancel', style: TextStyle(fontSize: 16)),
                 onPressed: () => Get.back(result: null),
               ),
             ],

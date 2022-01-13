@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 abstract class BaseAuthService {
   bool get isSignedIn;
   DiscourseUser get currentUser;
+  bool get emailVerified;
   Future<void> refreshCurrentUser();
   Future<Map<String, String>> signIn({
     required String email,
@@ -18,6 +19,8 @@ abstract class BaseAuthService {
     required String password,
     required String confirmPassword,
   });
+  Future<void> updateEmail(String newEmail);
+  Future<void> verifyEmail();
   Future<void> signOut();
 }
 
@@ -32,6 +35,17 @@ class AuthService extends GetxService implements BaseAuthService {
 
   @override
   DiscourseUser get currentUser => _currentUser!;
+
+  @override
+  bool get emailVerified => _fbAuth.currentUser!.emailVerified;
+
+  @override
+  void onReady() {
+    // mainly for email verification
+    _fbAuth.authStateChanges().listen((user) {
+      user?.reload();
+    });
+  }
 
   @override
   Future<void> refreshCurrentUser() async {
@@ -109,11 +123,15 @@ class AuthService extends GetxService implements BaseAuthService {
     _currentUser = null;
   }
 
+  @override
   Future<void> updateEmail(String newEmail) async {
     if (!isSignedIn) return;
     await _fbAuth.currentUser!.updateEmail(newEmail);
     _currentUser!.email = newEmail;
   }
+
+  @override
+  Future<void> verifyEmail() => _fbAuth.currentUser!.sendEmailVerification();
 
   Future<void> deleteAccount() async {
     if (!isSignedIn) return;

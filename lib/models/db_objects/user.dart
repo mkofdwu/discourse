@@ -27,7 +27,7 @@ class DiscourseUser {
       username: data['username'],
       photoUrl: data['photoUrl'],
       settings: UserSettings.fromMap(data['settings']),
-      relationships: data['relationships'].map(
+      relationships: Map<String, int>.from(data['relationships']).map(
         (userId, rsIdx) => MapEntry(userId, RelationshipStatus.values[rsIdx]),
       ),
     );
@@ -39,6 +39,8 @@ class DiscourseUser {
       'username': username,
       'photoUrl': photoUrl,
       'settings': settings.toMap(),
+      'relationships':
+          relationships.map((userId, rs) => MapEntry(userId, rs.index)),
     };
   }
 

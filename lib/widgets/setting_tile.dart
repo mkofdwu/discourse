@@ -32,7 +32,9 @@ class SettingTile extends StatelessWidget {
 
   Widget _mainUi(bool pressed) => Container(
         decoration: BoxDecoration(
-          color: pressed ? Palette.black2 : Color(0xFF262626),
+          color: (pressed || onPressed == null)
+              ? Palette.black2
+              : Color(0xFF262626),
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),

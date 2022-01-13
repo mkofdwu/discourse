@@ -7,11 +7,7 @@ enum ChatType { private, group }
 abstract class ChatData {}
 
 class PrivateChatData extends ChatData {
-  final DiscourseUser otherUser;
-
-  PrivateChatData({
-    required this.otherUser,
-  });
+  PrivateChatData();
 }
 
 class GroupChatData extends ChatData {

@@ -13,6 +13,7 @@ abstract class UserChat {
     required this.pinned,
   });
 
+  String? get photoUrl;
   String get title;
   String? get subtitle;
 
@@ -27,12 +28,14 @@ abstract class UserChat {
 }
 
 class UserPrivateChat extends UserChat {
+  final DiscourseUser otherUser;
   PrivateChatData data;
 
   UserPrivateChat({
     required String id,
     String? lastReadId,
     required bool pinned,
+    required this.otherUser,
     required this.data,
   }) : super(
           id: id,
@@ -41,7 +44,10 @@ class UserPrivateChat extends UserChat {
         );
 
   @override
-  String get title => data.otherUser.username;
+  String? get photoUrl => otherUser.photoUrl;
+
+  @override
+  String get title => otherUser.username;
 
   @override
   String? get subtitle => null;
@@ -62,7 +68,11 @@ class UserGroupChat extends UserChat {
         );
 
   @override
+  String? get photoUrl => data.photoUrl;
+
+  @override
   String get title => data.name;
+
   @override
   String get subtitle => '${data.members.length} members';
 }
@@ -76,6 +86,9 @@ class NonExistentChat extends UserChat {
     required List<Member> members,
   })  : data = NonExistentChatData(otherUser: otherUser),
         super(id: '', pinned: false);
+
+  @override
+  String? get photoUrl => null;
 
   @override
   String get title => data.otherUser.username;

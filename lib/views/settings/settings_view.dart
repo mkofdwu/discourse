@@ -41,8 +41,20 @@ class SettingsView extends StatelessWidget {
                     'https://images.unsplash.com/photo-1519011985187-444d62641929?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80'),
               ),
               SizedBox(height: 32),
-              _buildUsernameField(),
+              _buildUsernameField(controller),
               SizedBox(height: 44),
+              if (controller.emailVerified)
+                SettingTile(
+                  name: 'Email verified',
+                  description: controller.user.email,
+                  trailing: Icon(FluentIcons.checkmark_16_filled, size: 16),
+                )
+              else
+                SettingTile(
+                  name: 'Verify email',
+                  onPressed: controller.verifyEmail,
+                ),
+              SizedBox(height: 14),
               SettingTile(
                 name: 'Notifications',
                 onPressed: controller.goToNotifs,
@@ -72,7 +84,7 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildUsernameField() => Row(
+  Widget _buildUsernameField(SettingsController controller) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -88,7 +100,7 @@ class SettingsView extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                'draymondgreen',
+                controller.user.username,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ],

@@ -20,9 +20,9 @@ class MessageSenderController extends GetxController {
   RepliedMessage? repliedMessage;
   final unsentMessages = <UnsentMessage>[];
 
-  Future<void> send() async {
+  Future<void> send(UserChat chat) async {
     final unsentMessage = UnsentMessage(
-      chatId: _messagesDb.currentChat!.id,
+      chatId: chat.id,
       repliedMessage: repliedMessage,
       photo: photo,
       text: textController.text,
@@ -33,10 +33,10 @@ class MessageSenderController extends GetxController {
     unsentMessages.add(unsentMessage);
     update();
 
-    if (_messagesDb.currentChat is NonExistentChat) {
+    if (chat is NonExistentChat) {
       // chat hasn't been created yet
       if (unsentMessages.length == 1) {
-        await _createChatThenSendUnsentMessages();
+        await _createChatThenSendUnsentMessages(chat);
       } else {
         // do nothing, wait for chat to be created
       }
@@ -49,10 +49,10 @@ class MessageSenderController extends GetxController {
     }
   }
 
-  Future<void> _createChatThenSendUnsentMessages() async {
-    await _privateChatDb.createChatWith(
-        (_messagesDb.currentChat as NonExistentChat).data.otherUser);
-    for (final unsent in List.from(unsentMessages)) {
+  Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
+    final chatId = await _privateChatDb.createChatWith(chat.data.otherUser);
+    for (UnsentMessage unsent in List.from(unsentMessages)) {
+      unsent.chatId = chatId;
       await _uploadMessagePhoto(unsent);
       await _messagesDb.sendMessage(unsent);
       unsentMessages.remove(unsent);

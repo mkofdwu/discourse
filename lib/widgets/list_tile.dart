@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
+import 'package:discourse/widgets/photo.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,6 +12,7 @@ class MyListTile extends StatelessWidget {
   final String? photoUrl;
   final IconData iconData; // icon displayed if photoUrl is null
   final Map<IconData, Function()> suffixIcons;
+  final bool isSelected;
   final Function() onPressed;
 
   const MyListTile({
@@ -18,7 +21,8 @@ class MyListTile extends StatelessWidget {
     required this.subtitle,
     this.photoUrl,
     required this.iconData,
-    required this.suffixIcons,
+    this.suffixIcons = const {},
+    this.isSelected = false,
     required this.onPressed,
   }) : super(key: key);
 
@@ -31,20 +35,31 @@ class MyListTile extends StatelessWidget {
         color: Colors.transparent,
         child: Row(
           children: <Widget>[
-                photoUrl == null
-                    ? Container(
+                Stack(
+                  children: [
+                    PhotoView(
+                      photoUrl: photoUrl,
+                      placeholderIcon: isSelected ? null : iconData,
+                    ),
+                    if (isSelected)
+                      Container(
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.4),
+                          border: Border.all(color: Palette.orange, width: 2),
                           borderRadius: BorderRadius.circular(20),
-                          color: photoUrl == null ? Palette.black3 : null,
                         ),
-                        child: Center(child: Icon(iconData, size: 16)),
-                      )
-                    : CircleAvatar(
-                        radius: 20,
-                        backgroundImage: CachedNetworkImageProvider(photoUrl!),
+                        child: Center(
+                          child: Icon(
+                            FluentIcons.checkmark_16_filled,
+                            color: Palette.orange,
+                            size: 16,
+                          ),
+                        ),
                       ),
+                  ],
+                ),
                 SizedBox(width: 18),
                 Expanded(
                   child: Column(
@@ -80,7 +95,7 @@ class MyListTile extends StatelessWidget {
                         OpacityFeedback(
                           onPressed: onTapIcon,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 16),
+                            padding: const EdgeInsets.all(8),
                             child: Icon(iconData, size: 20),
                           ),
                         ),

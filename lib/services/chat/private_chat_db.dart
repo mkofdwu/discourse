@@ -4,6 +4,7 @@ import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
+import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +17,7 @@ abstract class BasePrivateChatDbService {
 class PrivateChatDbService extends GetxService
     implements BasePrivateChatDbService {
   final _usersRef = FirebaseFirestore.instance.collection('users');
+  final _messagesRef = FirebaseFirestore.instance.collection('messages');
   final _privateChatsRef =
       FirebaseFirestore.instance.collection('privateChats');
 
@@ -23,14 +25,6 @@ class PrivateChatDbService extends GetxService
   final _userDb = Get.find<UserDbService>();
 
   String get _userId => _auth.currentUser.id;
-
-  Future<PrivateChatData> _getChatData(String chatId) async {
-    final doc = await _privateChatsRef.doc(chatId).get();
-    final memberIds = List<String>.from(doc.data()!['memberIds']);
-    assert(memberIds.length == 2);
-    final otherUserId = memberIds.firstWhere((uid) => uid != _userId);
-    return PrivateChatData(otherUser: await _userDb.getUser(otherUserId));
-  }
 
   @override
   Future<List<UserPrivateChat>> myPrivateChats() async {
@@ -43,26 +37,27 @@ class PrivateChatDbService extends GetxService
         id: doc.id,
         lastReadId: data['lastReadId'],
         pinned: data['pinned'],
-        data: await _getChatData(doc.id),
+        otherUser: await _userDb.getUser(data['otherUserId']),
+        data: PrivateChatData(),
       ));
     }
     return userChats;
   }
 
   @override
-  Future<UserChat> getChatWith(DiscourseUser user) async {
+  Future<UserChat> getChatWith(DiscourseUser otherUser) async {
     final querySnapshot = await _usersRef
         .doc(_userId)
-        .collection('chats')
-        .where('otherUserId', isEqualTo: user.id)
+        .collection('privateChats')
+        .where('otherUserId', isEqualTo: otherUser.id)
         .limit(1)
         .get();
     if (querySnapshot.docs.isEmpty) {
       return NonExistentChat(
-        otherUser: user,
+        otherUser: otherUser,
         members: [
-          Member.create(user),
           Member.create(_auth.currentUser),
+          Member.create(otherUser),
         ],
       );
     }
@@ -72,7 +67,8 @@ class PrivateChatDbService extends GetxService
       id: doc.id,
       lastReadId: data['lastReadId'],
       pinned: data['pinned'],
-      data: await _getChatData(doc.id),
+      otherUser: await _userDb.getUser(data['otherUserId']),
+      data: PrivateChatData(),
     );
   }
 
@@ -82,17 +78,29 @@ class PrivateChatDbService extends GetxService
     // is created from the client
     // dont need to send a message to create chat.
     // but chats without messages aren't displayed
+    // TODO: check permissions, send request
     final chatDoc = await _privateChatsRef.add({
       'memberIds': [_userId, otherUser.id],
     });
+    await _messagesRef.doc(chatDoc.id).set({});
     await _usersRef
         .doc(_auth.currentUser.id)
-        .collection('chats')
+        .collection('privateChats')
         .doc(chatDoc.id)
-        .set({'type': 0, 'lastReadId': null, 'otherUserId': otherUser.id});
-    await _usersRef.doc(otherUser.id).collection('chats').doc(chatDoc.id).set({
+        .set({
       'type': 0,
       'lastReadId': null,
+      'pinned': false,
+      'otherUserId': otherUser.id,
+    });
+    await _usersRef
+        .doc(otherUser.id)
+        .collection('privateChats')
+        .doc(chatDoc.id)
+        .set({
+      'type': 0,
+      'lastReadId': null,
+      'pinned': false,
       'otherUserId': _auth.currentUser.id,
     });
     return chatDoc.id;

@@ -27,6 +27,7 @@ abstract class BaseGroupChatDbService {
 
 class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   final _usersRef = FirebaseFirestore.instance.collection('users');
+  final _messagesRef = FirebaseFirestore.instance.collection('messages');
   final _groupChatsRef = FirebaseFirestore.instance.collection('groupChats');
 
   final _auth = Get.find<AuthService>();
@@ -71,6 +72,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   @override
   Future<UserGroupChat> newGroup(GroupChatData data) async {
     final chatDoc = await _groupChatsRef.add(data.toData());
+    await _messagesRef.doc(chatDoc.id).set({});
     addMembers(chatDoc.id, data.members);
     return UserGroupChat(
       id: chatDoc.id,
@@ -103,7 +105,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
       } else {
         await _usersRef
             .doc(member.user.id)
-            .collection('chats')
+            .collection('groupChats')
             .doc(chatId)
             .set({'type': 1, 'lastReadId': null});
         await _groupChatsRef
@@ -138,7 +140,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     await removeMember(chatId, _auth.currentUser.id);
     await _usersRef
         .doc(_auth.currentUser.id)
-        .collection('chats')
+        .collection('groupChats')
         .doc(chatId)
         .delete();
   }

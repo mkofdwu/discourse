@@ -1,3 +1,5 @@
+import 'package:discourse/views/custom_form/custom_form.dart';
+import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -8,7 +10,6 @@ class SignInController extends GetxController {
   final _auth = Get.find<AuthService>();
 
   final emailController = TextEditingController();
-  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -36,9 +37,23 @@ class SignInController extends GetxController {
   }
 
   Future<void> _signUp() async {
+    final String username = await Get.to(CustomFormView(
+      form: CustomForm(
+        title: 'Account details',
+        fields: [Field('username', textFieldBuilder(label: 'Username'))],
+        onSubmit: (inputs, setErrors) {
+          if (inputs['username'].isEmpty) {
+            setErrors({'username': 'Please enter a username'});
+          } else {
+            setErrors({});
+            Get.back(result: inputs['username']);
+          }
+        },
+      ),
+    ));
     final errors = await _auth.signUp(
       email: emailController.text,
-      username: usernameController.text,
+      username: username,
       password: passwordController.text,
       confirmPassword: confirmPasswordController.text,
     );

@@ -1,10 +1,15 @@
+import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
-import 'package:discourse/widgets/yesno_bottom_sheet.dart';
+import 'package:discourse/views/chat/chat_view.dart';
+import 'package:discourse/views/user_selector/user_selector_view.dart';
+import 'package:discourse/widgets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 
 class ChatsController extends GetxController {
   final _privateChatDb = Get.find<PrivateChatDbService>();
+  final _messagesDb = Get.find<MessagesDbService>();
 
   bool _loading = false;
   List<UserPrivateChat> _chats = [];
@@ -22,18 +27,22 @@ class ChatsController extends GetxController {
   }
 
   Future<void> newChat() async {
-    final confirmed = await Get.bottomSheet(YesNoBottomSheet(
-      title: 'Create new chat',
-      subtitle: 'Do you want to talk to someone privately or create a group?',
+    Get.to(UserSelectorView(
+      canSelectMultiple: false,
+      onSubmit: (selectedUsers) async {
+        final userChat = await _privateChatDb.getChatWith(selectedUsers.single);
+        Get.to(ChatView(userChat: userChat));
+      },
     ));
-    // if (confirmed ?? false) {
-    //   Get.to(NewPrivateChatView());
-    // } else {
-    //   final users = await Get.to(AddMembersView());
-    //   Get.to(NewGroupSetDetailsView(users: users));
-    // }
   }
 
-  void goToChat(UserChat userChat) =>
-      null; // Get.to(ChatView(userChat: userChat));
+  Stream<Message> lastMessageStream(UserChat chat) =>
+      _messagesDb.lastMessageStream(chat.id);
+
+  void showChatOptions(UserChat chat) => Get.bottomSheet(ChoiceBottomSheet(
+        title: 'Chat options',
+        choices: const ['View profile', 'Pin chat', 'Remove friend'],
+      ));
+
+  void goToChat(UserChat chat) => Get.to(ChatView(userChat: chat));
 }

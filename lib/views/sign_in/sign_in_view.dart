@@ -22,7 +22,7 @@ class SignInView extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(60, 80, 60, 80),
+            padding: const EdgeInsets.fromLTRB(60, 70, 60, 70),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -34,8 +34,8 @@ class SignInView extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     text: controller.signingUp
-                        ? 'Enter your details below. Already have an account? '
-                        : "Please enter your username and password. Don't have an account? ",
+                        ? 'Enter your email below to begin. Already have an account? '
+                        : "Please enter your email and password. Don't have an account? ",
                     style: TextStyle(fontFamily: 'Avenir', height: 1.3),
                     children: [
                       TextSpan(
@@ -63,13 +63,6 @@ class SignInView extends StatelessWidget {
                   error: controller.inputErrors['email'],
                 ),
                 SizedBox(height: 24),
-                if (controller.signingUp)
-                  MyTextField(
-                    controller: controller.usernameController,
-                    label: 'Username',
-                    error: controller.inputErrors['username'],
-                  ),
-                if (controller.signingUp) SizedBox(height: 24),
                 MyTextField(
                   controller: controller.passwordController,
                   label: 'Password',
@@ -87,7 +80,7 @@ class SignInView extends StatelessWidget {
                 SizedBox(height: 18),
                 Spacer(),
                 MyButton(
-                  text: 'Submit',
+                  text: controller.signingUp ? 'Continue' : 'Submit',
                   isLoading: controller.isLoading,
                   onPressed: controller.submit,
                 ),

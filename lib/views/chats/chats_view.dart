@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
@@ -17,7 +18,7 @@ class ChatsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         floatingActionButton: MyFloatingActionButton(
           iconData: FluentIcons.add_20_filled,
-          onPressed: () {},
+          onPressed: controller.newChat,
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -56,7 +57,7 @@ class ChatsView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                _buildChatsList(),
+                _buildChatsList(controller),
               ],
             ),
           ),
@@ -82,19 +83,33 @@ class ChatsView extends StatelessWidget {
         ],
       );
 
-  Widget _buildChatsList() => Column(
-        children: [
-          MyListTile(
-            title: 'Mr Tree',
-            subtitle: 'The quick brown fox jumps over the lazy dog',
-            photoUrl:
-                'https://images.unsplash.com/photo-1641579281152-e5d633aa3775?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1632&q=80',
-            iconData: FluentIcons.person_16_regular,
-            suffixIcons: {
-              FluentIcons.more_vertical_20_regular: () {},
-            },
-            onPressed: () {},
-          ),
-        ],
-      );
+  Widget _buildChatsList(ChatsController controller) => controller.loading
+      ? SizedBox()
+      : Column(
+          children: controller.chats
+              .map((chat) => StreamBuilder(
+                    stream: controller.lastMessageStream(chat),
+                    builder: (context, AsyncSnapshot<Message?> snapshot) {
+                      String subtitle = '';
+                      if (snapshot.hasData) {
+                        final message = snapshot.data!;
+                        final sender =
+                            message.fromMe ? 'You' : message.sender.username;
+                        subtitle = '$sender: ${message.text}';
+                      }
+                      return MyListTile(
+                        title: chat.title,
+                        subtitle: subtitle,
+                        photoUrl: chat.photoUrl,
+                        iconData: FluentIcons.person_16_regular,
+                        suffixIcons: {
+                          FluentIcons.more_vertical_20_regular: () =>
+                              controller.showChatOptions(chat),
+                        },
+                        onPressed: () => controller.goToChat(chat),
+                      );
+                    },
+                  ))
+              .toList(),
+        );
 }

@@ -1,4 +1,5 @@
 import 'package:discourse/views/groups/groups_controller.dart';
+import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,8 @@ class GroupsView extends StatelessWidget {
     return GetBuilder<GroupsController>(
       init: GroupsController(),
       builder: (controller) => Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Icon(FluentIcons.add_20_filled, size: 20),
+        floatingActionButton: MyFloatingActionButton(
+          iconData: FluentIcons.add_20_filled,
           onPressed: () {},
         ),
         body: SingleChildScrollView(
@@ -54,6 +55,7 @@ class GroupsView extends StatelessWidget {
             suffixIcons: {
               FluentIcons.more_vertical_20_regular: controller.showGroupOptions,
             },
+            isSelected: true,
             onPressed: () {},
           ),
         ],
