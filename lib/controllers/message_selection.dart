@@ -2,7 +2,7 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:get/get.dart';
 
 class MessageSelectionController extends GetxController {
-  final selectedMessages = <Message>[];
+  final selectedMessages = <Message>[].obs;
 
   bool get isSelecting => selectedMessages.isNotEmpty;
 

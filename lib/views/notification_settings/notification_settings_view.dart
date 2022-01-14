@@ -12,6 +12,7 @@ class NotificationSettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<NotificationSettingsController>(
+      global: false,
       init: NotificationSettingsController(),
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Notification Settings'),

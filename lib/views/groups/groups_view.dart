@@ -11,6 +11,7 @@ class GroupsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GroupsController>(
+      global: false,
       init: GroupsController(),
       builder: (controller) => Scaffold(
         floatingActionButton: MyFloatingActionButton(

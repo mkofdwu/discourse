@@ -1,12 +1,18 @@
 import 'package:discourse/controllers/message_selection.dart';
 import 'package:discourse/controllers/message_sender.dart';
+import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/models/db_objects/user_settings.dart';
+import 'package:discourse/models/photo.dart';
+import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
+import 'package:discourse/widgets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/yesno_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,6 +41,10 @@ class ChatController extends GetxController {
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
   bool get isPrivateChat => _userChat is UserPrivateChat;
+  Member member(String userId) => (_userChat as UserGroupChat)
+      .data
+      .members
+      .firstWhere((member) => member.user.id == userId);
 
   ScrollController get scrollController => _scrollController;
   bool get showGoToBottomArrow =>
@@ -45,9 +55,25 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     _messageSender.textController.text = '';
-    _messageSender.photo = null;
-    _messageSender.repliedMessage = null;
+    _messageSender.photo.value = Photo.url(
+        'https://images.unsplash.com/photo-1642131724313-9fc5eb39a558?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxMnx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60');
+    _messageSender.repliedMessage.value = RepliedMessage(
+      id: 'tsaetu',
+      sender: DiscourseUser(
+        id: 'aeuo',
+        email: 'matthew',
+        username: 'matthew',
+        settings: UserSettings(
+          enableNotifications: true,
+          showStoryTo: null,
+          publicAccount: true,
+        ),
+        relationships: {},
+      ),
+      text: 'Lorem ipsum sit dolor amet',
+    );
     _messageSender.unsentMessages.clear();
+    _scrollController.addListener(() => update());
     streamMoreMessages();
   }
 
@@ -65,7 +91,8 @@ class ChatController extends GetxController {
   Future<void> leaveChat() async {
     final confirmed = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Leave chat?',
-      subtitle: 'Are you sure you want to leave?',
+      subtitle:
+          'Are you sure you want to leave this chat? You will need someone to add you back in afterwards.',
     ));
     if (confirmed) {
       _groupChatDb.leaveGroup(_userChat.id);
@@ -132,7 +159,7 @@ class ChatController extends GetxController {
   }
 
   void replyToSelectedMessages() {
-    _messageSender.repliedMessage =
+    _messageSender.repliedMessage.value =
         _messageSelection.selectedMessages.single.asRepliedMessage();
     _messageSelection.cancelSelection();
   }

@@ -9,6 +9,7 @@ class StartupView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<StartupController>(
+      global: false,
       init: StartupController(),
       builder: (StartupController controller) {
         return Scaffold(

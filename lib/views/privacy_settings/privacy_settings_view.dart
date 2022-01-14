@@ -13,6 +13,7 @@ class PrivacySettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<PrivacySettingsController>(
+      global: false,
       init: PrivacySettingsController(),
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Notification Settings'),

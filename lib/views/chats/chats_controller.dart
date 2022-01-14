@@ -39,10 +39,12 @@ class ChatsController extends GetxController {
   Stream<Message> lastMessageStream(UserChat chat) =>
       _messagesDb.lastMessageStream(chat.id);
 
-  void showChatOptions(UserChat chat) => Get.bottomSheet(ChoiceBottomSheet(
-        title: 'Chat options',
-        choices: const ['View profile', 'Pin chat', 'Remove friend'],
-      ));
+  void showChatOptions(UserChat chat) async {
+    final choice = await Get.bottomSheet(ChoiceBottomSheet(
+      title: 'Chat options',
+      choices: const ['View profile', 'Pin chat', 'Remove friend'],
+    ));
+  }
 
   void goToChat(UserChat chat) => Get.to(ChatView(userChat: chat));
 }

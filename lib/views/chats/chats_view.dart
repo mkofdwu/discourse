@@ -14,6 +14,7 @@ class ChatsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatsController>(
+      global: false,
       init: ChatsController(),
       builder: (controller) => Scaffold(
         floatingActionButton: MyFloatingActionButton(

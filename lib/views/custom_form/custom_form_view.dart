@@ -15,6 +15,7 @@ class CustomFormView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CustomFormController>(
+      global: false,
       init: CustomFormController(form),
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,

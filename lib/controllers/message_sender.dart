@@ -16,20 +16,20 @@ class MessageSenderController extends GetxController {
   final _storageService = Get.find<StorageService>();
 
   final textController = TextEditingController();
-  Photo? photo;
-  RepliedMessage? repliedMessage;
-  final unsentMessages = <UnsentMessage>[];
+  final photo = Rx<Photo?>(null);
+  final repliedMessage = Rx<RepliedMessage?>(null);
+  final unsentMessages = <UnsentMessage>[].obs;
 
   Future<void> send(UserChat chat) async {
     final unsentMessage = UnsentMessage(
       chatId: chat.id,
-      repliedMessage: repliedMessage,
-      photo: photo,
+      repliedMessage: repliedMessage.value,
+      photo: photo.value,
       text: textController.text,
     );
     textController.text = '';
-    photo = null;
-    repliedMessage = null;
+    photo.value = null;
+    repliedMessage.value = null;
     unsentMessages.add(unsentMessage);
     update();
 

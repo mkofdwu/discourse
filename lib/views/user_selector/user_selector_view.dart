@@ -21,6 +21,7 @@ class UserSelectorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<UserFinderController>(
+      global: false,
       init: UserFinderController(canSelectMultiple),
       builder: _builder,
     );

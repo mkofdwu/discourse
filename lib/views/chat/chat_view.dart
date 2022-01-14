@@ -1,8 +1,13 @@
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/controllers/message_selection.dart';
 import 'package:discourse/controllers/message_sender.dart';
+import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/utils/show_private_chat_options.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
+import 'package:discourse/views/chat/widgets/participants_typing.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -22,45 +27,61 @@ class ChatView extends StatelessWidget {
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     return GetBuilder<ChatController>(
+      global: false,
       init: ChatController(userChat),
-      builder: (controller) => Scaffold(
-        appBar: _buildAppBar(),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 36),
-          child: Column(
+      builder: (controller) => Obx(
+        () => Scaffold(
+          appBar: controller.isSelectingMessages
+              ? _buildMessageSelectionAppBar(controller)
+              : _buildAppBar(controller),
+          body: Column(
             children: [
               Expanded(
                 child: userChat is NonExistentChat
                     ? SizedBox()
-                    : ListView.separated(
-                        reverse: true,
-                        itemCount: controller.messages.length,
-                        itemBuilder: (context, i) {
-                          final message = controller.messages[i];
-                          return MessageView(message: message);
-                        },
-                        separatorBuilder: (context, i) {
-                          if (controller.isPrivateChat) {
-                            return SizedBox.shrink();
-                          }
-                          // final prevMessage =
-                          //     controller.messages[i + 1]; // list is reversed
-                          // final nextMessage = controller.messages[i];
-                          // if (prevMessage.sender != nextMessage.sender &&
-                          //     !prevMessage.fromMe) {
-                          //   return Padding(
-                          //     padding: const EdgeInsets.only(
-                          //         left: 30, top: 20, bottom: 40),
-                          //     child: _buildSenderDetails(
-                          //         prevMessage.sender as Participant),
-                          //   );
-                          // }
-                          return SizedBox(height: 10);
-                        },
+                    : Stack(
+                        children: [
+                          _buildMessagesList(controller),
+                          if (!controller.isSelectingMessages)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              height: 120,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                    colors: [
+                                      Get.theme.scaffoldBackgroundColor,
+                                      Get.theme.scaffoldBackgroundColor
+                                          .withOpacity(0),
+                                    ],
+                                  ),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 30),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    _buildTypingIndicator(controller),
+                                    if (controller.showGoToBottomArrow)
+                                      _buildScrollToBottomArrow(controller),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
               ),
-              SizedBox(height: 28),
-              MessageDraftView(),
+              if (!controller.isSelectingMessages)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 28, 30, 36),
+                  child: MessageDraftView(),
+                ),
             ],
           ),
         ),
@@ -68,7 +89,65 @@ class ChatView extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() => PreferredSize(
+  Widget _buildMessagesList(ChatController controller) => ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 100),
+        reverse: true,
+        controller: controller.scrollController,
+        itemCount: controller.messages.length,
+        itemBuilder: (context, i) {
+          final message = controller.messages[i];
+          return MessageView(
+            key: controller.messageKey(message.id),
+            message: message,
+          );
+        },
+        separatorBuilder: (context, i) {
+          final prevMessage = controller.messages[i + 1]; // list is reversed
+          final nextMessage = controller.messages[i];
+          if (prevMessage.sender != nextMessage.sender && !nextMessage.fromMe) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 12, left: 30, bottom: 12),
+              child: controller.isPrivateChat
+                  ? Text(
+                      nextMessage.sender.username,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    )
+                  : _buildSenderDetails(
+                      controller.member(nextMessage.sender.id)),
+            );
+          }
+          return SizedBox.shrink();
+        },
+      );
+
+  Widget _buildSenderDetails(Member member) => Row(
+        children: [
+          PhotoView(
+            photoUrl: member.user.photoUrl,
+            placeholderIcon: FluentIcons.person_16_regular,
+          ),
+          SizedBox(width: 16),
+          Text(
+            member.user.username,
+            style: TextStyle(color: member.color, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(width: 16),
+          // just for example
+          if (member.role == MemberRole.admin)
+            Container(
+              height: 20,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: member.color,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(),
+            )
+        ],
+      );
+
+  PreferredSizeWidget _buildAppBar(ChatController controller) => PreferredSize(
         preferredSize: Size.fromHeight(76),
         child: SafeArea(
           child: Container(
@@ -83,9 +162,9 @@ class ChatView extends StatelessWidget {
                 ),
                 SizedBox(width: 20),
                 Expanded(child: _appBarContent()),
-                GestureDetector(
+                OpacityFeedback(
                   child: Icon(FluentIcons.more_vertical_24_regular),
-                  onTap: () {},
+                  onPressed: showPrivateChatOptions,
                 ),
               ],
             ),
@@ -127,5 +206,70 @@ class ChatView extends StatelessWidget {
             ),
           ),
         ],
+      );
+
+  PreferredSizeWidget _buildMessageSelectionAppBar(ChatController controller) =>
+      PreferredSize(
+        preferredSize: Size.fromHeight(76),
+        child: SafeArea(
+          child: Container(
+            height: 76,
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            color: Get.theme.primaryColorLight,
+            child: Row(
+              children: [
+                Text(
+                  '${controller.numMessagesSelected} selected',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                Spacer(),
+                if (controller.canReplyToSelectedMessages)
+                  OpacityFeedback(
+                    onPressed: controller.replyToSelectedMessages,
+                    child: Icon(FluentIcons.arrow_reply_20_regular, size: 20),
+                  ),
+                if (controller.canReplyToSelectedMessages) SizedBox(width: 16),
+                if (controller.canDeleteSelectedMessages)
+                  OpacityFeedback(
+                    onPressed: controller.deleteSelectedMessages,
+                    child: Icon(FluentIcons.delete_20_regular, size: 20),
+                  ),
+                if (controller.canDeleteSelectedMessages) SizedBox(width: 16),
+                OpacityFeedback(
+                  onPressed: controller.cancelMessageSelection,
+                  child: Icon(FluentIcons.dismiss_20_regular, size: 20),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildTypingIndicator(ChatController controller) =>
+      StreamBuilder<String?>(
+        stream: controller.typingTextStream(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return SizedBox.shrink();
+          return TypingIndicator(text: snapshot.data!);
+        },
+      );
+
+  Widget _buildScrollToBottomArrow(ChatController controller) =>
+      GestureDetector(
+        onTap: controller.scrollToBottom,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Color(0xFF5F5F5F),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            FluentIcons.chevron_double_down_16_regular,
+            size: 16,
+            color: Colors.white,
+          ),
+        ),
       );
 }

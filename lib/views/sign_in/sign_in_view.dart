@@ -13,6 +13,7 @@ class SignInView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SignInController>(
+      global: false,
       init: SignInController(),
       builder: _builder,
     );

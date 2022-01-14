@@ -63,7 +63,8 @@ class Message {
       );
 
   @override
-  bool operator ==(Object other) => other is Message && id == other.id;
+  bool operator ==(Object other) =>
+      other is Message && id == other.id && text == other.text;
 
   @override
   int get hashCode => id.hashCode;

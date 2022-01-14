@@ -14,6 +14,7 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SettingsController>(
+      global: false,
       init: SettingsController(),
       builder: (controller) => SingleChildScrollView(
         child: Padding(
