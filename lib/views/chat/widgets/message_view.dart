@@ -49,36 +49,28 @@ class MessageView extends StatelessWidget {
                   ),
                   clipBehavior: Clip.antiAlias, // image circular borders
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (message.photo != null)
                         _buildPhotoView(message.photo!),
-                      Padding(
+                      Container(
+                        width: message.photo != null ? 200 : null,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 14),
-                        child: Column(
-                          crossAxisAlignment: message.fromMe
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
-                          children: [
-                            if (message.repliedMessage != null)
-                              _buildRepliedMessageView(
-                                message.repliedMessage!,
-                                controller.getRepliedMessageColor(),
-                              ),
-                            Text(
-                              message.text!,
-                              style: TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              formatTime(message.sentTimestamp),
-                              style: TextStyle(
-                                color: Get.theme.primaryColor.withOpacity(0.6),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                        child: IntrinsicWidth(
+                          child: Column(
+                            // crossAxisAlignment: message.fromMe
+                            //     ? CrossAxisAlignment.end
+                            //     : CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (message.repliedMessage != null)
+                                _buildRepliedMessageView(
+                                  message.repliedMessage!,
+                                  controller.getRepliedMessageColor(),
+                                ),
+                              _buildFancyTextAndTimestampWrap(),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -136,5 +128,39 @@ class MessageView extends StatelessWidget {
             ),
           ],
         ),
+      );
+
+  Widget _buildFancyTextAndTimestampWrap() => Stack(
+        children: [
+          RichText(
+            text: TextSpan(
+              text: message.text! + '  ',
+              style: TextStyle(
+                fontFamily: 'Avenir',
+                fontWeight: FontWeight.w500,
+              ),
+              children: [
+                TextSpan(
+                  text: formatTime(message.sentTimestamp),
+                  style: TextStyle(
+                    color: Colors.transparent,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Text(
+              formatTime(message.sentTimestamp),
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.6),
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       );
 }

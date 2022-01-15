@@ -90,7 +90,7 @@ class ChatView extends StatelessWidget {
   }
 
   Widget _buildMessagesList(ChatController controller) => ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 100),
+        padding: const EdgeInsets.only(top: 40, bottom: 100),
         reverse: true,
         controller: controller.scrollController,
         itemCount: controller.messages.length,
