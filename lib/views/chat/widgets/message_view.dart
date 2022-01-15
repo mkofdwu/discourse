@@ -1,7 +1,13 @@
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/models/photo.dart';
+import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/utils/format_date_time.dart';
 import 'package:discourse/views/chat/widgets/reply_gesture.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,52 +27,114 @@ class MessageView extends StatelessWidget {
         onReply: controller.replyToThis,
         accountForWidth: !message.fromMe,
         child: Container(
+          // selection indicator
           color:
               controller.isSelected() ? Palette.orange.withOpacity(0.1) : null,
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
-          child: Row(
-            mainAxisAlignment: message.fromMe
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: controller.onTap,
-                onLongPress: controller.toggleSelectMessage,
-                child: Container(
+          child: GestureDetector(
+            onTap: controller.onTap,
+            onLongPress: controller.toggleSelectMessage,
+            child: Row(
+              mainAxisAlignment: message.fromMe
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.start,
+              children: [
+                Container(
                   constraints: BoxConstraints(maxWidth: 200),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: message.fromMe
                         ? Palette.orange
                         : Get.theme.primaryColorLight,
                     borderRadius: BorderRadius.circular(10),
                   ),
+                  clipBehavior: Clip.antiAlias, // image circular borders
                   child: Column(
-                    crossAxisAlignment: message.fromMe
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        message.text!,
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        formatTime(message.sentTimestamp),
-                        style: TextStyle(
-                          color: Get.theme.primaryColor.withOpacity(0.6),
-                          fontSize: 12,
+                      if (message.photo != null)
+                        _buildPhotoView(message.photo!),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        child: Column(
+                          crossAxisAlignment: message.fromMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            if (message.repliedMessage != null)
+                              _buildRepliedMessageView(
+                                message.repliedMessage!,
+                                controller.getRepliedMessageColor(),
+                              ),
+                            Text(
+                              message.text!,
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              formatTime(message.sentTimestamp),
+                              style: TextStyle(
+                                color: Get.theme.primaryColor.withOpacity(0.6),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildPhotoView(Photo photo) =>
+      CachedNetworkImage(imageUrl: photo.url!, width: 200);
+
+  Widget _buildRepliedMessageView(RepliedMessage repliedMessage, Color color) =>
+      Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Get.theme.primaryColor.withOpacity(0.1),
+            ),
+          ),
+        ),
+        padding: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 14),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Transform.rotate(
+              angle: pi,
+              child: Icon(FluentIcons.text_quote_20_filled, size: 20),
+            ),
+            SizedBox(width: 8),
+            Flexible(
+              child: Opacity(
+                opacity: 0.6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      repliedMessage.sender.username,
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      repliedMessage.text!,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }

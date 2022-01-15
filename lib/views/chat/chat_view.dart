@@ -1,6 +1,6 @@
 import 'package:discourse/constants/palette.dart';
-import 'package:discourse/controllers/message_selection.dart';
-import 'package:discourse/controllers/message_sender.dart';
+import 'package:discourse/views/chat/controllers/message_selection.dart';
+import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -47,7 +47,7 @@ class ChatView extends StatelessWidget {
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              height: 120,
+                              height: 80,
                               child: Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -102,19 +102,14 @@ class ChatView extends StatelessWidget {
           );
         },
         separatorBuilder: (context, i) {
+          if (controller.isPrivateChat) return SizedBox.shrink();
           final prevMessage = controller.messages[i + 1]; // list is reversed
           final nextMessage = controller.messages[i];
           if (prevMessage.sender != nextMessage.sender && !nextMessage.fromMe) {
             return Padding(
               padding: const EdgeInsets.only(top: 12, left: 30, bottom: 12),
-              child: controller.isPrivateChat
-                  ? Text(
-                      nextMessage.sender.username,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                    )
-                  : _buildSenderDetails(
-                      controller.member(nextMessage.sender.id)),
+              child:
+                  _buildSenderDetails(controller.member(nextMessage.sender.id)),
             );
           }
           return SizedBox.shrink();
@@ -261,7 +256,7 @@ class ChatView extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: Color(0xFF5F5F5F),
+            color: Color(0xFF404040),
             borderRadius: BorderRadius.circular(20),
           ),
           alignment: Alignment.center,

@@ -1,4 +1,4 @@
-import 'package:discourse/controllers/message_sender.dart';
+import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';

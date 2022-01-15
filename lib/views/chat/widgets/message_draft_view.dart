@@ -68,7 +68,7 @@ class MessageDraftView extends StatelessWidget {
                       ),
                     ]
                   : [
-                      controller.hasText
+                      controller.hasText || controller.hasPhoto
                           ? OpacityFeedback(
                               child: Icon(
                                 FluentIcons.send_20_regular,
