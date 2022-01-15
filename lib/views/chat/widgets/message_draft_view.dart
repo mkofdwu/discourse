@@ -2,8 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
+import 'package:discourse/views/chat/controllers/is_typing_controller.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/photo.dart';
+import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,23 +36,23 @@ class MessageDraftView extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
-              children: controller.showAttachOptions
+              children: controller.showAttachOptions && !controller.hasPhoto
                   ? [
                       SizedBox(width: 4),
                       OpacityFeedback(
                         child: Icon(FluentIcons.image_20_regular, size: 20),
-                        onPressed: () {},
+                        onPressed: () => controller.selectPhoto(false),
                       ),
                       SizedBox(width: 14),
                       OpacityFeedback(
                         child: Icon(FluentIcons.camera_20_regular, size: 20),
-                        onPressed: () {},
+                        onPressed: () => controller.selectPhoto(true),
                       ),
-                      SizedBox(width: 14),
-                      OpacityFeedback(
-                        child: Icon(FluentIcons.document_20_regular, size: 20),
-                        onPressed: () {},
-                      ),
+                      // SizedBox(width: 14),
+                      // OpacityFeedback(
+                      //   child: Icon(FluentIcons.document_20_regular, size: 20),
+                      //   onPressed: () {},
+                      // ),
                       SizedBox(width: 12),
                       Container(
                         width: 1,
@@ -110,16 +111,21 @@ class MessageDraftView extends StatelessWidget {
                 if (controller.hasPhoto)
                   _buildPhotoPreview(controller.photo!, controller.removePhoto),
                 if (controller.hasPhoto) _buildDivider(),
-                TextField(
-                  controller: controller.textController,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    border: InputBorder.none,
-                    hintText: 'Send a message...',
-                    hintStyle: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.4)),
+                GetBuilder<IsTypingController>(
+                  global: false,
+                  init: IsTypingController(),
+                  builder: (isTypingController) => TextField(
+                    controller: controller.textController,
+                    onChanged: (_) => isTypingController.onTyping(),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      border: InputBorder.none,
+                      hintText: 'Send a message...',
+                      hintStyle: TextStyle(
+                          color: Get.theme.primaryColor.withOpacity(0.4)),
+                    ),
                   ),
                 ),
               ],
@@ -183,10 +189,7 @@ class MessageDraftView extends StatelessWidget {
                 : CachedNetworkImageProvider(photo.url!) as ImageProvider,
           ),
           SizedBox(width: 18),
-          Text(
-            'Attached a photo',
-            // style: TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Text('Attached a photo'),
           Spacer(),
           OpacityFeedback(
             child: Icon(FluentIcons.dismiss_12_regular, size: 12),

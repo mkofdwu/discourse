@@ -13,7 +13,7 @@ class MessageSenderController extends GetxController {
   final _auth = Get.find<AuthService>();
   final _messagesDb = Get.find<MessagesDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
-  final _storageService = Get.find<StorageService>();
+  final _storage = Get.find<StorageService>();
 
   final textController = TextEditingController();
   final photo = Rx<Photo?>(null);
@@ -62,7 +62,7 @@ class MessageSenderController extends GetxController {
 
   Future<void> _uploadMessagePhoto(UnsentMessage message) async {
     if (message.photo != null && message.photo!.isLocal) {
-      await _storageService.uploadPhoto(
+      await _storage.uploadPhoto(
         message.photo!,
         _auth.currentUser.id,
         'messagephoto',

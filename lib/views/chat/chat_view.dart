@@ -5,11 +5,12 @@ import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/utils/show_private_chat_options.dart';
+import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/views/chat/widgets/participants_typing.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/photo.dart';
+import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -63,11 +64,11 @@ class ChatView extends StatelessWidget {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 30),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
+                                    SizedBox(width: 16),
                                     _buildTypingIndicator(controller),
+                                    Spacer(),
                                     if (controller.showGoToBottomArrow)
                                       _buildScrollToBottomArrow(controller),
                                   ],
@@ -96,6 +97,7 @@ class ChatView extends StatelessWidget {
         itemCount: controller.messages.length,
         itemBuilder: (context, i) {
           final message = controller.messages[i];
+          if (message.isDeleted) return DeletedMessageView(message: message);
           return MessageView(
             key: controller.messageKey(message.id),
             message: message,
@@ -118,7 +120,7 @@ class ChatView extends StatelessWidget {
 
   Widget _buildSenderDetails(Member member) => Row(
         children: [
-          PhotoView(
+          PhotoOrIcon(
             photoUrl: member.user.photoUrl,
             placeholderIcon: FluentIcons.person_16_regular,
           ),
@@ -156,7 +158,7 @@ class ChatView extends StatelessWidget {
                   onPressed: () => Get.back(),
                 ),
                 SizedBox(width: 20),
-                Expanded(child: _appBarContent()),
+                Expanded(child: _appBarContent(controller)),
                 OpacityFeedback(
                   child: Icon(FluentIcons.more_vertical_24_regular),
                   onPressed: showPrivateChatOptions,
@@ -167,40 +169,43 @@ class ChatView extends StatelessWidget {
         ),
       );
 
-  Widget _appBarContent() => Row(
-        children: [
-          PhotoView(
-            photoUrl: userChat.photoUrl,
-            placeholderIcon: userChat is UserPrivateChat
-                ? FluentIcons.person_16_regular
-                : FluentIcons.person_16_regular,
-          ),
-          SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  userChat.title,
-                  style: userChat.subtitle != null
-                      ? TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
-                      : TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                if (userChat.subtitle != null) SizedBox(height: 4),
-                if (userChat.subtitle != null)
-                  Text(
-                    userChat.subtitle!,
-                    style: TextStyle(
-                      color: Get.theme.primaryColor.withOpacity(0.6),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
+  Widget _appBarContent(ChatController controller) => OpacityFeedback(
+        onPressed: controller.goToChatDetails,
+        child: Row(
+          children: [
+            PhotoOrIcon(
+              photoUrl: userChat.photoUrl,
+              placeholderIcon: userChat is UserPrivateChat
+                  ? FluentIcons.person_16_regular
+                  : FluentIcons.person_16_regular,
             ),
-          ),
-        ],
+            SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userChat.title,
+                    style: userChat.subtitle != null
+                        ? TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
+                        : TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                  if (userChat.subtitle != null) SizedBox(height: 4),
+                  if (userChat.subtitle != null)
+                    Text(
+                      userChat.subtitle!,
+                      style: TextStyle(
+                        color: Get.theme.primaryColor.withOpacity(0.6),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
 
   PreferredSizeWidget _buildMessageSelectionAppBar(ChatController controller) =>

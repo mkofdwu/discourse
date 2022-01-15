@@ -43,8 +43,15 @@ class _TypingIndicatorState extends State<TypingIndicator>
     return Row(
       children: [
         _buildDots(),
-        SizedBox(height: 12),
-        Text(widget.text, style: TextStyle(color: Colors.white)),
+        SizedBox(width: 8), // spacing is actually 12 because of dot
+        Text(
+          widget.text,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -58,7 +65,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
           return Container(
             width: 8,
             height: 8,
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 4),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(val),
               borderRadius: BorderRadius.circular(4),

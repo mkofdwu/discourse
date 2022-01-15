@@ -1,5 +1,4 @@
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +17,7 @@ class ChoiceBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Get.theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(10),

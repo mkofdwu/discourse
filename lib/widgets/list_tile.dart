@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/photo.dart';
+import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,7 +37,7 @@ class MyListTile extends StatelessWidget {
           children: <Widget>[
                 Stack(
                   children: [
-                    PhotoView(
+                    PhotoOrIcon(
                       photoUrl: photoUrl,
                       placeholderIcon: isSelected ? null : iconData,
                     ),

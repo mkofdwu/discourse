@@ -2,18 +2,15 @@ import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/message.dart';
-import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/models/db_objects/user_settings.dart';
-import 'package:discourse/models/photo.dart';
-import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
-import 'package:discourse/widgets/choice_bottom_sheet.dart';
-import 'package:discourse/widgets/yesno_bottom_sheet.dart';
+import 'package:discourse/views/group_details/group_details_view.dart';
+import 'package:discourse/views/user_profile/user_profile_view.dart';
+import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -54,25 +51,6 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
-    _messageSender.textController.text = '';
-    _messageSender.photo.value = Photo.url(
-        'https://images.unsplash.com/photo-1642131724313-9fc5eb39a558?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxMnx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60');
-    _messageSender.repliedMessage.value = RepliedMessage(
-      id: 'tsaetu',
-      sender: DiscourseUser(
-        id: 'aeuo',
-        email: 'matthew',
-        username: 'matthew',
-        settings: UserSettings(
-          enableNotifications: true,
-          showStoryTo: null,
-          publicAccount: true,
-        ),
-        relationships: {},
-      ),
-      text: 'Lorem ipsum sit dolor amet',
-    );
-    _messageSender.unsentMessages.clear();
     _scrollController.addListener(() => update());
     streamMoreMessages();
   }
@@ -81,7 +59,11 @@ class ChatController extends GetxController {
       _whosTyping.typingTextStream(_userChat.id);
 
   void goToChatDetails() {
-    // Get.to(GroupDetails());
+    if (isPrivateChat) {
+      Get.to(UserProfileView(user: (_userChat as UserPrivateChat).otherUser));
+    } else {
+      Get.to(GroupDetailsView(chat: _userChat as UserGroupChat));
+    }
   }
 
   void exportChat() {

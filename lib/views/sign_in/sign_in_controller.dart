@@ -1,3 +1,4 @@
+import 'package:discourse/services/user_db.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/home/home_view.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 
 class SignInController extends GetxController {
   final _auth = Get.find<AuthService>();
+  final _userDb = Get.find<UserDbService>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -37,16 +39,18 @@ class SignInController extends GetxController {
   }
 
   Future<void> _signUp() async {
-    final String username = await Get.to(CustomFormView(
+    final username = await Get.to(CustomFormView(
       form: CustomForm(
         title: 'Account details',
         fields: [Field('username', textFieldBuilder(label: 'Username'))],
-        onSubmit: (inputs, setErrors) {
-          if (inputs['username'].isEmpty) {
+        onSubmit: (inputs, setErrors) async {
+          final username = inputs['username'] as String;
+          if (username.isEmpty) {
             setErrors({'username': 'Please enter a username'});
+          } else if (await _userDb.getUserByUsername(username) != null) {
+            setErrors({'username': 'This username is already taken'});
           } else {
-            setErrors({});
-            Get.back(result: inputs['username']);
+            Get.back(result: username);
           }
         },
       ),

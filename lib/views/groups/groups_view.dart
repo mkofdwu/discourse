@@ -16,7 +16,7 @@ class GroupsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         floatingActionButton: MyFloatingActionButton(
           iconData: FluentIcons.add_20_filled,
-          onPressed: () {},
+          onPressed: controller.newGroup,
         ),
         body: SingleChildScrollView(
           child: Padding(

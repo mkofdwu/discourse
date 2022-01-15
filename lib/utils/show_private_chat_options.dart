@@ -1,4 +1,4 @@
-import 'package:discourse/widgets/choice_bottom_sheet.dart';
+import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 Future<void> showPrivateChatOptions() async {

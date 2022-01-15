@@ -3,7 +3,7 @@ import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
-import 'package:discourse/widgets/choice_bottom_sheet.dart';
+import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 
@@ -31,7 +31,7 @@ class ChatsController extends GetxController {
       canSelectMultiple: false,
       onSubmit: (selectedUsers) async {
         final userChat = await _privateChatDb.getChatWith(selectedUsers.single);
-        Get.to(ChatView(userChat: userChat));
+        Get.off(ChatView(userChat: userChat));
       },
     ));
   }

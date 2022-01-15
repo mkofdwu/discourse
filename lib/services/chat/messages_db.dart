@@ -104,11 +104,14 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
   Future<void> deleteMessages(List<Message> messages) async {
     for (final message in messages) {
       assert(message.fromMe, "cannot delete someone else's message");
+      // message without photo or text is considered deleted
+      message.photo = null;
+      message.text = null;
       await _messagesRef
           .doc(message.chatId)
           .collection('messages')
           .doc(message.id)
-          .delete();
+          .update({'photoUrl': null, 'text': null});
     }
   }
 }

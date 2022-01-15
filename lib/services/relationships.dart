@@ -34,8 +34,10 @@ class RelationshipsService extends GetxService
   @override
   Future<RelationshipStatus> relationshipWithMe(String otherUserId) async {
     final doc = await _usersRef.doc(otherUserId).get();
-    return RelationshipStatus
-        .values[doc.data()!['relationships'][_auth.currentUser.id]];
+    final rsIdx = doc.data()!['relationships'][_auth.currentUser.id];
+    return rsIdx == null
+        ? RelationshipStatus.none
+        : RelationshipStatus.values[rsIdx];
   }
 
   @override

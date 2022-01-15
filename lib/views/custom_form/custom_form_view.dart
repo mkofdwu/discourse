@@ -21,10 +21,20 @@ class CustomFormView extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         appBar: myAppBar(title: form.title),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 60),
+          padding: const EdgeInsets.fromLTRB(50, 0, 50, 60),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (form.description != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 40, bottom: 36),
+                  child: Text(
+                    form.description!,
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                )
+              else
+                SizedBox(height: 60),
               ...form.fields
                   .map((field) => field.widgetBuilder(
                         controller.errors[field.name],

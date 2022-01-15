@@ -7,6 +7,7 @@ class DiscourseUser {
   String email;
   String username;
   String? photoUrl;
+  String? aboutMe;
   UserSettings settings;
   Map<String, RelationshipStatus> relationships;
 
@@ -15,6 +16,7 @@ class DiscourseUser {
     required this.email,
     required this.username,
     this.photoUrl,
+    this.aboutMe,
     required this.settings,
     required this.relationships,
   });
@@ -26,6 +28,7 @@ class DiscourseUser {
       email: data['email'],
       username: data['username'],
       photoUrl: data['photoUrl'],
+      aboutMe: data['aboutMe'],
       settings: UserSettings.fromMap(data['settings']),
       relationships: Map<String, int>.from(data['relationships']).map(
         (userId, rsIdx) => MapEntry(userId, RelationshipStatus.values[rsIdx]),
@@ -38,6 +41,7 @@ class DiscourseUser {
       'email': email,
       'username': username,
       'photoUrl': photoUrl,
+      'aboutMe': aboutMe,
       'settings': settings.toMap(),
       'relationships':
           relationships.map((userId, rs) => MapEntry(userId, rs.index)),

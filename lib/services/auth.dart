@@ -83,11 +83,15 @@ class AuthService extends GetxService implements BaseAuthService {
   }) async {
     final errors = {
       if (email.isEmpty) 'email': 'Please enter an email',
+      if (username.isEmpty) 'username': 'Please enter an username',
       if (password.isEmpty) 'password': 'Please enter a password',
       if (confirmPassword != password)
         'confirmPassword': 'The passwords entered do not match',
     };
     if (errors.isNotEmpty) return errors;
+    if (await _userDb.getUserByUsername(username) != null) {
+      return {'username': 'This username is already taken'};
+    }
     try {
       final credential = await _fbAuth.createUserWithEmailAndPassword(
           email: email, password: password);

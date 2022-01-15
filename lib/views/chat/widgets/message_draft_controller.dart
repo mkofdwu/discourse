@@ -31,14 +31,14 @@ class MessageDraftController extends GetxController {
     update();
   }
 
-  Future<void> selectPhoto() async {
-    _messageSender.photo.value = await _media.selectPhoto();
-    update();
-  }
-
-  Future<void> takePhotoFromCamera() async {
-    _messageSender.photo.value = await _media.takePhotoFromCamera();
-    update();
+  Future<void> selectPhoto(bool fromCamera) async {
+    final photo = await (fromCamera
+        ? _media.takePhotoFromCamera()
+        : _media.selectPhoto());
+    if (photo != null) {
+      _messageSender.photo.value = photo;
+      update();
+    }
   }
 
   void removeReply() {

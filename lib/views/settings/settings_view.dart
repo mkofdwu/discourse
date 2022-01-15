@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/views/settings/settings_controller.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
+import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/setting_tile.dart';
 import 'package:discourse/widgets/switch.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -36,13 +38,29 @@ class SettingsView extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 60),
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: CachedNetworkImageProvider(
-                    'https://images.unsplash.com/photo-1519011985187-444d62641929?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80'),
+              OpacityFeedback(
+                onPressed: controller.selectPhoto,
+                child: PhotoOrIcon(
+                  size: 100,
+                  iconSize: 36,
+                  backgroundColor: Color(0xFF3C3C3C),
+                  photoUrl: controller.user.photoUrl,
+                  placeholderIcon: FluentIcons.person_28_regular,
+                ),
               ),
               SizedBox(height: 32),
-              _buildUsernameField(controller),
+              _buildTextField(
+                'Username',
+                controller.user.username,
+                controller.editUsername,
+              ),
+              SizedBox(height: 24),
+              _buildTextField(
+                'About me',
+                controller.user.aboutMe ?? 'Nothing here yet',
+                controller.editAboutMe,
+                fontSize: 14,
+              ),
               SizedBox(height: 44),
               if (controller.emailVerified)
                 SettingTile(
@@ -85,28 +103,43 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildUsernameField(SettingsController controller) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildTextField(
+    String label,
+    String value,
+    Function() edit, {
+    double fontSize = 16,
+  }) =>
+      Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Username',
-                style: TextStyle(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
                     color: Get.theme.primaryColor.withOpacity(0.6),
                     fontSize: 12,
-                    fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 8),
-              Text(
-                controller.user.username,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-            ],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-          Icon(FluentIcons.edit_20_regular, size: 20),
+          SizedBox(width: 24),
+          OpacityFeedback(
+            child: Icon(FluentIcons.edit_20_regular, size: 20),
+            onPressed: edit,
+          ),
         ],
       );
 }

@@ -17,6 +17,8 @@ class Message {
   // attributes not stored in db
   bool fromMe;
 
+  bool get isDeleted => text == null && photo == null;
+
   Message({
     required this.id,
     required this.chatId,
@@ -63,8 +65,7 @@ class Message {
       );
 
   @override
-  bool operator ==(Object other) =>
-      other is Message && id == other.id && text == other.text;
+  bool operator ==(Object other) => other is Message && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

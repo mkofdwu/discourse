@@ -32,13 +32,11 @@ class _InputBottomSheetState extends State<InputBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 30, top: 24, right: 30, bottom: 30),
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(30, 26, 30, 26),
       decoration: BoxDecoration(
         color: Get.theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,14 +47,10 @@ class _InputBottomSheetState extends State<InputBottomSheet> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           if (widget.subtitle != null) SizedBox(height: 12),
-          if (widget.subtitle != null)
-            Text(
-              widget.subtitle!,
-              style: TextStyle(color: Get.theme.primaryColor.withOpacity(0.6)),
-            ),
-          SizedBox(height: 30),
+          if (widget.subtitle != null) Text(widget.subtitle!),
+          SizedBox(height: 24),
           MyTextField(controller: _textController, error: _inputError),
-          SizedBox(height: 20),
+          SizedBox(height: 28),
           Row(
             children: [
               Expanded(

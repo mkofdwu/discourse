@@ -1,4 +1,3 @@
-import 'package:discourse/constants/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/widgets/button.dart';
@@ -16,7 +15,7 @@ class YesNoBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.fromLTRB(30, 26, 30, 26),
       decoration: BoxDecoration(
         color: Get.theme.scaffoldBackgroundColor,
