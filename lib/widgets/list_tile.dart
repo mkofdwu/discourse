@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/photo.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -8,12 +9,12 @@ import 'package:get/get.dart';
 
 class MyListTile extends StatelessWidget {
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String? photoUrl;
   final IconData iconData; // icon displayed if photoUrl is null
   final Map<IconData, Function()> suffixIcons;
   final bool isSelected;
-  final Function() onPressed;
+  final Function()? onPressed;
 
   const MyListTile({
     Key? key,
@@ -23,7 +24,7 @@ class MyListTile extends StatelessWidget {
     required this.iconData,
     this.suffixIcons = const {},
     this.isSelected = false,
-    required this.onPressed,
+    this.onPressed,
   }) : super(key: key);
 
   @override
@@ -70,21 +71,22 @@ class MyListTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: subtitle == null ? 18 : 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 6),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Get.theme.primaryColor.withOpacity(0.6),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      if (subtitle != null) SizedBox(height: 6),
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Get.theme.primaryColor.withOpacity(0.6),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

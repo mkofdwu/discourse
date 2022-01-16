@@ -12,7 +12,7 @@ class WhosTypingService extends GetxService {
   Stream<String?> typingTextStream(String chatId) {
     return _messagesRef.doc(chatId).snapshots().asyncMap((doc) async {
       final userIds = List<String>.from(doc.data()!['typing']);
-      userIds.remove(_auth.currentUser.id);
+      userIds.remove(_auth.id);
       if (userIds.isEmpty) return null;
       if (userIds.length > 3) return 'Many people are typing...';
       // find usernames
@@ -30,13 +30,13 @@ class WhosTypingService extends GetxService {
 
   Future<void> startTyping(String chatId) async {
     await _messagesRef.doc(chatId).update({
-      'typing': FieldValue.arrayUnion([_auth.currentUser.id]),
+      'typing': FieldValue.arrayUnion([_auth.id]),
     });
   }
 
   Future<void> stopTyping(String chatId) async {
     await _messagesRef.doc(chatId).update({
-      'typing': FieldValue.arrayRemove([_auth.currentUser.id]),
+      'typing': FieldValue.arrayRemove([_auth.id]),
     });
   }
 }

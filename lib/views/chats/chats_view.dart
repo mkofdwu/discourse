@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/models/photo.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -29,14 +31,17 @@ class ChatsView extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Text(
                       'Good evening',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                     ),
                     // TODO: show if has new activity
-                    Icon(FluentIcons.alert_24_regular),
+                    OpacityFeedback(
+                      child: Icon(FluentIcons.alert_24_regular),
+                      onPressed: controller.goToActivity,
+                    ),
                   ],
                 ),
                 SizedBox(height: 40),
@@ -51,7 +56,7 @@ class ChatsView extends StatelessWidget {
                 _buildStories(),
                 SizedBox(height: 40),
                 Text(
-                  'Friends',
+                  'Private chats',
                   style: TextStyle(
                     color: Get.theme.primaryColor.withOpacity(0.4),
                     fontWeight: FontWeight.w700,
@@ -98,16 +103,19 @@ class ChatsView extends StatelessWidget {
                             message.fromMe ? 'You' : message.sender.username;
                         subtitle = '$sender: ${message.text}';
                       }
-                      return MyListTile(
-                        title: chat.title,
-                        subtitle: subtitle,
-                        photoUrl: chat.photoUrl,
-                        iconData: FluentIcons.person_16_regular,
-                        suffixIcons: {
-                          FluentIcons.more_vertical_20_regular: () =>
-                              controller.showChatOptions(chat),
-                        },
-                        onPressed: () => controller.goToChat(chat),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: MyListTile(
+                          title: chat.title,
+                          subtitle: subtitle,
+                          photoUrl: chat.photoUrl,
+                          iconData: FluentIcons.person_16_regular,
+                          suffixIcons: {
+                            FluentIcons.more_vertical_20_regular: () =>
+                                controller.showChatOptions(chat),
+                          },
+                          onPressed: () => controller.goToChat(chat),
+                        ),
                       );
                     },
                   ))

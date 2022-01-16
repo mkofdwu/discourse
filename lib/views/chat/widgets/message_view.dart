@@ -58,9 +58,6 @@ class MessageView extends StatelessWidget {
                             horizontal: 16, vertical: 14),
                         child: IntrinsicWidth(
                           child: Column(
-                            // crossAxisAlignment: message.fromMe
-                            //     ? CrossAxisAlignment.end
-                            //     : CrossAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (message.repliedMessage != null)
@@ -119,7 +116,8 @@ class MessageView extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      repliedMessage.text!,
+                      // TODO: show deleted message, or icon for photo
+                      repliedMessage.text ?? '',
                       style: TextStyle(fontSize: 12),
                     ),
                   ],

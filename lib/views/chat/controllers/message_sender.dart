@@ -64,7 +64,7 @@ class MessageSenderController extends GetxController {
     if (message.photo != null && message.photo!.isLocal) {
       await _storage.uploadPhoto(
         message.photo!,
-        _auth.currentUser.id,
+        _auth.id,
         'messagephoto',
       );
     }

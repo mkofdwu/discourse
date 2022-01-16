@@ -12,9 +12,10 @@ import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
 abstract class BaseGroupChatDbService {
+  Future<GroupChatData> getChatData(String chatId);
   Future<List<UserGroupChat>> myGroupChats();
-  Future<UserGroupChat> newGroup(GroupChatData data);
   Future<void> updateChatData(String chatId, GroupChatData data);
+  Future<UserGroupChat> newGroup(GroupChatData data);
   Future<void> addMembers(String chatId, List<Member> members);
   Future<void> removeMember(String chatId, String userId);
   Future<void> updateMemberRole(
@@ -35,16 +36,15 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   final _requests = Get.find<RequestsService>();
   final _relationships = Get.find<RelationshipsService>();
 
-  String get _userId => _auth.currentUser.id;
-
-  Future<GroupChatData> _getChatData(String chatId) async {
+  @override
+  Future<GroupChatData> getChatData(String chatId) async {
     final doc = await _groupChatsRef.doc(chatId).get();
     final membersSnapshot = await doc.reference.collection('members').get();
     final members = <Member>[];
     for (final mDoc in membersSnapshot.docs) {
       final mData = mDoc.data();
       members.add(Member(
-        user: await _userDb.getUser(mData['userId']),
+        user: await _userDb.getUser(mDoc.id),
         color: Color(mData['color']),
         role: MemberRole.values[mData['role']],
       ));
@@ -55,7 +55,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   @override
   Future<List<UserGroupChat>> myGroupChats() async {
     final chatsSnapshot =
-        await _usersRef.doc(_userId).collection('groupChats').get();
+        await _usersRef.doc(_auth.id).collection('groupChats').get();
     final userChats = <UserGroupChat>[];
     for (final doc in chatsSnapshot.docs) {
       final data = doc.data();
@@ -63,10 +63,15 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         id: doc.id,
         lastReadId: data['lastReadId'],
         pinned: data['pinned'],
-        data: await _getChatData(doc.id),
+        data: await getChatData(doc.id),
       ));
     }
     return userChats;
+  }
+
+  @override
+  Future<void> updateChatData(String chatId, GroupChatData newData) async {
+    await _groupChatsRef.doc(chatId).update(newData.toData());
   }
 
   @override
@@ -83,11 +88,6 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   }
 
   @override
-  Future<void> updateChatData(String chatId, GroupChatData newData) async {
-    await _groupChatsRef.doc(chatId).update(newData.toData());
-  }
-
-  @override
   Future<void> addMembers(
     String chatId,
     List<Member> members,
@@ -97,7 +97,6 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
       final rs = await _relationships.relationshipWithMe(member.user.id);
       if (_relationships.isRequestNeeded(rs, RequestType.groupInvite)) {
         await _requests.sendRequest(Request(
-          fromUserId: _userId,
           toUserId: member.user.id,
           type: RequestType.groupInvite,
           data: chatId,
@@ -107,7 +106,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
             .doc(member.user.id)
             .collection('groupChats')
             .doc(chatId)
-            .set({'type': 1, 'lastReadId': null});
+            .set({'lastReadId': null, 'pinned': false});
         await _groupChatsRef
             .doc(chatId)
             .collection('members')
@@ -115,6 +114,19 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
             .set(member.toData());
       }
     }
+  }
+
+  Future<void> addUserGroupChat(String chatId) async {
+    await _usersRef
+        .doc(_auth.id)
+        .collection('groupChats')
+        .doc(chatId)
+        .set({'lastReadId': null, 'pinned': false});
+    await _groupChatsRef
+        .doc(chatId)
+        .collection('members')
+        .doc(_auth.id)
+        .set(Member.create(_auth.currentUser).toData());
   }
 
   @override
@@ -137,11 +149,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
 
   @override
   Future<void> leaveGroup(String chatId) async {
-    await removeMember(chatId, _auth.currentUser.id);
-    await _usersRef
-        .doc(_auth.currentUser.id)
-        .collection('groupChats')
-        .doc(chatId)
-        .delete();
+    await removeMember(chatId, _auth.id);
+    await _usersRef.doc(_auth.id).collection('groupChats').doc(chatId).delete();
   }
 }

@@ -24,7 +24,7 @@ class MessageController extends GetxController {
       toggleSelectMessage();
     } else if (_message.photo != null) {
       // view photo
-      Get.to(ExaminePhotoView(photo: _message.photo!));
+      Get.to(ExaminePhotoView(photo: _message.photo!, caption: _message.text));
     }
   }
 

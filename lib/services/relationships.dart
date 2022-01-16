@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 enum RelationshipStatus {
   // arranged in increasing order of permissions
   blocked,
-  rejected,
   none,
   canTalk,
   friend,
@@ -14,9 +13,9 @@ enum RelationshipStatus {
 }
 
 abstract class BaseRelationshipsService {
-  RelationshipStatus myRelationshipWith(String otherUserId);
-  Future<RelationshipStatus> relationshipWithMe(String otherUserId);
-  void setRelationshipWith(String otherUserId, RelationshipStatus status);
+  Future<void> setMutualRelationship(
+      String otherUserId, RelationshipStatus status);
+  Future<bool> needToRequestUser(String otherUserId, RequestType request);
 }
 
 class RelationshipsService extends GetxService
@@ -26,23 +25,27 @@ class RelationshipsService extends GetxService
   final _auth = Get.find<AuthService>();
 
   @override
-  RelationshipStatus myRelationshipWith(String otherUserId) {
-    return _auth.currentUser.relationships[otherUserId] ??
-        RelationshipStatus.none;
+  Future<void> setMutualRelationship(
+      String otherUserId, RelationshipStatus status) async {
+    _auth.currentUser.relationships[otherUserId] = status;
+    await _usersRef
+        .doc(_auth.id)
+        .update({'relationships.$otherUserId': status.index});
+    await _usersRef
+        .doc(otherUserId)
+        .update({'relationships.${_auth.id}': status.index});
   }
 
-  @override
   Future<RelationshipStatus> relationshipWithMe(String otherUserId) async {
+    if (otherUserId == _auth.id) {
+      // this might not be completely true and might cause problems later
+      return RelationshipStatus.closeFriend;
+    }
     final doc = await _usersRef.doc(otherUserId).get();
-    final rsIdx = doc.data()!['relationships'][_auth.currentUser.id];
+    final rsIdx = doc.data()!['relationships'][_auth.id];
     return rsIdx == null
         ? RelationshipStatus.none
         : RelationshipStatus.values[rsIdx];
-  }
-
-  @override
-  void setRelationshipWith(String otherUserId, RelationshipStatus status) {
-    _auth.currentUser.relationships[otherUserId] = status;
   }
 
   bool isRequestNeeded(RelationshipStatus status, RequestType permission) {
@@ -54,5 +57,14 @@ class RelationshipsService extends GetxService
       case RequestType.groupInvite:
         return status.index < RelationshipStatus.canTalk.index;
     }
+  }
+
+  @override
+  Future<bool> needToRequestUser(
+    String otherUserId,
+    RequestType request,
+  ) async {
+    final rs = await relationshipWithMe(otherUserId);
+    return isRequestNeeded(rs, request);
   }
 }

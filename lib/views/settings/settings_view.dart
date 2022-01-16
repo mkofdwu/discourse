@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/photo.dart';
 import 'package:discourse/views/settings/settings_controller.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';

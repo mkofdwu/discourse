@@ -27,7 +27,7 @@ class UserFinderController extends GetxController {
   Future<void> refreshResults() async {
     searchResults = await _userDb.searchForUsers(
       searchController.text,
-      _auth.currentUser.id,
+      _auth.id,
     );
     update();
   }

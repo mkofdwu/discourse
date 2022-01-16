@@ -1,6 +1,7 @@
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
+import 'package:discourse/views/activity/activity_view.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
@@ -11,20 +12,19 @@ class ChatsController extends GetxController {
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _messagesDb = Get.find<MessagesDbService>();
 
-  bool _loading = false;
-  List<UserPrivateChat> _chats = [];
-
-  bool get loading => _loading;
-  List<UserPrivateChat> get chats => _chats;
+  bool loading = false;
+  List<UserPrivateChat> chats = [];
 
   @override
   Future<void> onReady() async {
-    _loading = true;
+    loading = true;
     update();
-    _chats = await _privateChatDb.myPrivateChats();
-    _loading = false;
+    chats = await _privateChatDb.myPrivateChats();
+    loading = false;
     update();
   }
+
+  void goToActivity() => Get.to(ActivityView());
 
   Future<void> newChat() async {
     Get.to(UserSelectorView(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ class PhotoOrIcon extends StatelessWidget {
   final double iconSize;
   final Color backgroundColor;
   final String? photoUrl;
+  final File? photoFile;
   final IconData? placeholderIcon;
 
   const PhotoOrIcon({
@@ -15,12 +18,13 @@ class PhotoOrIcon extends StatelessWidget {
     this.iconSize = 16,
     this.backgroundColor = Palette.black3,
     required this.photoUrl,
+    this.photoFile,
     required this.placeholderIcon,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return photoUrl == null
+    return photoUrl == null && photoFile == null
         ? Container(
             width: size,
             height: size,
@@ -34,7 +38,9 @@ class PhotoOrIcon extends StatelessWidget {
           )
         : CircleAvatar(
             radius: size / 2,
-            backgroundImage: CachedNetworkImageProvider(photoUrl!),
+            backgroundImage: photoFile != null
+                ? FileImage(photoFile!)
+                : CachedNetworkImageProvider(photoUrl!) as ImageProvider,
           );
   }
 }

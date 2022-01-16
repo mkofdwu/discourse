@@ -36,6 +36,8 @@ class AuthService extends GetxService implements BaseAuthService {
   @override
   DiscourseUser get currentUser => _currentUser!;
 
+  String get id => _currentUser!.id;
+
   @override
   bool get emailVerified => _fbAuth.currentUser!.emailVerified;
 

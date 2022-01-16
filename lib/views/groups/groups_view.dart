@@ -1,3 +1,5 @@
+import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/utils/show_group_chat_options.dart';
 import 'package:discourse/views/groups/groups_controller.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
@@ -20,22 +22,16 @@ class GroupsView extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+            padding: const EdgeInsets.symmetric(horizontal: 50),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Friend groups',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                    ),
-                    // TODO: show if has new activity
-                    Icon(FluentIcons.alert_24_regular),
-                  ],
+                SizedBox(height: 44),
+                Text(
+                  'Friend groups',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 44),
                 _buildGroupsList(controller),
               ],
             ),
@@ -45,20 +41,33 @@ class GroupsView extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupsList(GroupsController controller) => Column(
-        children: [
-          MyListTile(
-            title: 'Tree family',
-            subtitle: 'You: the quick brown fox jumps over the lazy dog',
-            photoUrl:
-                'https://images.unsplash.com/photo-1641579281152-e5d633aa3775?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1632&q=80',
-            iconData: FluentIcons.people_community_16_regular,
-            suffixIcons: {
-              FluentIcons.more_vertical_20_regular: controller.showGroupOptions,
-            },
-            isSelected: true,
-            onPressed: () {},
-          ),
-        ],
-      );
+  Widget _buildGroupsList(GroupsController controller) => controller.loading
+      ? SizedBox()
+      : Column(
+          children: controller.chats
+              .map((chat) => StreamBuilder(
+                    stream: controller.lastMessageStream(chat),
+                    builder: (context, AsyncSnapshot<Message?> snapshot) {
+                      String subtitle = '';
+                      if (snapshot.hasData) {
+                        final message = snapshot.data!;
+                        final sender =
+                            message.fromMe ? 'You' : message.sender.username;
+                        subtitle = '$sender: ${message.text}';
+                      }
+                      return MyListTile(
+                        title: chat.title,
+                        subtitle: subtitle,
+                        photoUrl: chat.photoUrl,
+                        iconData: FluentIcons.person_16_regular,
+                        suffixIcons: {
+                          FluentIcons.more_vertical_20_regular: () =>
+                              showGroupChatOptions(),
+                        },
+                        onPressed: () => controller.goToChat(chat),
+                      );
+                    },
+                  ))
+              .toList(),
+        );
 }

@@ -4,7 +4,6 @@ import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/views/chat/controllers/is_typing_controller.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -48,11 +47,6 @@ class MessageDraftView extends StatelessWidget {
                         child: Icon(FluentIcons.camera_20_regular, size: 20),
                         onPressed: () => controller.selectPhoto(true),
                       ),
-                      // SizedBox(width: 14),
-                      // OpacityFeedback(
-                      //   child: Icon(FluentIcons.document_20_regular, size: 20),
-                      //   onPressed: () {},
-                      // ),
                       SizedBox(width: 12),
                       Container(
                         width: 1,

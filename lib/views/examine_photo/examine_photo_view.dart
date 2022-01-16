@@ -6,10 +6,24 @@ import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:discourse/models/photo.dart';
 
-class ExaminePhotoView extends StatelessWidget {
+class ExaminePhotoView extends StatefulWidget {
   final Photo photo;
+  final String? caption;
+  final Map<IconData, Function()> suffixIcons;
 
-  const ExaminePhotoView({Key? key, required this.photo}) : super(key: key);
+  const ExaminePhotoView({
+    Key? key,
+    required this.photo,
+    this.caption,
+    this.suffixIcons = const {},
+  }) : super(key: key);
+
+  @override
+  State<ExaminePhotoView> createState() => _ExaminePhotoViewState();
+}
+
+class _ExaminePhotoViewState extends State<ExaminePhotoView> {
+  bool _zoomedIn = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,30 +35,86 @@ class ExaminePhotoView extends StatelessWidget {
               color: Theme.of(context).scaffoldBackgroundColor,
             ),
             minScale: PhotoViewComputedScale.contained,
-            imageProvider: photo.isLocal
-                ? FileImage(photo.file!) as ImageProvider
-                : CachedNetworkImageProvider(photo.url!),
+            scaleStateChangedCallback: (scaleState) {
+              if (scaleState.name == 'zoomedIn') {
+                setState(() => _zoomedIn = true);
+              } else {
+                setState(() => _zoomedIn = false);
+              }
+            },
+            imageProvider: widget.photo.isLocal
+                ? FileImage(widget.photo.file!) as ImageProvider
+                : CachedNetworkImageProvider(widget.photo.url!),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 40, left: 40),
-              child: OpacityFeedback(
-                onPressed: Get.back,
+          if (!_zoomedIn)
+            SafeArea(
+              child: Container(
+                height: 80,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 28),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.4),
+                      Colors.black.withOpacity(0),
+                    ],
+                  ),
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Icon(FluentIcons.chevron_left_20_regular, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'BACK',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500, letterSpacing: 1.4),
+                  children: [
+                    OpacityFeedback(
+                      onPressed: Get.back,
+                      child:
+                          Icon(FluentIcons.chevron_left_24_regular, size: 24),
                     ),
+                    SizedBox(width: 20),
+                    Text(
+                      'View photo',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Spacer(),
+                    ...widget.suffixIcons
+                        .map((iconData, onPressed) => MapEntry(
+                              iconData,
+                              OpacityFeedback(
+                                child: Icon(iconData, size: 24),
+                                onPressed: onPressed,
+                              ),
+                            ))
+                        .values,
                   ],
                 ),
               ),
             ),
-          ),
+          if (widget.caption != null && !_zoomedIn)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(50, 80, 50, 42),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.black.withOpacity(0),
+                    ],
+                  ),
+                ),
+                child: Text(
+                  widget.caption!,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
         ],
       ),
     );

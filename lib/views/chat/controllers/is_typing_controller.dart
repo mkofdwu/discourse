@@ -15,6 +15,8 @@ class IsTypingController extends GetxController {
   Timer? _stopTypingTimer;
 
   void onTyping() {
+    if (_currentChat is NonExistentChat) return;
+
     if (!_isTyping) {
       _chatDb.startTyping(_currentChat.id);
       _isTyping = true;

@@ -45,7 +45,7 @@ class AboutView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: Image.asset('assets/images/dev.png'),
+                  // child: Image.asset('assets/images/dev.png'),
                 ),
                 SizedBox(width: 12),
                 Text('Jane Cooper',

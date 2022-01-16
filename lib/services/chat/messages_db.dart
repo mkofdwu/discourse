@@ -35,7 +35,7 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
       photo: data['photoUrl'] == null ? null : Photo.url(data['photoUrl']),
       text: data['text'],
       sentTimestamp: data['sentTimestamp'].toDate(),
-      fromMe: data['senderId'] == _auth.currentUser.id,
+      fromMe: data['senderId'] == _auth.id,
     );
   }
 
@@ -82,7 +82,7 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
     final sentTimestamp = DateTime.now();
     final messageDoc =
         await _messagesRef.doc(message.chatId).collection('messages').add({
-      'senderId': _auth.currentUser.id,
+      'senderId': _auth.id,
       'repliedMessageId': message.repliedMessage?.id,
       'photoUrl': message.photo?.url,
       'text': message.text,

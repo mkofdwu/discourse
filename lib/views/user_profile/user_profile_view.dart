@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/services/relationships.dart';
 import 'package:discourse/views/user_profile/user_profile_controller.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
@@ -15,12 +16,12 @@ class UserProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<UserProfileController>(
-      init: UserProfileController(),
+      init: UserProfileController(user),
       builder: (controller) => Scaffold(
         appBar: myAppBar(
           title: 'User profile',
           actions: {
-            FluentIcons.more_vertical_24_regular: () {},
+            FluentIcons.more_vertical_24_regular: controller.showProfileOptions,
           },
         ),
         body: Padding(
@@ -40,24 +41,25 @@ class UserProfileView extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Palette.orange,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    'FRIEND',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 1.2,
+                if (controller.relationship == RelationshipStatus.friend)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Palette.orange,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'FRIEND',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ),
-                ),
                 if (user.aboutMe != null) ...[
                   SizedBox(height: 40),
                   Text(

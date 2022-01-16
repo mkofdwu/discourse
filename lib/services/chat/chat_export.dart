@@ -45,7 +45,7 @@ class ChatExportService extends GetxService {
   }
 
   Future<String> _getSenderUserame(String senderId, UserChat userChat) async {
-    if (senderId == _auth.currentUser.id) return _auth.currentUser.username;
+    if (senderId == _auth.id) return _auth.currentUser.username;
     if (userChat is UserPrivateChat) {
       return userChat.otherUser.username;
     }

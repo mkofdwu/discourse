@@ -130,7 +130,8 @@ class UserSelectorView extends StatelessWidget {
       MyListTile(
         iconData: FluentIcons.person_16_regular,
         title: user.username,
-        subtitle: user.email, // should be the user's about
+        subtitle: user.aboutMe, // should be the user's about
+        photoUrl: user.photoUrl,
         isSelected: controller.selectedUsers.contains(user),
         onPressed: () => controller.toggleSelectUser(user),
       );
