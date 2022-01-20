@@ -51,7 +51,7 @@ class SetGroupDetailsController extends GetxController {
       // TODO: set error
       return;
     }
-    final userChat = await _groupChatDb.newGroup(GroupChatData(
+    final chat = await _groupChatDb.newGroup(GroupChatData(
       name: nameController.text,
       description: '',
       // service will add member or send request accordingly
@@ -60,6 +60,6 @@ class SetGroupDetailsController extends GetxController {
               .toList() +
           [Member.create(_auth.currentUser, role: MemberRole.owner)],
     ));
-    Get.off(ChatView(userChat: userChat));
+    Get.off(ChatView(chat: chat));
   }
 }

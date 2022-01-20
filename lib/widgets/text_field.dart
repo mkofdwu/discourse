@@ -6,6 +6,7 @@ class MyTextField extends StatelessWidget {
   final String? label;
   final bool obscureText;
   final String? error;
+  final int? numLines;
   final Function(String)? onChanged;
 
   const MyTextField({
@@ -14,6 +15,7 @@ class MyTextField extends StatelessWidget {
     this.label,
     this.obscureText = false,
     this.error,
+    this.numLines = 1,
     this.onChanged,
   }) : super(key: key);
 
@@ -62,6 +64,8 @@ class MyTextField extends StatelessWidget {
           cursorColor: Get.theme.primaryColor,
           obscureText: obscureText,
           onChanged: onChanged,
+          //
+          maxLines: numLines,
         ),
       ],
     );

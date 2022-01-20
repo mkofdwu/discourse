@@ -35,5 +35,5 @@ class GroupsController extends GetxController {
     ));
   }
 
-  void goToChat(UserGroupChat chat) => Get.to(ChatView(userChat: chat));
+  void goToChat(UserGroupChat chat) => Get.to(ChatView(chat: chat));
 }

@@ -3,7 +3,6 @@ import 'package:discourse/views/chats/chats_view.dart';
 import 'package:discourse/views/groups/groups_view.dart';
 import 'package:discourse/views/settings/settings_view.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

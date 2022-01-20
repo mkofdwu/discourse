@@ -19,18 +19,18 @@ import 'package:get/get.dart';
 import 'chat_controller.dart';
 
 class ChatView extends StatelessWidget {
-  final UserChat userChat;
+  final UserChat chat;
 
-  const ChatView({Key? key, required this.userChat}) : super(key: key);
+  const ChatView({Key? key, required this.chat}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Get.put<UserChat>(userChat); // current chat
+    Get.put<UserChat>(chat); // current chat
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     return GetBuilder<ChatController>(
       global: false,
-      init: ChatController(userChat),
+      init: ChatController(chat),
       builder: (controller) => Obx(
         () => Scaffold(
           appBar: controller.isSelectingMessages
@@ -39,7 +39,7 @@ class ChatView extends StatelessWidget {
           body: Column(
             children: [
               Expanded(
-                child: userChat is NonExistentChat
+                child: chat is NonExistentChat
                     ? SizedBox()
                     : Stack(
                         children: [
@@ -122,6 +122,7 @@ class ChatView extends StatelessWidget {
   Widget _buildSenderDetails(Member member) => Row(
         children: [
           PhotoOrIcon(
+            size: 32,
             photoUrl: member.user.photoUrl,
             placeholderIcon: FluentIcons.person_16_regular,
           ),
@@ -175,10 +176,10 @@ class ChatView extends StatelessWidget {
         child: Row(
           children: [
             PhotoOrIcon(
-              photoUrl: userChat.photoUrl,
-              placeholderIcon: userChat is UserPrivateChat
+              photoUrl: chat.photoUrl,
+              placeholderIcon: chat is UserPrivateChat
                   ? FluentIcons.person_16_regular
-                  : FluentIcons.person_16_regular,
+                  : FluentIcons.people_community_16_regular,
             ),
             SizedBox(width: 20),
             Expanded(
@@ -187,15 +188,15 @@ class ChatView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    userChat.title,
-                    style: userChat.subtitle != null
+                    chat.title,
+                    style: chat.subtitle != null
                         ? TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
                         : TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
-                  if (userChat.subtitle != null) SizedBox(height: 4),
-                  if (userChat.subtitle != null)
+                  if (chat.subtitle != null) SizedBox(height: 4),
+                  if (chat.subtitle != null)
                     Text(
-                      userChat.subtitle!,
+                      chat.subtitle!,
                       style: TextStyle(
                         color: Get.theme.primaryColor.withOpacity(0.6),
                         fontSize: 12,

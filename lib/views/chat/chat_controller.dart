@@ -31,7 +31,7 @@ class ChatController extends GetxController {
   final _messageKeys = <String, GlobalKey>{};
   final _scrollController = ScrollController();
 
-  UserChat get userChat => _userChat;
+  UserChat get chat => _userChat;
   bool get isLoadingMessages => _isLoadingMessages;
   List<Message> get messages => _messages;
   GlobalKey messageKey(String messageId) => _messageKeys[messageId]!;

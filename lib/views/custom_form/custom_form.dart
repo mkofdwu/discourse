@@ -12,15 +12,20 @@ class Field {
 Widget Function(String? error, Function(dynamic) onChanged) textFieldBuilder({
   required String label,
   bool obscureText = false,
+  bool isMultiline = false,
   String? defaultValue,
 }) {
-  return (error, onChanged) => MyTextField(
-        controller: TextEditingController(text: defaultValue),
-        label: label,
-        obscureText: obscureText,
-        error: error,
-        onChanged: onChanged,
-      );
+  return (error, onChanged) {
+    onChanged(defaultValue);
+    return MyTextField(
+      controller: TextEditingController(text: defaultValue),
+      label: label,
+      obscureText: obscureText,
+      error: error,
+      onChanged: onChanged,
+      numLines: isMultiline ? 5 : 1,
+    );
+  };
 }
 
 class CustomForm {

@@ -71,7 +71,7 @@ class MyListTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: subtitle == null ? 18 : 14,
+                          fontSize: subtitle == null ? 16 : 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

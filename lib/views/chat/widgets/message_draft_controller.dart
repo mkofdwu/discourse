@@ -15,7 +15,7 @@ class MessageDraftController extends GetxController {
   Photo? get photo => _messageSender.photo.value;
   RepliedMessage? get repliedMessage => _messageSender.repliedMessage.value;
 
-  bool get hasText => textController.text.isNotEmpty;
+  bool get hasText => !textController.text.isBlank!;
   bool get hasPhoto => photo != null;
   bool get hasRepliedMessage => repliedMessage != null;
 

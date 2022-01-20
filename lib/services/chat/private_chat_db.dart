@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 abstract class BasePrivateChatDbService {
   Future<List<UserPrivateChat>> myPrivateChats();
   Future<UserChat> getChatWith(DiscourseUser user);
-  Future<String> createChatWith(DiscourseUser otherUser);
+  Future<UserPrivateChat> createChatWith(DiscourseUser otherUser);
   Future<void> addUserPrivateChat(String chatId, String otherUserId);
 }
 
@@ -76,7 +76,7 @@ class PrivateChatDbService extends GetxService
   }
 
   @override
-  Future<String> createChatWith(DiscourseUser otherUser) async {
+  Future<UserPrivateChat> createChatWith(DiscourseUser otherUser) async {
     // for the purposes of this exercise there are no security rules so the chat
     // is created from the client
     // dont need to send a message to create chat.
@@ -114,7 +114,12 @@ class PrivateChatDbService extends GetxService
         'otherUserId': _auth.id,
       });
     }
-    return chatDoc.id;
+    return UserPrivateChat(
+      id: chatDoc.id,
+      pinned: false,
+      otherUser: otherUser,
+      data: PrivateChatData(),
+    );
   }
 
   @override

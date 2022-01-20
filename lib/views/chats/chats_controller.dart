@@ -30,8 +30,8 @@ class ChatsController extends GetxController {
     Get.to(UserSelectorView(
       canSelectMultiple: false,
       onSubmit: (selectedUsers) async {
-        final userChat = await _privateChatDb.getChatWith(selectedUsers.single);
-        Get.off(ChatView(userChat: userChat));
+        final chat = await _privateChatDb.getChatWith(selectedUsers.single);
+        Get.off(ChatView(chat: chat));
       },
     ));
   }
@@ -46,5 +46,5 @@ class ChatsController extends GetxController {
     ));
   }
 
-  void goToChat(UserChat chat) => Get.to(ChatView(userChat: chat));
+  void goToChat(UserChat chat) => Get.to(ChatView(chat: chat));
 }

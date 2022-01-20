@@ -12,31 +12,30 @@ class ChatExportService extends GetxService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
 
-  Future<void> exportChat(UserChat userChat) async {
+  Future<void> exportChat(UserChat chat) async {
     final googleSignIn =
         GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
     final account = await googleSignIn.signIn() as GoogleSignInAccount;
     final authHeaders = await account.authHeaders;
     final driveApi = drive.DriveApi(_GoogleAuthClient(authHeaders));
-    final chatHistoryString = await _stringifyChatHistory(userChat);
+    final chatHistoryString = await _stringifyChatHistory(chat);
     final mediaStream =
         Stream.value(chatHistoryString.codeUnits).asBroadcastStream();
     final media = drive.Media(mediaStream, chatHistoryString.length);
     final driveFile = drive.File();
-    driveFile.title = 'simple chat - ${userChat.title}.txt';
+    driveFile.title = 'simple chat - ${chat.title}.txt';
     await driveApi.files.insert(driveFile, uploadMedia: media);
   }
 
-  Future<String> _stringifyChatHistory(UserChat userChat) async {
+  Future<String> _stringifyChatHistory(UserChat chat) async {
     var chatHistory = '';
-    final messageDocs = await _getAllMessageDocs(userChat.id);
+    final messageDocs = await _getAllMessageDocs(chat.id);
     for (final messageDoc in messageDocs) {
       final data = messageDoc.data()!;
       final DateTime sentTimestamp = data['sentTimestamp'].toDate();
       final sentOn =
           formatDate(sentTimestamp) + ' ' + formatTime(sentTimestamp);
-      final senderUsername =
-          await _getSenderUserame(data['senderId'], userChat);
+      final senderUsername = await _getSenderUserame(data['senderId'], chat);
       final photoStr = data['photoUrl'] == null ? '' : 'photo';
       final text = data['text'];
       chatHistory += '$sentOn $senderUsername: $photoStr $text\n';
@@ -44,16 +43,16 @@ class ChatExportService extends GetxService {
     return chatHistory;
   }
 
-  Future<String> _getSenderUserame(String senderId, UserChat userChat) async {
+  Future<String> _getSenderUserame(String senderId, UserChat chat) async {
     if (senderId == _auth.id) return _auth.currentUser.username;
-    if (userChat is UserPrivateChat) {
-      return userChat.otherUser.username;
+    if (chat is UserPrivateChat) {
+      return chat.otherUser.username;
     }
-    if (userChat is UserGroupChat) {
+    if (chat is UserGroupChat) {
       final user = await _userDb.getUser(senderId);
       return user.username;
     }
-    throw 'invalid chat type: ${userChat.runtimeType}';
+    throw 'invalid chat type: ${chat.runtimeType}';
   }
 
   Future<List<DocumentSnapshot<Map<String, dynamic>>>> _getAllMessageDocs(

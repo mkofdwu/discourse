@@ -25,7 +25,7 @@ class MessageSenderController extends GetxController {
       chatId: chat.id,
       repliedMessage: repliedMessage.value,
       photo: photo.value,
-      text: textController.text,
+      text: textController.text.trim(),
     );
     textController.text = '';
     photo.value = null;
@@ -50,13 +50,15 @@ class MessageSenderController extends GetxController {
   }
 
   Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
-    final chatId = await _privateChatDb.createChatWith(chat.data.otherUser);
+    final privateChat =
+        await _privateChatDb.createChatWith(chat.data.otherUser);
     for (UnsentMessage unsent in List.from(unsentMessages)) {
-      unsent.chatId = chatId;
+      unsent.chatId = privateChat.id;
       await _uploadMessagePhoto(unsent);
       await _messagesDb.sendMessage(unsent);
       unsentMessages.remove(unsent);
     }
+    Get.put<UserChat>(privateChat);
     update();
   }
 

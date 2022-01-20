@@ -118,7 +118,8 @@ class MessageDraftView extends StatelessWidget {
                       border: InputBorder.none,
                       hintText: 'Send a message...',
                       hintStyle: TextStyle(
-                          color: Get.theme.primaryColor.withOpacity(0.4)),
+                        color: Get.theme.primaryColor.withOpacity(0.4),
+                      ),
                     ),
                   ),
                 ),
