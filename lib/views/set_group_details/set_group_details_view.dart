@@ -1,11 +1,9 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user.dart';
-import 'package:discourse/models/photo.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
-import 'package:discourse/widgets/text_field.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -44,13 +42,15 @@ class SetGroupDetailsView extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: controller.addMembers
-                      .map((user) => PhotoOrIcon(
-                            size: 60,
-                            iconSize: 24,
-                            photoUrl: user.photoUrl,
-                            placeholderIcon: FluentIcons.person_24_regular,
+                      .map((user) => Padding(
+                            padding: const EdgeInsets.only(right: 24),
+                            child: PhotoOrIcon(
+                              size: 60,
+                              iconSize: 24,
+                              photoUrl: user.photoUrl,
+                              placeholderIcon: FluentIcons.person_24_regular,
+                            ),
                           ))
                       .toList(),
                 ),
@@ -67,11 +67,14 @@ class SetGroupDetailsView extends StatelessWidget {
                 SizedBox(height: 24),
                 Row(
                   children: controller.sendInvitesTo
-                      .map((user) => PhotoOrIcon(
-                            size: 60,
-                            iconSize: 24,
-                            photoUrl: user.photoUrl,
-                            placeholderIcon: FluentIcons.person_24_regular,
+                      .map((user) => Padding(
+                            padding: const EdgeInsets.only(right: 24),
+                            child: PhotoOrIcon(
+                              size: 60,
+                              iconSize: 24,
+                              photoUrl: user.photoUrl,
+                              placeholderIcon: FluentIcons.person_24_regular,
+                            ),
                           ))
                       .toList(),
                 ),
@@ -91,6 +94,7 @@ class SetGroupDetailsView extends StatelessWidget {
   }
 
   Widget _buildPhotoAndName(SetGroupDetailsController controller) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           OpacityFeedback(
             onPressed: controller.selectPhoto,
@@ -104,23 +108,31 @@ class SetGroupDetailsView extends StatelessWidget {
           ),
           SizedBox(width: 20),
           Expanded(
-            child: TextField(
-              controller: controller.nameController,
-              style: TextStyle(fontSize: 14),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Palette.black2,
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                isDense: true,
-                contentPadding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
-                hintText: 'Group name',
-                hintStyle: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Get.theme.primaryColor.withOpacity(0.4),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: TextField(
+                controller: controller.nameController,
+                style: TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Palette.black2,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorText: controller.nameError,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+                  hintText: 'Group name',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Get.theme.primaryColor.withOpacity(0.4),
+                  ),
                 ),
               ),
             ),

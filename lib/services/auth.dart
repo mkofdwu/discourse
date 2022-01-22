@@ -21,6 +21,8 @@ abstract class BaseAuthService {
   });
   Future<void> updateEmail(String newEmail);
   Future<void> verifyEmail();
+  Future<Map<String, String>> changePassword(
+      String oldPassword, String newPassword);
   Future<void> signOut();
 }
 
@@ -119,6 +121,9 @@ class AuthService extends GetxService implements BaseAuthService {
           'email': 'Your email cannot contain any spaces or invalid characters'
         };
       }
+      if (e.code == 'weak-password') {
+        return {'password': 'Your password must be at least 6 characters long'};
+      }
       return {'email': e.message ?? ''};
     }
   }
@@ -138,6 +143,32 @@ class AuthService extends GetxService implements BaseAuthService {
 
   @override
   Future<void> verifyEmail() => _fbAuth.currentUser!.sendEmailVerification();
+
+  @override
+  Future<Map<String, String>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final fbUser = _fbAuth.currentUser!;
+    final credential = EmailAuthProvider.credential(
+      email: fbUser.email!,
+      password: currentPassword,
+    );
+    try {
+      await fbUser.reauthenticateWithCredential(credential);
+      await fbUser.updatePassword(newPassword);
+      return {};
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        return {'currentPassword': 'Invalid password'};
+      } else if (e.code == 'weak-password') {
+        return {
+          'newPassword': 'Your password must be at least 6 characters long',
+        };
+      }
+      return {'currentPassword': e.message ?? ''};
+    }
+  }
 
   Future<void> deleteAccount() async {
     if (!isSignedIn) return;

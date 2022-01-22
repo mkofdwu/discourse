@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:discourse/constants/palette.dart';
 
 class TypingIndicator extends StatefulWidget {
   final String text;

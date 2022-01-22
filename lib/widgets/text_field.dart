@@ -39,20 +39,11 @@ class MyTextField extends StatelessWidget {
           decoration: InputDecoration(
             filled: true,
             fillColor: Get.theme.primaryColorLight,
-            enabledBorder: OutlineInputBorder(
+            border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(6),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: Get.theme.primaryColor.withOpacity(0.1)),
-              borderRadius: BorderRadius.circular(6),
-            ),
             errorText: error,
-            focusedErrorBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red),
-              borderRadius: BorderRadius.circular(6),
-            ),
             errorBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red),
               borderRadius: BorderRadius.circular(6),

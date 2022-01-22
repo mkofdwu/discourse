@@ -6,7 +6,6 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
-import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
@@ -16,7 +15,6 @@ import 'package:get/get.dart';
 
 class ChatController extends GetxController {
   final _messagesDb = Get.find<MessagesDbService>();
-  final _privateChatDb = Get.find<PrivateChatDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
   final _messageSender = Get.find<MessageSenderController>();

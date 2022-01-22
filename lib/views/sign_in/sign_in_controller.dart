@@ -42,7 +42,7 @@ class SignInController extends GetxController {
     final username = await Get.to(CustomFormView(
       form: CustomForm(
         title: 'Account details',
-        fields: [Field('username', textFieldBuilder(label: 'Username'))],
+        fields: [Field('username', '', textFieldBuilder(label: 'Username'))],
         onSubmit: (inputs, setErrors) async {
           final username = inputs['username'] as String;
           if (username.isEmpty) {

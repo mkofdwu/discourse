@@ -1,4 +1,5 @@
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/utils/show_group_chat_options.dart';
 import 'package:discourse/views/groups/groups_controller.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
@@ -41,33 +42,41 @@ class GroupsView extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupsList(GroupsController controller) => controller.loading
-      ? SizedBox()
-      : Column(
-          children: controller.chats
-              .map((chat) => StreamBuilder(
-                    stream: controller.lastMessageStream(chat),
-                    builder: (context, AsyncSnapshot<Message?> snapshot) {
-                      String subtitle = '';
-                      if (snapshot.hasData) {
-                        final message = snapshot.data!;
-                        final sender =
-                            message.fromMe ? 'You' : message.sender.username;
-                        subtitle = '$sender: ${message.text}';
-                      }
-                      return MyListTile(
-                        title: chat.title,
-                        subtitle: subtitle,
-                        photoUrl: chat.photoUrl,
-                        iconData: FluentIcons.person_16_regular,
-                        suffixIcons: {
-                          FluentIcons.more_vertical_20_regular: () =>
-                              showGroupChatOptions(),
-                        },
-                        onPressed: () => controller.goToChat(chat),
-                      );
-                    },
-                  ))
-              .toList(),
-        );
+  Widget _buildGroupsList(GroupsController controller) =>
+      FutureBuilder<List<UserGroupChat>>(
+        future: controller.groupChats(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return SizedBox.shrink();
+          return Column(
+            children: snapshot.data!
+                .map((chat) => StreamBuilder(
+                      stream: controller.lastMessageStream(chat),
+                      builder: (context, AsyncSnapshot<Message?> snapshot) {
+                        String subtitle = '';
+                        if (snapshot.hasData) {
+                          final message = snapshot.data!;
+                          final sender =
+                              message.fromMe ? 'You' : message.sender.username;
+                          subtitle = '$sender: ${message.text}';
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: MyListTile(
+                            title: chat.title,
+                            subtitle: subtitle,
+                            photoUrl: chat.photoUrl,
+                            iconData: FluentIcons.person_16_regular,
+                            suffixIcons: {
+                              FluentIcons.more_vertical_20_regular: () =>
+                                  showGroupChatOptions(),
+                            },
+                            onPressed: () => controller.goToChat(chat),
+                          ),
+                        );
+                      },
+                    ))
+                .toList(),
+          );
+        },
+      );
 }

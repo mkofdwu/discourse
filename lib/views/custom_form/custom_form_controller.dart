@@ -2,8 +2,16 @@ import 'package:get/get.dart';
 
 import 'custom_form.dart';
 
+class ValueController {
+  dynamic value;
+
+  ValueController(this.value);
+}
+
 class CustomFormController extends GetxController {
-  final Map<String, dynamic> _values = {};
+  // final Map<String, dynamic> _values = {};
+  // final Map<String, Function(dynamic)> valueChangedHandlers = {};
+  final Map<String, ValueController> _controllers = {};
   Map<String, String> errors = {};
   bool isLoading = false;
 
@@ -11,16 +19,18 @@ class CustomFormController extends GetxController {
 
   CustomFormController(this._form);
 
-  Function(dynamic) createValueChangedHandler(String field) {
-    return (newValue) {
-      _values[field] = newValue;
-    };
+  ValueController getValueController(String fieldName, dynamic defaultValue) {
+    if (!_controllers.containsKey(fieldName)) {
+      _controllers[fieldName] = ValueController(defaultValue);
+    }
+    return _controllers[fieldName]!;
   }
 
   void submit() {
     isLoading = true;
     update();
-    _form.onSubmit(_values, (inputErrors) {
+    final values = _controllers.map((name, c) => MapEntry(name, c.value));
+    _form.onSubmit(values, (inputErrors) {
       errors = inputErrors;
       isLoading = false;
       update();

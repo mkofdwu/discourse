@@ -12,23 +12,16 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 class ChatsController extends GetxController {
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _messagesDb = Get.find<MessagesDbService>();
-  final _requestsDb = Get.find<RequestsService>();
+  final _requests = Get.find<RequestsService>();
 
-  bool loading = false;
-  bool hasNewRequests = false;
-  List<UserPrivateChat> chats = [];
+  Future<bool> hasNewRequests() => _requests.hasNewRequests();
 
-  @override
-  Future<void> onReady() async {
-    loading = true;
-    update();
-    hasNewRequests = await _requestsDb.hasNewRequests();
-    chats = await _privateChatDb.myPrivateChats();
-    loading = false;
-    update();
+  Future<List<UserChat>> getChats() => _privateChatDb.myPrivateChats();
+
+  void goToActivity() async {
+    await Get.to(ActivityView());
+    update(); // if all requests have been cleared
   }
-
-  void goToActivity() => Get.to(ActivityView());
 
   Future<void> newChat() async {
     Get.to(UserSelectorView(

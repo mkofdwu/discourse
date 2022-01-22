@@ -18,6 +18,7 @@ class SetGroupDetailsController extends GetxController {
   final _auth = Get.find<AuthService>();
 
   final nameController = TextEditingController();
+  String? nameError;
   Photo? photo;
   final sendInvitesTo = <DiscourseUser>[];
   final addMembers = <DiscourseUser>[];
@@ -48,12 +49,14 @@ class SetGroupDetailsController extends GetxController {
 
   Future<void> submit() async {
     if (nameController.text.isEmpty) {
-      // TODO: set error
+      nameError = 'Please provide a group name';
+      update();
       return;
     }
     final chat = await _groupChatDb.newGroup(GroupChatData(
       name: nameController.text,
       description: '',
+      photoUrl: photo?.url,
       // service will add member or send request accordingly
       members: (sendInvitesTo + addMembers)
               .map((user) => Member.create(user))

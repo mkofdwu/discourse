@@ -4,7 +4,6 @@ import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
-import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 class GroupDetailsController extends GetxController {
@@ -21,18 +20,13 @@ class GroupDetailsController extends GetxController {
         fields: [
           Field(
             'name',
-            textFieldBuilder(
-              label: 'Name',
-              defaultValue: _chat.data.name,
-            ),
+            _chat.data.name,
+            textFieldBuilder(label: 'Name'),
           ),
           Field(
             'description',
-            textFieldBuilder(
-              label: 'Description',
-              defaultValue: _chat.data.description,
-              isMultiline: true,
-            ),
+            _chat.data.description,
+            textFieldBuilder(label: 'Description', isMultiline: true),
           ),
         ],
         onSubmit: (inputs, setErrors) async {

@@ -1,9 +1,6 @@
-import 'package:discourse/constants/palette.dart';
-import 'package:discourse/models/photo.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
-import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/utils/show_private_chat_options.dart';
 import 'package:discourse/views/chat/widgets/deleted_message_view.dart';

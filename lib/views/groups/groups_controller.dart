@@ -11,17 +11,7 @@ class GroupsController extends GetxController {
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _messagesDb = Get.find<MessagesDbService>();
 
-  bool loading = false;
-  List<UserGroupChat> chats = [];
-
-  @override
-  Future<void> onReady() async {
-    loading = true;
-    update();
-    chats = await _groupChatDb.myGroupChats();
-    loading = false;
-    update();
-  }
+  Future<List<UserGroupChat>> groupChats() => _groupChatDb.myGroupChats();
 
   Stream<Message> lastMessageStream(UserChat chat) =>
       _messagesDb.lastMessageStream(chat.id);

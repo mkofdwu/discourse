@@ -56,8 +56,7 @@ class SettingsController extends GetxController {
         title: 'Edit about me',
         description: 'Enter a few words about yourself in the box below',
         fields: [
-          Field('aboutMe',
-              textFieldBuilder(label: 'About me', defaultValue: user.aboutMe)),
+          Field('aboutMe', user.aboutMe, textFieldBuilder(label: 'About me')),
         ],
         onSubmit: (inputs, setErrors) async {
           final String aboutMe = inputs['aboutMe'];
@@ -88,32 +87,52 @@ class SettingsController extends GetxController {
 
   void goToPrivacy() => Get.to(() => PrivacySettingsView());
 
-  void goToChangePassword() => Get.to(
-        () => CustomFormView(
-          form: CustomForm(
-            title: 'Change password',
-            fields: [
-              Field(
-                'currentPassword',
-                textFieldBuilder(label: 'Current password', obscureText: true),
-              ),
-              Field(
-                'newPassword',
-                textFieldBuilder(label: 'New password', obscureText: true),
-              ),
-              Field(
-                'confirmNewPassword',
-                textFieldBuilder(
-                    label: 'Confirm new password', obscureText: true),
-              ),
-            ],
-            onSubmit: (inputs, setErrors) {
-              inputs;
-              setErrors({});
-            },
-          ),
+  void goToChangePassword() {
+    Get.to(
+      () => CustomFormView(
+        form: CustomForm(
+          title: 'Change password',
+          fields: [
+            Field(
+              'currentPassword',
+              '',
+              textFieldBuilder(label: 'Current password', obscureText: true),
+            ),
+            Field(
+              'newPassword',
+              '',
+              textFieldBuilder(label: 'New password', obscureText: true),
+            ),
+            Field(
+              'confirmNewPassword',
+              '',
+              textFieldBuilder(
+                  label: 'Confirm new password', obscureText: true),
+            ),
+          ],
+          onSubmit: (inputs, setErrors) async {
+            final errors = {
+              if (inputs['currentPassword'].isEmpty)
+                'currentPassword': 'Please enter your password',
+              if (inputs['newPassword'].isEmpty)
+                'newPassword': 'Please enter a new password',
+              if (inputs['confirmNewPassword'] != inputs['newPassword'])
+                'confirmNewPassword': 'The passwords entered do not match',
+            };
+            if (errors.isNotEmpty) {
+              setErrors(errors);
+              return;
+            }
+            final authErrors = await _auth.changePassword(
+              inputs['currentPassword'],
+              inputs['newPassword'],
+            );
+            setErrors(authErrors);
+          },
         ),
-      );
+      ),
+    );
+  }
 
   Future<void> signOut() async {
     final confirmed = await Get.bottomSheet(YesNoBottomSheet(

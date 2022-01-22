@@ -1,6 +1,5 @@
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/button.dart';
-import 'package:discourse/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -38,7 +37,10 @@ class CustomFormView extends StatelessWidget {
               ...form.fields
                   .map((field) => field.widgetBuilder(
                         controller.errors[field.name],
-                        controller.createValueChangedHandler(field.name),
+                        controller.getValueController(
+                          field.name,
+                          field.defaultValue,
+                        ),
                       ))
                   .map(
                     (widget) => Padding(

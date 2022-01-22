@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
-import 'package:discourse/models/photo.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -42,19 +42,26 @@ class ChatsView extends StatelessWidget {
                       child: Stack(
                         children: [
                           Icon(FluentIcons.alert_24_regular),
-                          if (controller.hasNewRequests)
-                            Positioned(
-                              top: 0,
-                              right: 1,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Palette.orange,
-                                  borderRadius: BorderRadius.circular(4),
+                          FutureBuilder<bool>(
+                            future: controller.hasNewRequests(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData || !snapshot.data!) {
+                                return SizedBox.shrink();
+                              }
+                              return Positioned(
+                                top: 0,
+                                right: 1,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: Palette.orange,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                       onPressed: controller.goToActivity,
@@ -105,40 +112,47 @@ class ChatsView extends StatelessWidget {
         ],
       );
 
-  Widget _buildChatsList(ChatsController controller) => controller.loading
-      ? SizedBox()
-      : Column(
-          children: controller.chats
-              .map((chat) => StreamBuilder(
-                    stream: controller.lastMessageStream(chat),
-                    builder: (context, AsyncSnapshot<Message?> snapshot) {
-                      String subtitle = '';
-                      if (snapshot.hasData) {
-                        final message = snapshot.data!;
-                        // all these are private chats, if from other person dont repeat username
-                        subtitle = message.fromMe
-                            ? 'You: ${message.reprContent}'
-                            : message.reprContent;
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: MyListTile(
-                          title: chat.title,
-                          subtitle: subtitle,
-                          photoUrl: chat.photoUrl,
-                          iconData: FluentIcons.person_16_regular,
-                          suffixIcons: {
-                            if (chat.pinned)
-                              FluentIcons.pin_16_filled: () =>
-                                  controller.togglePinChat(chat),
-                            FluentIcons.more_vertical_20_regular: () =>
-                                controller.showChatOptions(chat),
-                          },
-                          onPressed: () => controller.goToChat(chat),
-                        ),
-                      );
-                    },
-                  ))
-              .toList(),
-        );
+  Widget _buildChatsList(ChatsController controller) =>
+      FutureBuilder<List<UserChat>>(
+        future: controller.getChats(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return SizedBox.shrink();
+          }
+          return Column(
+            children: snapshot.data!
+                .map((chat) => StreamBuilder(
+                      stream: controller.lastMessageStream(chat),
+                      builder: (context, AsyncSnapshot<Message?> snapshot) {
+                        String subtitle = '';
+                        if (snapshot.hasData) {
+                          final message = snapshot.data!;
+                          // all these are private chats, if from other person dont repeat username
+                          subtitle = message.fromMe
+                              ? 'You: ${message.reprContent}'
+                              : message.reprContent;
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: MyListTile(
+                            title: chat.title,
+                            subtitle: subtitle,
+                            photoUrl: chat.photoUrl,
+                            iconData: FluentIcons.person_16_regular,
+                            suffixIcons: {
+                              if (chat.pinned)
+                                FluentIcons.pin_16_filled: () =>
+                                    controller.togglePinChat(chat),
+                              FluentIcons.more_vertical_20_regular: () =>
+                                  controller.showChatOptions(chat),
+                            },
+                            onPressed: () => controller.goToChat(chat),
+                          ),
+                        );
+                      },
+                    ))
+                .toList(),
+          );
+        },
+      );
 }
