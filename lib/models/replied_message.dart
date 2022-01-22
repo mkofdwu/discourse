@@ -28,6 +28,13 @@ class RepliedMessage {
     );
   }
 
+  bool get isDeleted => photo == null && text == null;
+
+// show if has photo, show text
+  String get reprContent => [photo != null ? '[Photo]' : null, text]
+      .where((s) => s != null)
+      .join(' ');
+
   @override
   String toString() =>
       'RepliedMessage(id: $id, sender: $sender, photo: $photo, text: $text)';

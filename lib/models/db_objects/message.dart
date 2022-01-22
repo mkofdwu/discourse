@@ -64,6 +64,11 @@ class Message {
         text: text,
       );
 
+// show if has photo, show text
+  String get reprContent => [photo != null ? '[Photo]' : null, text]
+      .where((s) => s != null)
+      .join(' ');
+
   @override
   bool operator ==(Object other) => other is Message && id == other.id;
 

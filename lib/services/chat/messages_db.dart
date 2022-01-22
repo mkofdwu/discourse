@@ -114,4 +114,15 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
           .update({'photoUrl': null, 'text': null});
     }
   }
+
+  Future<List<Photo>> getPhotos(String chatId) async {
+    final snapshot = await _messagesRef
+        .doc(chatId)
+        .collection('messages')
+        .where('photoUrl', isNull: false)
+        .get();
+    return snapshot.docs
+        .map((doc) => Photo.url(doc.data()['photoUrl']))
+        .toList();
+  }
 }

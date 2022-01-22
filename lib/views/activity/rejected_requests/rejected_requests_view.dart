@@ -7,22 +7,17 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'activity_controller.dart';
+import 'rejected_requests_controller.dart';
 
-class ActivityView extends StatelessWidget {
-  const ActivityView({Key? key}) : super(key: key);
+class RejectedRequestsView extends StatelessWidget {
+  const RejectedRequestsView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ActivityController>(
-      init: ActivityController(),
+    return GetBuilder<RejectedRequestsController>(
+      init: RejectedRequestsController(),
       builder: (controller) => Scaffold(
-        appBar: myAppBar(
-          title: 'Activity',
-          actions: {
-            FluentIcons.more_vertical_20_regular: controller.showOptions,
-          },
-        ),
+        appBar: myAppBar(title: 'Rejected requests'),
         body: controller.requestControllers.isEmpty && !controller.loading
             ? Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 80),
@@ -35,7 +30,7 @@ class ActivityView extends StatelessWidget {
                     ),
                     SizedBox(height: 48),
                     Text(
-                      'Nothing here yet. Friend requests or group invites will appear here',
+                      'Nothing here yet. Rejected requests will appear here',
                       style: TextStyle(
                         color: Get.theme.primaryColor.withOpacity(0.6),
                       ),
@@ -68,15 +63,9 @@ class ActivityView extends StatelessWidget {
                               ),
                               SizedBox(width: 16),
                               _buildCircleButton(
-                                FluentIcons.checkmark_16_regular,
-                                Palette.orange,
-                                () => controller.respondToRequest(rq, true),
-                              ),
-                              SizedBox(width: 12),
-                              _buildCircleButton(
-                                FluentIcons.dismiss_16_regular,
+                                FluentIcons.arrow_undo_16_regular,
                                 Palette.black3,
-                                () => controller.respondToRequest(rq, false),
+                                () => controller.undoRejection(rq),
                               ),
                             ],
                           ),

@@ -31,8 +31,11 @@ class PrivateChatDbService extends GetxService
 
   @override
   Future<List<UserPrivateChat>> myPrivateChats() async {
-    final chatsSnapshot =
-        await _usersRef.doc(_auth.id).collection('privateChats').get();
+    final chatsSnapshot = await _usersRef
+        .doc(_auth.id)
+        .collection('privateChats')
+        .orderBy('pinned', descending: true)
+        .get();
     final userChats = <UserPrivateChat>[];
     for (final doc in chatsSnapshot.docs) {
       final data = doc.data();
@@ -129,6 +132,16 @@ class PrivateChatDbService extends GetxService
       'lastReadId': null,
       'pinned': false,
       'otherUserId': otherUserId,
+    });
+  }
+
+  Future<void> setPinChat(String chatId, bool pinned) async {
+    await _usersRef
+        .doc(_auth.id)
+        .collection('privateChats')
+        .doc(chatId)
+        .update({
+      'pinned': pinned,
     });
   }
 }

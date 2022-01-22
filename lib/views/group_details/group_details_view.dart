@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -177,6 +178,13 @@ class GroupDetailsView extends StatelessWidget {
                           title: member.user.username,
                           subtitle: member.user.aboutMe,
                           iconData: FluentIcons.person_16_regular,
+                          suffixIcons: {
+                            FluentIcons.more_vertical_20_regular: () =>
+                                controller.showMemberOptions(member),
+                          },
+                          onPressed: () {
+                            Get.to(UserProfileView(user: member.user));
+                          },
                         ),
                       ),
                     ),

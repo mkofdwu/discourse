@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
@@ -37,9 +38,25 @@ class ChatsView extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                     ),
-                    // TODO: show if has new activity
                     OpacityFeedback(
-                      child: Icon(FluentIcons.alert_24_regular),
+                      child: Stack(
+                        children: [
+                          Icon(FluentIcons.alert_24_regular),
+                          if (controller.hasNewRequests)
+                            Positioned(
+                              top: 0,
+                              right: 1,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: Palette.orange,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                       onPressed: controller.goToActivity,
                     ),
                   ],
@@ -80,7 +97,6 @@ class ChatsView extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: CircleAvatar(
                 radius: 40,
-                backgroundColor: Colors.red,
                 backgroundImage: CachedNetworkImageProvider(
                     'https://images.unsplash.com/photo-1641644453400-6b64aef39cdf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'),
               ),
@@ -99,9 +115,10 @@ class ChatsView extends StatelessWidget {
                       String subtitle = '';
                       if (snapshot.hasData) {
                         final message = snapshot.data!;
-                        final sender =
-                            message.fromMe ? 'You' : message.sender.username;
-                        subtitle = '$sender: ${message.text}';
+                        // all these are private chats, if from other person dont repeat username
+                        subtitle = message.fromMe
+                            ? 'You: ${message.reprContent}'
+                            : message.reprContent;
                       }
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
@@ -111,6 +128,9 @@ class ChatsView extends StatelessWidget {
                           photoUrl: chat.photoUrl,
                           iconData: FluentIcons.person_16_regular,
                           suffixIcons: {
+                            if (chat.pinned)
+                              FluentIcons.pin_16_filled: () =>
+                                  controller.togglePinChat(chat),
                             FluentIcons.more_vertical_20_regular: () =>
                                 controller.showChatOptions(chat),
                           },

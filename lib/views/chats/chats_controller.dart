@@ -1,6 +1,7 @@
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
+import 'package:discourse/services/requests.dart';
 import 'package:discourse/views/activity/activity_view.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
@@ -11,14 +12,17 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 class ChatsController extends GetxController {
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _messagesDb = Get.find<MessagesDbService>();
+  final _requestsDb = Get.find<RequestsService>();
 
   bool loading = false;
+  bool hasNewRequests = false;
   List<UserPrivateChat> chats = [];
 
   @override
   Future<void> onReady() async {
     loading = true;
     update();
+    hasNewRequests = await _requestsDb.hasNewRequests();
     chats = await _privateChatDb.myPrivateChats();
     loading = false;
     update();
@@ -39,11 +43,32 @@ class ChatsController extends GetxController {
   Stream<Message> lastMessageStream(UserChat chat) =>
       _messagesDb.lastMessageStream(chat.id);
 
+  void togglePinChat(UserChat chat) async {
+    chat.pinned = !chat.pinned;
+    await _privateChatDb.setPinChat(chat.id, chat.pinned);
+    update();
+  }
+
   void showChatOptions(UserChat chat) async {
     final choice = await Get.bottomSheet(ChoiceBottomSheet(
       title: 'Chat options',
-      choices: const ['View profile', 'Pin chat', 'Remove friend'],
+      choices: [
+        'View profile',
+        chat.pinned ? 'Unpin chat' : 'Pin chat',
+        'Remove friend'
+      ],
     ));
+    if (choice == null) return;
+    switch (choice) {
+      case 'View profile':
+        break;
+      case 'Pin chat':
+      case 'Unpin chat':
+        togglePinChat(chat);
+        break;
+      case 'Remove friend':
+        break;
+    }
   }
 
   void goToChat(UserChat chat) => Get.to(ChatView(chat: chat));

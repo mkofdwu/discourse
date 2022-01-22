@@ -7,9 +7,12 @@ import 'package:get/get.dart';
 
 abstract class BaseRequestsService {
   Future<List<ReceivedRequest>> myRequests();
+  Future<bool> hasNewRequests();
   Future<void> sendRequest(Request request);
   Future<void> acceptRequest(ReceivedRequest request);
   Future<void> rejectRequest(ReceivedRequest request);
+  Future<List<ReceivedRequest>> requestsIRejected();
+  Future<void> undoRejection(ReceivedRequest request);
 }
 
 class RequestsService extends GetxService implements BaseRequestsService {
@@ -32,6 +35,17 @@ class RequestsService extends GetxService implements BaseRequestsService {
   }
 
   @override
+  Future<bool> hasNewRequests() async {
+    final requestsSnapshot = await _requestsRef
+        .doc(_auth.id)
+        .collection('requests')
+        .where('accepted', isNull: true)
+        .limit(1)
+        .get();
+    return requestsSnapshot.docs.length == 1;
+  }
+
+  @override
   Future<void> sendRequest(Request request) async {
     // TODO: check if blocked or the same request has already been sent
     await _requestsRef.doc(request.toUserId).collection('requests').add({
@@ -42,21 +56,37 @@ class RequestsService extends GetxService implements BaseRequestsService {
     });
   }
 
-  @override
-  Future<void> acceptRequest(ReceivedRequest request) async {
+  Future<void> _setRequestStatus(
+      ReceivedRequest request, bool? accepted) async {
     await _requestsRef
         .doc(_auth.id)
         .collection('requests')
         .doc(request.id)
-        .update({'accepted': true});
+        .update({'accepted': accepted});
   }
 
   @override
-  Future<void> rejectRequest(ReceivedRequest request) async {
-    await _requestsRef
+  Future<void> acceptRequest(ReceivedRequest request) =>
+      _setRequestStatus(request, true);
+
+  @override
+  Future<void> rejectRequest(ReceivedRequest request) =>
+      _setRequestStatus(request, false);
+
+  @override
+  Future<List<ReceivedRequest>> requestsIRejected() async {
+    final requestsSnapshot = await _requestsRef
         .doc(_auth.id)
         .collection('requests')
-        .doc(request.id)
-        .update({'accepted': false});
+        .where('accepted', isEqualTo: false)
+        .get();
+    return Future.wait(requestsSnapshot.docs.map((doc) async {
+      final fromUser = await _userDb.getUser(doc.data()['fromUserId']);
+      return ReceivedRequest.fromDoc(doc, fromUser);
+    }));
   }
+
+  @override
+  Future<void> undoRejection(ReceivedRequest request) =>
+      _setRequestStatus(request, null);
 }

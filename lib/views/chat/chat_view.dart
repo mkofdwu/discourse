@@ -110,7 +110,7 @@ class ChatView extends StatelessWidget {
           final nextMessage = controller.messages[i];
           if (prevMessage.sender != nextMessage.sender && !nextMessage.fromMe) {
             return Padding(
-              padding: const EdgeInsets.only(top: 12, left: 30, bottom: 12),
+              padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
               child:
                   _buildSenderDetails(controller.member(nextMessage.sender.id)),
             );

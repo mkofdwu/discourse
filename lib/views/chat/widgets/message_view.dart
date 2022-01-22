@@ -116,8 +116,9 @@ class MessageView extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      // TODO: show deleted message, or icon for photo
-                      repliedMessage.text ?? '',
+                      repliedMessage.isDeleted
+                          ? 'Deleted message'
+                          : repliedMessage.reprContent,
                       style: TextStyle(fontSize: 12),
                     ),
                   ],
