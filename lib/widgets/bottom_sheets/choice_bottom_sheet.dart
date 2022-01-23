@@ -24,7 +24,8 @@ class ChoiceBottomSheet extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 26, 30, 26),
+          // bottom padding is 26 in total
+          padding: const EdgeInsets.fromLTRB(30, 26, 30, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -58,10 +59,6 @@ class ChoiceBottomSheet extends StatelessWidget {
                         ),
                       ))
                   .toList(),
-              OpacityFeedback(
-                child: Text('Cancel', style: TextStyle(fontSize: 16)),
-                onPressed: () => Get.back(result: null),
-              ),
             ],
           ),
         ),

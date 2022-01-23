@@ -24,7 +24,7 @@ class MyFloatingActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
         ),
         child: Center(
-          child: Icon(iconData, size: 20),
+          child: Icon(iconData, color: Colors.black, size: 20),
         ),
       ),
     );

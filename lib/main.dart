@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/constants/themes.dart';
 import 'package:discourse/register_services.dart';
 import 'package:discourse/views/startup/startup_view.dart';

@@ -49,6 +49,7 @@ class RelationshipsService extends GetxService
   }
 
   bool isRequestNeeded(RelationshipStatus status, RequestType permission) {
+    // TODO: consider if account is public
     switch (permission) {
       case RequestType.talk:
         return status.index < RelationshipStatus.canTalk.index;

@@ -1,3 +1,4 @@
+import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
@@ -9,6 +10,7 @@ import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
+import 'package:discourse/views/viewed_by/viewed_by_view.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,12 +18,13 @@ import 'package:get/get.dart';
 class ChatController extends GetxController {
   final _messagesDb = Get.find<MessagesDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
+  final _commonChatDb = Get.find<CommonChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
   final _messageSender = Get.find<MessageSenderController>();
   final _messageSelection = Get.find<MessageSelectionController>();
   final _chatExport = Get.find<ChatExportService>();
 
-  final UserChat _userChat;
+  final UserChat _chat;
 
   bool _isLoadingMessages = false;
   int _numMessages = 0;
@@ -29,14 +32,14 @@ class ChatController extends GetxController {
   final _messageKeys = <String, GlobalKey>{};
   final _scrollController = ScrollController();
 
-  UserChat get chat => _userChat;
+  UserChat get chat => _chat;
   bool get isLoadingMessages => _isLoadingMessages;
   List<Message> get messages => _messages;
   GlobalKey messageKey(String messageId) => _messageKeys[messageId]!;
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
-  bool get isPrivateChat => _userChat is UserPrivateChat;
-  Member member(String userId) => (_userChat as UserGroupChat)
+  bool get isPrivateChat => _chat is UserPrivateChat;
+  Member member(String userId) => (_chat as UserGroupChat)
       .data
       .members
       .firstWhere((member) => member.user.id == userId);
@@ -45,27 +48,56 @@ class ChatController extends GetxController {
   bool get showGoToBottomArrow =>
       _scrollController.hasClients ? _scrollController.offset > 100 : false;
 
-  ChatController(this._userChat);
+  ChatController(this._chat);
 
   @override
   void onReady() {
     _scrollController.addListener(() => update());
     streamMoreMessages();
+    onStartReading();
   }
 
-  Stream<String?> typingTextStream() =>
-      _whosTyping.typingTextStream(_userChat.id);
+  @override
+  void onClose() {
+    onStopReading();
+  }
 
-  void goToChatDetails() {
+  void onStartReading() {
+    _commonChatDb.startReadingChat(chat.id);
+  }
+
+  // TODO: check if turning off phone or other stuff calls this
+  void onStopReading() {
+    // when the user is no longer looking at the chat log
+    _commonChatDb.stopReadingChat(chat.id);
+  }
+
+  Stream<String?> typingTextStream() => _whosTyping.typingTextStream(_chat.id);
+
+  void goToChatDetails() async {
+    onStopReading();
     if (isPrivateChat) {
-      Get.to(UserProfileView(user: (_userChat as UserPrivateChat).otherUser));
+      await Get.to(UserProfileView(
+        user: (_chat as UserPrivateChat).otherUser,
+      ));
     } else {
-      Get.to(GroupDetailsView(chat: _userChat as UserGroupChat));
+      await Get.to(GroupDetailsView(chat: _chat as UserGroupChat));
     }
+    onStartReading();
+  }
+
+  void goToMessageViewedBy() async {
+    if (_chat is! UserGroupChat) return;
+    onStopReading();
+    final message = _messageSelection.selectedMessages.single;
+    final viewedBy =
+        await _messagesDb.getViewedBy(_chat as UserGroupChat, message);
+    await Get.to(ViewedByView(viewedBy: viewedBy));
+    onStartReading();
   }
 
   void exportChat() {
-    _chatExport.exportChat(_userChat);
+    _chatExport.exportChat(_chat);
   }
 
   Future<void> leaveChat() async {
@@ -74,19 +106,19 @@ class ChatController extends GetxController {
       subtitle:
           'Are you sure you want to leave this chat? You will need someone to add you back in afterwards.',
     ));
-    if (confirmed) {
-      _groupChatDb.leaveGroup(_userChat.id);
+    if (confirmed ?? false) {
+      _groupChatDb.leaveGroup(_chat.id);
     }
   }
 
   // messages list
 
   void streamMoreMessages() {
-    if (_userChat is NonExistentChat) return;
+    if (_chat is NonExistentChat) return;
     _numMessages += 40;
     _isLoadingMessages = true;
     update();
-    _messagesDb.streamMessages(_userChat.id, _numMessages).listen((messages) {
+    _messagesDb.streamMessages(_chat.id, _numMessages).listen((messages) {
       _messages = messages;
       for (final message in _messages) {
         _messageKeys[message.id] = GlobalKey();
@@ -126,13 +158,18 @@ class ChatController extends GetxController {
   bool get canReplyToSelectedMessages =>
       _messageSelection.selectedMessages.length == 1;
 
+  bool get canGoToViewedBy =>
+      _chat is UserGroupChat &&
+      _messageSelection.selectedMessages.length == 1 &&
+      _messageSelection.selectedMessages.single.fromMe;
+
   Future<void> deleteSelectedMessages() async {
     final confirmed = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Delete $numMessagesSelected messages?',
       subtitle:
           "Once you press delete, the messages will be gone forever. You won't be able to undo this action!",
     ));
-    if (confirmed) {
+    if (confirmed ?? false) {
       await _messagesDb.deleteMessages(_messageSelection.selectedMessages);
       _messageSelection.cancelSelection();
     }

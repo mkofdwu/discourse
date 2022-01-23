@@ -43,7 +43,7 @@ class _MySwitchState extends State<MySwitch> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: Get.theme.primaryColor.withOpacity(0.1)),
+                    Border.all(color: Get.theme.primaryColor.withOpacity(0.2)),
               ),
             ),
           ),

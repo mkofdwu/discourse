@@ -161,7 +161,8 @@ class AuthService extends GetxService implements BaseAuthService {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
         return {'currentPassword': 'Invalid password'};
-      } else if (e.code == 'weak-password') {
+      }
+      if (e.code == 'weak-password') {
         return {
           'newPassword': 'Your password must be at least 6 characters long',
         };

@@ -1,7 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/views/chats/chats_view.dart';
-import 'package:discourse/views/groups/groups_view.dart';
-import 'package:discourse/views/settings/settings_view.dart';
+import 'package:discourse/views/my_profile/my_profile_view.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,19 +46,19 @@ class HomeView extends StatelessWidget {
                   ),
                   label: 'Chats',
                 ),
+                // BottomNavigationBarItem(
+                //   icon: Padding(
+                //     padding: EdgeInsets.only(bottom: 6),
+                //     child: Icon(FluentIcons.people_community_24_regular),
+                //   ),
+                //   label: 'Groups',
+                // ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(bottom: 6),
-                    child: Icon(FluentIcons.people_community_24_regular),
+                    child: Icon(FluentIcons.person_24_regular),
                   ),
-                  label: 'Groups',
-                ),
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding: EdgeInsets.only(bottom: 6),
-                    child: Icon(FluentIcons.options_24_regular),
-                  ),
-                  label: 'Settings',
+                  label: 'Profile',
                 )
               ],
             ),
@@ -72,9 +71,7 @@ class HomeView extends StatelessWidget {
       case 0:
         return ChatsView();
       case 1:
-        return GroupsView();
-      case 2:
-        return SettingsView();
+        return MyProfileView();
       default:
         return SizedBox.shrink();
     }

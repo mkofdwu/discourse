@@ -12,6 +12,7 @@ Future<void> showPrivateChatOptions() async {
       'Remove friend',
     ],
   ));
+  if (choice == null) return;
   switch (choice) {
     case 'View profile':
       break;

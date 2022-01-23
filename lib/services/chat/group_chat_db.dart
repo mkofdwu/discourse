@@ -13,7 +13,6 @@ import 'package:get/get.dart';
 
 abstract class BaseGroupChatDbService {
   Future<GroupChatData> getChatData(String chatId);
-  Future<List<UserGroupChat>> myGroupChats();
   Future<void> updateChatData(String chatId, GroupChatData data);
   Future<UserGroupChat> newGroup(GroupChatData data);
   Future<void> addMembers(String chatId, List<Member> members);
@@ -27,14 +26,14 @@ abstract class BaseGroupChatDbService {
 }
 
 class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
-  final _usersRef = FirebaseFirestore.instance.collection('users');
-  final _messagesRef = FirebaseFirestore.instance.collection('messages');
-  final _groupChatsRef = FirebaseFirestore.instance.collection('groupChats');
-
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _requests = Get.find<RequestsService>();
   final _relationships = Get.find<RelationshipsService>();
+
+  final _usersRef = FirebaseFirestore.instance.collection('users');
+  final _messagesRef = FirebaseFirestore.instance.collection('messages');
+  final _groupChatsRef = FirebaseFirestore.instance.collection('groupChats');
 
   @override
   Future<GroupChatData> getChatData(String chatId) async {
@@ -53,23 +52,6 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   }
 
   @override
-  Future<List<UserGroupChat>> myGroupChats() async {
-    final chatsSnapshot =
-        await _usersRef.doc(_auth.id).collection('groupChats').get();
-    final userChats = <UserGroupChat>[];
-    for (final doc in chatsSnapshot.docs) {
-      final data = doc.data();
-      userChats.add(UserGroupChat(
-        id: doc.id,
-        lastReadId: data['lastReadId'],
-        pinned: data['pinned'],
-        data: await getChatData(doc.id),
-      ));
-    }
-    return userChats;
-  }
-
-  @override
   Future<void> updateChatData(String chatId, GroupChatData newData) async {
     await _groupChatsRef.doc(chatId).update(newData.toData());
   }
@@ -81,7 +63,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     addMembers(chatDoc.id, data.members);
     return UserGroupChat(
       id: chatDoc.id,
-      lastReadId: null,
+      lastReadAt: null,
       pinned: false,
       data: data,
     );
@@ -106,7 +88,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
             .doc(member.user.id)
             .collection('groupChats')
             .doc(chatId)
-            .set({'lastReadId': null, 'pinned': false});
+            .set({'lastReadAt': null, 'pinned': false});
         await _groupChatsRef
             .doc(chatId)
             .collection('members')
@@ -121,7 +103,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         .doc(_auth.id)
         .collection('groupChats')
         .doc(chatId)
-        .set({'lastReadId': null, 'pinned': false});
+        .set({'lastReadAt': null, 'pinned': false});
     await _groupChatsRef
         .doc(chatId)
         .collection('members')

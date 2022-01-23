@@ -2,9 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/views/my_story/my_story_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
+import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -77,10 +79,10 @@ class ChatsView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                _buildStories(),
+                _buildStories(controller),
                 SizedBox(height: 40),
                 Text(
-                  'Private chats',
+                  'Chats',
                   style: TextStyle(
                     color: Get.theme.primaryColor.withOpacity(0.4),
                     fontWeight: FontWeight.w700,
@@ -96,8 +98,10 @@ class ChatsView extends StatelessWidget {
     );
   }
 
-  Widget _buildStories() => Row(
+  Widget _buildStories(ChatsController controller) => Row(
         children: [
+          _buildYourStoryButton(),
+          SizedBox(width: 28),
           CustomPaint(
             painter: StoryBorderPainter(seenNum: 3, storyNum: 5),
             child: Padding(
@@ -110,6 +114,57 @@ class ChatsView extends StatelessWidget {
             ),
           ),
         ],
+      );
+
+  Widget _buildYourStoryButton() => PressedBuilder(
+        onPressed: () => Get.to(MyStoryView()),
+        builder: (pressed) => Stack(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color:
+                      Get.theme.primaryColor.withOpacity(pressed ? 0.2 : 0.1),
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(FluentIcons.image_24_regular, size: 24),
+                    SizedBox(height: 8),
+                    Text('Your story', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              top: 4,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    '4',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 
   Widget _buildChatsList(ChatsController controller) =>
@@ -132,27 +187,54 @@ class ChatsView extends StatelessWidget {
                               ? 'You: ${message.reprContent}'
                               : message.reprContent;
                         }
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: MyListTile(
-                            title: chat.title,
-                            subtitle: subtitle,
-                            photoUrl: chat.photoUrl,
-                            iconData: FluentIcons.person_16_regular,
-                            suffixIcons: {
-                              if (chat.pinned)
-                                FluentIcons.pin_16_filled: () =>
-                                    controller.togglePinChat(chat),
-                              FluentIcons.more_vertical_20_regular: () =>
-                                  controller.showChatOptions(chat),
-                            },
-                            onPressed: () => controller.goToChat(chat),
-                          ),
-                        );
+                        return StreamBuilder<int>(
+                            stream: controller.numUnreadMessagesStream(chat),
+                            builder: (context, snapshot) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: MyListTile(
+                                  title: chat.title,
+                                  subtitle: subtitle,
+                                  photoUrl: chat.photoUrl,
+                                  iconData: FluentIcons.person_16_regular,
+                                  extraWidgets: [
+                                    if (snapshot.hasData && snapshot.data! > 0)
+                                      _buildNumUnreadMessages(snapshot.data!)
+                                  ],
+                                  suffixIcons: {
+                                    if (chat.pinned)
+                                      FluentIcons.pin_16_filled: () =>
+                                          controller.togglePinChat(chat),
+                                    FluentIcons.more_vertical_20_regular: () =>
+                                        controller.showChatOptions(chat),
+                                  },
+                                  onPressed: () => controller.goToChat(chat),
+                                ),
+                              );
+                            });
                       },
                     ))
                 .toList(),
           );
         },
+      );
+
+  Widget _buildNumUnreadMessages(int numUnreadMessages) => Container(
+        height: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          color: Palette.orange,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            numUnreadMessages.toString(),
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
       );
 }

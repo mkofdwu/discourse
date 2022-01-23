@@ -7,6 +7,8 @@ import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/views/chat/widgets/participants_typing.dart';
+import 'package:discourse/widgets/app_bar.dart';
+import 'package:discourse/widgets/app_state_handler.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -26,62 +28,66 @@ class ChatView extends StatelessWidget {
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     return GetBuilder<ChatController>(
-      global: false,
+      // global: false, <- should not be here
       init: ChatController(chat),
       builder: (controller) => Obx(
-        () => Scaffold(
-          appBar: controller.isSelectingMessages
-              ? _buildMessageSelectionAppBar(controller)
-              : _buildAppBar(controller),
-          body: Column(
-            children: [
-              Expanded(
-                child: chat is NonExistentChat
-                    ? SizedBox()
-                    : Stack(
-                        children: [
-                          _buildMessagesList(controller),
-                          if (!controller.isSelectingMessages)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              height: 80,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      Get.theme.scaffoldBackgroundColor,
-                                      Get.theme.scaffoldBackgroundColor
-                                          .withOpacity(0),
+        () => AppStateHandler(
+          onStart: controller.onStartReading,
+          onExit: controller.onStopReading,
+          child: Scaffold(
+            appBar: controller.isSelectingMessages
+                ? _buildMessageSelectionAppBar(controller)
+                : _buildAppBar(controller),
+            body: Column(
+              children: [
+                Expanded(
+                  child: chat is NonExistentChat
+                      ? SizedBox()
+                      : Stack(
+                          children: [
+                            _buildMessagesList(controller),
+                            if (!controller.isSelectingMessages)
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: 80,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                      colors: [
+                                        Get.theme.scaffoldBackgroundColor,
+                                        Get.theme.scaffoldBackgroundColor
+                                            .withOpacity(0),
+                                      ],
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      SizedBox(width: 16),
+                                      _buildTypingIndicator(controller),
+                                      Spacer(),
+                                      if (controller.showGoToBottomArrow)
+                                        _buildScrollToBottomArrow(controller),
                                     ],
                                   ),
                                 ),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 30),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    SizedBox(width: 16),
-                                    _buildTypingIndicator(controller),
-                                    Spacer(),
-                                    if (controller.showGoToBottomArrow)
-                                      _buildScrollToBottomArrow(controller),
-                                  ],
-                                ),
                               ),
-                            ),
-                        ],
-                      ),
-              ),
-              if (!controller.isSelectingMessages)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 28, 30, 36),
-                  child: MessageDraftView(),
+                          ],
+                        ),
                 ),
-            ],
+                if (!controller.isSelectingMessages)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 28, 30, 36),
+                    child: MessageDraftView(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -208,41 +214,53 @@ class ChatView extends StatelessWidget {
       );
 
   PreferredSizeWidget _buildMessageSelectionAppBar(ChatController controller) =>
-      PreferredSize(
-        preferredSize: Size.fromHeight(76),
-        child: SafeArea(
-          child: Container(
-            height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            color: Get.theme.primaryColorLight,
-            child: Row(
-              children: [
-                Text(
-                  '${controller.numMessagesSelected} selected',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                Spacer(),
-                if (controller.canReplyToSelectedMessages)
-                  OpacityFeedback(
-                    onPressed: controller.replyToSelectedMessages,
-                    child: Icon(FluentIcons.arrow_reply_20_regular, size: 20),
-                  ),
-                if (controller.canReplyToSelectedMessages) SizedBox(width: 16),
-                if (controller.canDeleteSelectedMessages)
-                  OpacityFeedback(
-                    onPressed: controller.deleteSelectedMessages,
-                    child: Icon(FluentIcons.delete_20_regular, size: 20),
-                  ),
-                if (controller.canDeleteSelectedMessages) SizedBox(width: 16),
-                OpacityFeedback(
-                  onPressed: controller.cancelMessageSelection,
-                  child: Icon(FluentIcons.dismiss_20_regular, size: 20),
-                ),
-              ],
-            ),
-          ),
-        ),
+      myAppBar(
+        title: '${controller.numMessagesSelected} selected',
+        actions: {
+          if (controller.canReplyToSelectedMessages)
+            FluentIcons.arrow_reply_20_regular:
+                controller.replyToSelectedMessages,
+          if (controller.canDeleteSelectedMessages)
+            FluentIcons.delete_20_regular: controller.deleteSelectedMessages,
+          if (controller.canGoToViewedBy)
+            FluentIcons.eye_show_20_regular: controller.goToMessageViewedBy,
+        },
       );
+  // PreferredSize(
+  //   preferredSize: Size.fromHeight(76),
+  //   child: SafeArea(
+  //     child: Container(
+  //       height: 76,
+  //       padding: const EdgeInsets.symmetric(horizontal: 30),
+  //       color: Get.theme.primaryColorLight,
+  //       child: Row(
+  //         children: [
+  //           Text(
+  //             '${controller.numMessagesSelected} selected',
+  //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+  //           ),
+  //           Spacer(),
+  //           if (controller.canReplyToSelectedMessages)
+  //             OpacityFeedback(
+  //               onPressed: controller.replyToSelectedMessages,
+  //               child: Icon(FluentIcons.arrow_reply_20_regular, size: 20),
+  //             ),
+  //           if (controller.canReplyToSelectedMessages) SizedBox(width: 16),
+  //           if (controller.canDeleteSelectedMessages)
+  //             OpacityFeedback(
+  //               onPressed: controller.deleteSelectedMessages,
+  //               child: Icon(FluentIcons.delete_20_regular, size: 20),
+  //             ),
+  //           if (controller.canDeleteSelectedMessages) SizedBox(width: 16),
+  //           OpacityFeedback(
+  //             onPressed: controller.cancelMessageSelection,
+  //             child: Icon(FluentIcons.dismiss_20_regular, size: 20),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   ),
+  // );
 
   Widget _buildTypingIndicator(ChatController controller) =>
       StreamBuilder<String?>(

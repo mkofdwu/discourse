@@ -8,6 +8,7 @@ class MyTextField extends StatelessWidget {
   final String? error;
   final int? numLines;
   final Function(String)? onChanged;
+  final Function()? onSubmit;
 
   const MyTextField({
     Key? key,
@@ -17,6 +18,7 @@ class MyTextField extends StatelessWidget {
     this.error,
     this.numLines = 1,
     this.onChanged,
+    this.onSubmit,
   }) : super(key: key);
 
   @override
@@ -52,6 +54,9 @@ class MyTextField extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             isDense: true,
           ),
+          textInputAction:
+              onSubmit == null ? TextInputAction.next : TextInputAction.done,
+          onSubmitted: (onSubmit == null) ? null : (_) => onSubmit!(),
           cursorColor: Get.theme.primaryColor,
           obscureText: obscureText,
           onChanged: onChanged,

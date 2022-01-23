@@ -49,7 +49,11 @@ class _InputBottomSheetState extends State<InputBottomSheet> {
           if (widget.subtitle != null) SizedBox(height: 12),
           if (widget.subtitle != null) Text(widget.subtitle!),
           SizedBox(height: 24),
-          MyTextField(controller: _textController, error: _inputError),
+          MyTextField(
+            controller: _textController,
+            error: _inputError,
+            onSubmit: () {},
+          ),
           SizedBox(height: 28),
           Row(
             children: [

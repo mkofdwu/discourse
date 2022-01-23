@@ -7,6 +7,7 @@ import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/relationships.dart';
+import 'package:discourse/services/storage.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ class SetGroupDetailsController extends GetxController {
   final _relationships = Get.find<RelationshipsService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _auth = Get.find<AuthService>();
+  final _storage = Get.find<StorageService>();
 
   final nameController = TextEditingController();
   String? nameError;
@@ -52,6 +54,9 @@ class SetGroupDetailsController extends GetxController {
       nameError = 'Please provide a group name';
       update();
       return;
+    }
+    if (photo != null) {
+      await _storage.uploadPhoto(photo!, 'groupphoto');
     }
     final chat = await _groupChatDb.newGroup(GroupChatData(
       name: nameController.text,

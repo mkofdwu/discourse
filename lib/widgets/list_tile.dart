@@ -10,6 +10,7 @@ class MyListTile extends StatelessWidget {
   final String? subtitle;
   final String? photoUrl;
   final IconData iconData; // icon displayed if photoUrl is null
+  final List<Widget> extraWidgets;
   final Map<IconData, Function()> suffixIcons;
   final bool isSelected;
   final Function()? onPressed;
@@ -20,6 +21,7 @@ class MyListTile extends StatelessWidget {
     required this.subtitle,
     this.photoUrl,
     required this.iconData,
+    this.extraWidgets = const [],
     this.suffixIcons = const {},
     this.isSelected = false,
     this.onPressed,
@@ -34,74 +36,74 @@ class MyListTile extends StatelessWidget {
         color: Colors.transparent,
         child: Row(
           children: <Widget>[
-                Stack(
-                  children: [
-                    PhotoOrIcon(
-                      photoUrl: photoUrl,
-                      placeholderIcon: isSelected ? null : iconData,
+            Stack(
+              children: [
+                PhotoOrIcon(
+                  photoUrl: photoUrl,
+                  placeholderIcon: isSelected ? null : iconData,
+                ),
+                if (isSelected)
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4),
+                      border: Border.all(color: Palette.orange, width: 2),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    if (isSelected)
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4),
-                          border: Border.all(color: Palette.orange, width: 2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            FluentIcons.checkmark_16_filled,
-                            color: Palette.orange,
-                            size: 16,
-                          ),
-                        ),
+                    child: Center(
+                      child: Icon(
+                        FluentIcons.checkmark_16_filled,
+                        color: Palette.orange,
+                        size: 16,
                       ),
-                  ],
-                ),
-                SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: subtitle == null ? 16 : 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (subtitle != null) SizedBox(height: 6),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Get.theme.primaryColor.withOpacity(0.6),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
-              ] +
-              suffixIcons
-                  .map((iconData, onTapIcon) => MapEntry(
-                        iconData,
-                        OpacityFeedback(
-                          onPressed: onTapIcon,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(iconData, size: 20),
-                          ),
+              ],
+            ),
+            SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: subtitle == null ? 16 : 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (subtitle != null) SizedBox(height: 6),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Get.theme.primaryColor.withOpacity(0.6),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            ...extraWidgets,
+            ...suffixIcons
+                .map((iconData, onTapIcon) => MapEntry(
+                      iconData,
+                      OpacityFeedback(
+                        onPressed: onTapIcon,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(iconData, size: 20),
                         ),
-                      ))
-                  .values
-                  .toList(),
+                      ),
+                    ))
+                .values
+          ],
         ),
       ),
     );

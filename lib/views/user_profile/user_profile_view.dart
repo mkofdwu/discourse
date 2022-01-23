@@ -16,12 +16,13 @@ class UserProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<UserProfileController>(
+      global: false,
       init: UserProfileController(user),
       builder: (controller) => Scaffold(
         appBar: myAppBar(
           title: 'User profile',
           actions: {
-            FluentIcons.more_vertical_24_regular: controller.showProfileOptions,
+            FluentIcons.more_vertical_20_regular: controller.showProfileOptions,
           },
         ),
         body: Padding(

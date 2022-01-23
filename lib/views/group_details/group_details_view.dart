@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -25,106 +26,7 @@ class GroupDetailsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         body: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              expandedHeight: 280,
-              collapsedHeight: 76,
-              elevation: 0,
-              pinned: true,
-              automaticallyImplyLeading: false,
-              backgroundColor: Get.theme.primaryColorLight,
-              flexibleSpace: LayoutBuilder(
-                builder: (context, constraints) {
-                  final current = constraints.biggest.height -
-                      MediaQuery.of(context).padding.top;
-                  final extent = (current - 76) / (280 - 76);
-                  // hacky solution to get full control
-                  return Stack(
-                    children: [
-                      FlexibleSpaceBar(
-                        background: chat.photoUrl != null
-                            ? Image.network(
-                                chat.photoUrl!,
-                                fit: BoxFit.cover,
-                              )
-                            : Container(
-                                color: Palette.orange,
-                                child: Icon(
-                                  FluentIcons.people_community_28_regular,
-                                  color: Colors.white.withOpacity(0.1),
-                                  size: 96,
-                                ),
-                              ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.fromLTRB(
-                            lerp(74, 50, extent),
-                            50,
-                            lerp(28, 42, extent),
-                            lerp(18, 32, extent),
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(lerp(0, 0.7, extent)),
-                                Colors.black.withOpacity(0),
-                              ],
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      chat.title,
-                                      style: TextStyle(
-                                        fontSize: lerp(16, 24, extent),
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Created by you, 19/04/2021',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: lerp(12, 14, extent),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              OpacityFeedback(
-                                child: Icon(
-                                  FluentIcons.edit_24_regular,
-                                  size: lerp(20, 24, extent),
-                                ),
-                                onPressed: controller.editNameAndDescription,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // this needs to be on top so it can be clicked
-                      SafeArea(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: lerp(28, 44, extent),
-                            left: lerp(30, 50, extent),
-                          ),
-                          child: _buildBackButton(extent),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+            _buildAppBar(controller),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 42),
               sliver: SliverList(
@@ -141,19 +43,17 @@ class GroupDetailsView extends StatelessWidget {
                     OpacityFeedback(
                       child: chat.data.description.isEmpty
                           ? Row(
-                              children: [
+                              children: const [
                                 Icon(
                                   FluentIcons.add_16_regular,
-                                  color:
-                                      Get.theme.primaryColor.withOpacity(0.4),
+                                  color: Palette.orange,
                                   size: 16,
                                 ),
                                 SizedBox(width: 8),
                                 Text(
                                   'Add description',
                                   style: TextStyle(
-                                    color:
-                                        Get.theme.primaryColor.withOpacity(0.4),
+                                    color: Palette.orange,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -212,6 +112,110 @@ class GroupDetailsView extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildAppBar(GroupDetailsController controller) => SliverAppBar(
+        expandedHeight: 280,
+        collapsedHeight: 76,
+        elevation: 0,
+        pinned: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Get.theme.primaryColorLight,
+        flexibleSpace: LayoutBuilder(
+          builder: (context, constraints) {
+            final current =
+                constraints.biggest.height - Get.mediaQuery.padding.top;
+            final extent = (current - 76) / (280 - 76);
+            // hacky solution to get full control
+            return Stack(
+              children: [
+                FlexibleSpaceBar(
+                  background: GestureDetector(
+                    onTap: controller.viewGroupPhoto,
+                    child: chat.photoUrl != null
+                        ? Image.network(
+                            chat.photoUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            color: Palette.orange.withOpacity(0.6),
+                            child: Icon(
+                              FluentIcons.people_community_28_regular,
+                              color: Colors.white.withOpacity(0.1),
+                              size: 96,
+                            ),
+                          ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(
+                      lerp(74, 50, extent),
+                      50,
+                      lerp(28, 42, extent),
+                      lerp(18, 32, extent),
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(lerp(0, 0.7, extent)),
+                          Colors.black.withOpacity(0),
+                        ],
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                chat.title,
+                                style: TextStyle(
+                                  fontSize: lerp(16, 24, extent),
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Created by you, 19/04/2021',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                  fontSize: lerp(12, 14, extent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        OpacityFeedback(
+                          child: Icon(
+                            FluentIcons.edit_24_regular,
+                            size: lerp(20, 24, extent),
+                          ),
+                          onPressed: controller.editNameAndDescription,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // this needs to be on top so it can be clicked
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: lerp(28, 44, extent),
+                      left: lerp(30, 50, extent),
+                    ),
+                    child: _buildBackButton(extent),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
 
   Widget _buildBackButton(double extent) => OpacityFeedback(
         onPressed: Get.back,

@@ -4,12 +4,12 @@ import 'package:discourse/models/db_objects/user.dart';
 
 abstract class UserChat {
   final String id;
-  String? lastReadId;
+  DateTime? lastReadAt;
   bool pinned;
 
   UserChat({
     required this.id,
-    this.lastReadId,
+    this.lastReadAt,
     required this.pinned,
   });
 
@@ -33,13 +33,13 @@ class UserPrivateChat extends UserChat {
 
   UserPrivateChat({
     required String id,
-    String? lastReadId,
+    DateTime? lastReadAt,
     required bool pinned,
     required this.otherUser,
     required this.data,
   }) : super(
           id: id,
-          lastReadId: lastReadId,
+          lastReadAt: lastReadAt,
           pinned: pinned,
         );
 
@@ -58,12 +58,12 @@ class UserGroupChat extends UserChat {
 
   UserGroupChat({
     required String id,
-    String? lastReadId,
+    DateTime? lastReadAt,
     required bool pinned,
     required this.data,
   }) : super(
           id: id,
-          lastReadId: lastReadId,
+          lastReadAt: lastReadAt,
           pinned: pinned,
         );
 

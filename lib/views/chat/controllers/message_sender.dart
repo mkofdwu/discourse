@@ -64,11 +64,7 @@ class MessageSenderController extends GetxController {
 
   Future<void> _uploadMessagePhoto(UnsentMessage message) async {
     if (message.photo != null && message.photo!.isLocal) {
-      await _storage.uploadPhoto(
-        message.photo!,
-        _auth.id,
-        'messagephoto',
-      );
+      await _storage.uploadPhoto(message.photo!, 'messagephoto');
     }
   }
 }

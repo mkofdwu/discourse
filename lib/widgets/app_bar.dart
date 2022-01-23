@@ -33,8 +33,15 @@ PreferredSize myAppBar({
             Spacer(),
             ...(actions ?? {})
                 .map(
-                  (iconData, onPressed) => MapEntry(iconData,
-                      GestureDetector(child: Icon(iconData), onTap: onPressed)),
+                  (iconData, onPressed) => MapEntry(
+                      iconData,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: GestureDetector(
+                          child: Icon(iconData, size: 20),
+                          onTap: onPressed,
+                        ),
+                      )),
                 )
                 .values
                 .toList(),

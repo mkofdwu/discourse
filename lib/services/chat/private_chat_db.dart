@@ -11,7 +11,6 @@ import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
 abstract class BasePrivateChatDbService {
-  Future<List<UserPrivateChat>> myPrivateChats();
   Future<UserChat> getChatWith(DiscourseUser user);
   Future<UserPrivateChat> createChatWith(DiscourseUser otherUser);
   Future<void> addUserPrivateChat(String chatId, String otherUserId);
@@ -28,27 +27,6 @@ class PrivateChatDbService extends GetxService
   final _userDb = Get.find<UserDbService>();
   final _relationships = Get.find<RelationshipsService>();
   final _requests = Get.find<RequestsService>();
-
-  @override
-  Future<List<UserPrivateChat>> myPrivateChats() async {
-    final chatsSnapshot = await _usersRef
-        .doc(_auth.id)
-        .collection('privateChats')
-        .orderBy('pinned', descending: true)
-        .get();
-    final userChats = <UserPrivateChat>[];
-    for (final doc in chatsSnapshot.docs) {
-      final data = doc.data();
-      userChats.add(UserPrivateChat(
-        id: doc.id,
-        lastReadId: data['lastReadId'],
-        pinned: data['pinned'],
-        otherUser: await _userDb.getUser(data['otherUserId']),
-        data: PrivateChatData(),
-      ));
-    }
-    return userChats;
-  }
 
   @override
   Future<UserChat> getChatWith(DiscourseUser otherUser) async {
@@ -71,7 +49,7 @@ class PrivateChatDbService extends GetxService
     final data = doc.data();
     return UserPrivateChat(
       id: doc.id,
-      lastReadId: data['lastReadId'],
+      lastReadAt: data['lastReadAt']?.toDate(),
       pinned: data['pinned'],
       otherUser: await _userDb.getUser(data['otherUserId']),
       data: PrivateChatData(),
@@ -94,7 +72,7 @@ class PrivateChatDbService extends GetxService
         .doc(chatDoc.id)
         .set({
       'type': 0,
-      'lastReadId': null,
+      'lastReadAt': null,
       'pinned': false,
       'otherUserId': otherUser.id,
     });
@@ -112,7 +90,7 @@ class PrivateChatDbService extends GetxService
           .doc(chatDoc.id)
           .set({
         'type': 0,
-        'lastReadId': null,
+        'lastReadAt': null,
         'pinned': false,
         'otherUserId': _auth.id,
       });
@@ -129,19 +107,9 @@ class PrivateChatDbService extends GetxService
   Future<void> addUserPrivateChat(String chatId, String otherUserId) async {
     await _usersRef.doc(_auth.id).collection('privateChats').doc(chatId).set({
       'type': 0,
-      'lastReadId': null,
+      'lastReadAt': null,
       'pinned': false,
       'otherUserId': otherUserId,
-    });
-  }
-
-  Future<void> setPinChat(String chatId, bool pinned) async {
-    await _usersRef
-        .doc(_auth.id)
-        .collection('privateChats')
-        .doc(chatId)
-        .update({
-      'pinned': pinned,
     });
   }
 }

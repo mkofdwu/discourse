@@ -16,6 +16,7 @@ Widget Function(String? error, ValueController valueController)
   required String label,
   bool obscureText = false,
   bool isMultiline = false,
+  bool isLast = false,
 }) {
   return (error, valueController) {
     return MyTextField(
@@ -27,6 +28,9 @@ Widget Function(String? error, ValueController valueController)
         valueController.value = newValue;
       },
       numLines: isMultiline ? 5 : 1,
+      // this is to set textinputaction correctly:
+      // to move focus to next field or to close the keyboard
+      onSubmit: isLast ? () {} : null,
     );
   };
 }

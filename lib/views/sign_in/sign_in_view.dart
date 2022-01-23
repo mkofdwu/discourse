@@ -69,6 +69,7 @@ class SignInView extends StatelessWidget {
                   label: 'Password',
                   obscureText: true,
                   error: controller.inputErrors['password'],
+                  onSubmit: controller.signingUp ? null : controller.submit,
                 ),
                 if (controller.signingUp) SizedBox(height: 24),
                 if (controller.signingUp)
@@ -77,6 +78,7 @@ class SignInView extends StatelessWidget {
                     label: 'Confirm password',
                     obscureText: true,
                     error: controller.inputErrors['confirmPassword'],
+                    onSubmit: controller.submit,
                   ),
                 SizedBox(height: 18),
                 Spacer(),

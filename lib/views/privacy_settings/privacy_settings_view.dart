@@ -16,7 +16,7 @@ class PrivacySettingsView extends StatelessWidget {
       global: false,
       init: PrivacySettingsController(),
       builder: (controller) => Scaffold(
-        appBar: myAppBar(title: 'Notification Settings'),
+        appBar: myAppBar(title: 'Privacy Settings'),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 40),
           child: Column(
@@ -25,6 +25,15 @@ class PrivacySettingsView extends StatelessWidget {
                 name: 'Public account',
                 description:
                     'Allow anyone on this app to find you and view your posts',
+                trailing: MySwitch(
+                  defaultValue: true,
+                  onChanged: (value) {},
+                ),
+              ),
+              SizedBox(height: 16),
+              SettingTile(
+                name: 'Read receipts',
+                description: 'Read receipts are always sent in group chats',
                 trailing: MySwitch(
                   defaultValue: true,
                   onChanged: (value) {},
