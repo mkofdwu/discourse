@@ -46,7 +46,11 @@ class PrivacySettingsView extends StatelessWidget {
                 trailing: SizedBox.shrink(),
                 bottom: Align(
                   alignment: Alignment.centerLeft,
-                  child: RadioGroup(),
+                  child: RadioGroup(
+                    options: ['All friends', 'Tree family', 'Elephant friends'],
+                    defaultOption: 'All friends',
+                    onSelect: (option) {},
+                  ),
                 ),
               ),
             ],

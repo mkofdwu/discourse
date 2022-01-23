@@ -67,7 +67,7 @@ class SettingTile extends StatelessWidget {
               Container(
                 width: double.infinity,
                 height: 1,
-                margin: const EdgeInsets.symmetric(vertical: 14),
+                margin: const EdgeInsets.only(top: 14, bottom: 20),
                 color: Get.theme.primaryColor.withOpacity(0.1),
               ),
             if (bottom != null) bottom!,
