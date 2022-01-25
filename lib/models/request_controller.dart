@@ -1,5 +1,5 @@
 import 'package:discourse/models/db_objects/chat_data.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/received_request.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';

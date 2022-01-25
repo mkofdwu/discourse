@@ -1,5 +1,4 @@
 import 'package:discourse/constants/palette.dart';
-import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -16,7 +15,7 @@ class NewTextStoryView extends StatelessWidget {
     return GetBuilder<NewTextStoryController>(
       init: NewTextStoryController(),
       builder: (controller) => Scaffold(
-        backgroundColor: Color(0xFF314EB2),
+        backgroundColor: Palette.orange, // Color(0xFF314EB2),
         floatingActionButton: PressedBuilder(
           onPressed: controller.submit,
           builder: (pressed) => AnimatedContainer(
@@ -25,10 +24,16 @@ class NewTextStoryView extends StatelessWidget {
             height: 60,
             margin: const EdgeInsets.only(bottom: 10, right: 4),
             decoration: BoxDecoration(
-              color: pressed ? Color(0xFFB73838) : Colors.black,
+              color: Colors.black, // pressed ? Color(0xFFB73838) :
               borderRadius: BorderRadius.circular(30),
             ),
-            child: Center(child: Icon(FluentIcons.send_20_regular, size: 20)),
+            child: Center(
+              child: Icon(
+                FluentIcons.send_20_regular,
+                size: 20,
+                color: pressed ? Palette.orange : Colors.white,
+              ),
+            ),
           ),
         ),
         body: Container(

@@ -22,9 +22,12 @@ class ChatsView extends StatelessWidget {
       global: false,
       init: ChatsController(),
       builder: (controller) => Scaffold(
-        floatingActionButton: MyFloatingActionButton(
-          iconData: FluentIcons.add_20_filled,
-          onPressed: controller.newChat,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 12, right: 10),
+          child: MyFloatingActionButton(
+            iconData: FluentIcons.people_community_add_20_regular,
+            onPressed: controller.newGroup,
+          ),
         ),
         body: SingleChildScrollView(
           child: Padding(

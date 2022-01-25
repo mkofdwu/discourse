@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/views/chats/chats_view.dart';
+import 'package:discourse/views/explore/explore_view.dart';
 import 'package:discourse/views/my_profile/my_profile_view.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,10 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
-        global: false, init: HomeController(), builder: _builder);
+      global: false,
+      init: HomeController(),
+      builder: _builder,
+    );
   }
 
   Widget _builder(HomeController controller) => Scaffold(
@@ -46,13 +50,13 @@ class HomeView extends StatelessWidget {
                   ),
                   label: 'Chats',
                 ),
-                // BottomNavigationBarItem(
-                //   icon: Padding(
-                //     padding: EdgeInsets.only(bottom: 6),
-                //     child: Icon(FluentIcons.people_community_24_regular),
-                //   ),
-                //   label: 'Groups',
-                // ),
+                BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(FluentIcons.search_24_regular),
+                  ),
+                  label: 'Explore',
+                ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(bottom: 6),
@@ -71,6 +75,8 @@ class HomeView extends StatelessWidget {
       case 0:
         return ChatsView();
       case 1:
+        return ExploreView();
+      case 2:
         return MyProfileView();
       default:
         return SizedBox.shrink();

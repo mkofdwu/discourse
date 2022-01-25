@@ -1,6 +1,6 @@
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/auth.dart';
@@ -31,8 +31,7 @@ class SetGroupDetailsController extends GetxController {
 
   Future<void> _sortUsers(List<DiscourseUser> users) async {
     for (final user in users) {
-      final status = await _relationships.relationshipWithMe(user.id);
-      if (_relationships.isRequestNeeded(status, RequestType.groupInvite)) {
+      if (await _relationships.needToAsk(user.id, RequestType.groupInvite)) {
         sendInvitesTo.add(user);
       } else {
         addMembers.add(user);

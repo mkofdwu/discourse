@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
@@ -76,9 +76,8 @@ class PrivateChatDbService extends GetxService
       'pinned': false,
       'otherUserId': otherUser.id,
     });
-    final rs = await _relationships.relationshipWithMe(otherUser.id);
-    if (_relationships.isRequestNeeded(rs, RequestType.talk)) {
-      await _requests.sendRequest(Request(
+    if (await _relationships.needToAsk(otherUser.id, RequestType.talk)) {
+      await _requests.sendRequest(UnsentRequest(
         toUserId: otherUser.id,
         type: RequestType.talk,
         data: chatDoc.id,

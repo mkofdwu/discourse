@@ -1,4 +1,4 @@
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/requests.dart';
@@ -33,7 +33,7 @@ class UserProfileController extends GetxController {
       case 'Send message':
         break;
       case 'Request friend':
-        await _requests.sendRequest(Request(
+        await _requests.sendRequest(UnsentRequest(
           toUserId: _user.id,
           type: RequestType.friend,
           data: null,

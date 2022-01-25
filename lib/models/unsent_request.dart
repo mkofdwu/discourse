@@ -1,11 +1,11 @@
 enum RequestType { talk, friend, groupInvite }
 
-class Request {
+class UnsentRequest {
   String toUserId;
   RequestType type;
   dynamic data;
 
-  Request({
+  UnsentRequest({
     required this.toUserId,
     required this.type,
     required this.data,
@@ -18,7 +18,7 @@ class Request {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is Request &&
+    return other is UnsentRequest &&
         other.toUserId == toUserId &&
         other.type == type &&
         other.data == data;

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/received_request.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/user_db.dart';
@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 abstract class BaseRequestsService {
   Future<List<ReceivedRequest>> myRequests();
   Future<bool> hasNewRequests();
-  Future<void> sendRequest(Request request);
+  Future<void> sendRequest(UnsentRequest request);
   Future<void> acceptRequest(ReceivedRequest request);
   Future<void> rejectRequest(ReceivedRequest request);
   Future<List<ReceivedRequest>> requestsIRejected();
@@ -46,7 +46,7 @@ class RequestsService extends GetxService implements BaseRequestsService {
   }
 
   @override
-  Future<void> sendRequest(Request request) async {
+  Future<void> sendRequest(UnsentRequest request) async {
     // TODO: check if blocked or the same request has already been sent
     await _requestsRef.doc(request.toUserId).collection('requests').add({
       'fromUserId': _auth.id,

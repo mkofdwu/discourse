@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/relationships.dart';
@@ -76,9 +76,9 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   ) async {
     for (final member in members) {
       // as of now there is no security on the backend to enforce permissions
-      final rs = await _relationships.relationshipWithMe(member.user.id);
-      if (_relationships.isRequestNeeded(rs, RequestType.groupInvite)) {
-        await _requests.sendRequest(Request(
+      if (await _relationships.needToAsk(
+          member.user.id, RequestType.groupInvite)) {
+        await _requests.sendRequest(UnsentRequest(
           toUserId: member.user.id,
           type: RequestType.groupInvite,
           data: chatId,

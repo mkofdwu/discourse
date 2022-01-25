@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:discourse/models/db_objects/request.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
 
@@ -15,7 +15,9 @@ enum RelationshipStatus {
 abstract class BaseRelationshipsService {
   Future<void> setMutualRelationship(
       String otherUserId, RelationshipStatus status);
-  Future<bool> needToRequestUser(String otherUserId, RequestType request);
+  Future<RelationshipStatus> relationshipWithMe(String otherUserId);
+  Future<bool> needToAsk(String otherUserId, RequestType request);
+  Future<List<String>> getUsersWithRelationship(RelationshipStatus status);
 }
 
 class RelationshipsService extends GetxService
@@ -48,7 +50,7 @@ class RelationshipsService extends GetxService
         : RelationshipStatus.values[rsIdx];
   }
 
-  bool isRequestNeeded(RelationshipStatus status, RequestType permission) {
+  bool _isRequestNeeded(RelationshipStatus status, RequestType permission) {
     // TODO: consider if account is public
     switch (permission) {
       case RequestType.talk:
@@ -61,11 +63,23 @@ class RelationshipsService extends GetxService
   }
 
   @override
-  Future<bool> needToRequestUser(
+  Future<bool> needToAsk(
     String otherUserId,
     RequestType request,
   ) async {
     final rs = await relationshipWithMe(otherUserId);
-    return isRequestNeeded(rs, request);
+    return _isRequestNeeded(rs, request);
   }
+
+  @override
+  Future<List<String>> getUsersWithRelationship(
+      RelationshipStatus status) async {
+    return _auth.currentUser.relationships.entries
+        .where((entry) => entry.value == status)
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  Future<List<String>> getFriends() =>
+      getUsersWithRelationship(RelationshipStatus.friend);
 }
