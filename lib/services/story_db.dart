@@ -44,7 +44,7 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
     final snapshot = await _usersRef
         .doc(_auth.id)
         .collection('story')
-        .orderBy('sentTimestamp', descending: true)
+        .orderBy('sentTimestamp')
         .get();
     return snapshot.docs.map((doc) => StoryPage.fromDoc(doc)).toList();
   }

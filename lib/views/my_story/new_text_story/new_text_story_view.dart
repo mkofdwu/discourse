@@ -18,13 +18,12 @@ class NewTextStoryView extends StatelessWidget {
         backgroundColor: Palette.orange, // Color(0xFF314EB2),
         floatingActionButton: PressedBuilder(
           onPressed: controller.submit,
-          builder: (pressed) => AnimatedContainer(
-            duration: const Duration(milliseconds: 100),
+          builder: (pressed) => Container(
             width: 60,
             height: 60,
             margin: const EdgeInsets.only(bottom: 10, right: 4),
             decoration: BoxDecoration(
-              color: Colors.black, // pressed ? Color(0xFFB73838) :
+              color: Colors.black,
               borderRadius: BorderRadius.circular(30),
             ),
             child: Center(

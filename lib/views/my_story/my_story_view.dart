@@ -19,7 +19,7 @@ class MyStoryView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(
           title: 'Your story',
-          actions: {FluentIcons.eye_show_20_regular: () {}},
+          actions: {FluentIcons.eye_show_20_regular: controller.viewMyStory},
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 16, right: 10),
@@ -59,6 +59,7 @@ class MyStoryView extends StatelessWidget {
                               FluentIcons.edit_20_regular: () {},
                               FluentIcons.delete_20_regular: () {},
                             },
+                            onPressed: () => controller.viewSingleStory(story),
                           ),
                         ))
                     .toList(),
