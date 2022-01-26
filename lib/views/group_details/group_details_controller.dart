@@ -109,7 +109,7 @@ class GroupDetailsController extends GetxController {
 
   void showMemberOptions(Member member) {}
 
-  void goToAddMembers() {
+  void toAddMembers() {
     Get.to(UserSelectorView(
       title: 'Add members',
       canSelectMultiple: true,

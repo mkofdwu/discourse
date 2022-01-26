@@ -74,7 +74,7 @@ class ChatController extends GetxController {
 
   Stream<String?> typingTextStream() => _whosTyping.typingTextStream(_chat.id);
 
-  void goToChatDetails() async {
+  void toChatDetails() async {
     onStopReading();
     if (isPrivateChat) {
       await Get.to(UserProfileView(
@@ -86,7 +86,7 @@ class ChatController extends GetxController {
     onStartReading();
   }
 
-  void goToMessageViewedBy() async {
+  void toMessageViewedBy() async {
     if (_chat is! UserGroupChat) return;
     onStopReading();
     final message = _messageSelection.selectedMessages.single;

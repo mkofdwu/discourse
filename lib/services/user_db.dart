@@ -28,6 +28,7 @@ class UserDbService extends GetxService implements BaseUserDbService {
 
   @override
   Future<void> setUserData(DiscourseUser user) async {
+    // TODO: might need to optimize this
     await _usersRef.doc(user.id).set(user.toData());
   }
 

@@ -12,12 +12,14 @@ import 'user_selector_controller.dart';
 class UserSelectorView extends StatelessWidget {
   final String title;
   final bool canSelectMultiple;
+  final List<DiscourseUser>? onlyUsers; // only select from within this list
   final Function(List<DiscourseUser>) onSubmit;
 
   const UserSelectorView({
     Key? key,
     required this.title,
     required this.canSelectMultiple,
+    this.onlyUsers,
     required this.onSubmit,
   }) : super(key: key);
 
@@ -25,7 +27,7 @@ class UserSelectorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<UserFinderController>(
       global: false,
-      init: UserFinderController(canSelectMultiple),
+      init: UserFinderController(canSelectMultiple, onlyUsers),
       builder: _builder,
     );
   }
@@ -72,19 +74,24 @@ class UserSelectorView extends StatelessWidget {
                 child: _buildSearchTextField(controller),
               ),
               if (controller.searchController.text.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 64),
-                  child: Text(
-                    "Enter someone's username to start searching, select a user to start a chat with them.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Get.theme.primaryColor.withOpacity(0.2),
+                if (onlyUsers == null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 64),
+                    child: Text(
+                      "Enter someone's username to start searching, select a user to start a chat with them.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Get.theme.primaryColor.withOpacity(0.2),
+                      ),
                     ),
-                  ),
-                ),
-              if (controller.searchResults.isNotEmpty)
+                  )
+                else
+                  // if showing limited list of users (e.g. selecting from list
+                  // of friends) show all of them at the start
+                  Expanded(child: _buildResultsList(controller, onlyUsers!)),
+              if (controller.searchResults.isNotEmpty && onlyUsers == null)
                 Padding(
-                  padding: const EdgeInsets.only(left: 50),
+                  padding: const EdgeInsets.only(left: 50, bottom: 24),
                   child: Text(
                     '${controller.searchResults.length} results',
                     style: TextStyle(
@@ -93,18 +100,10 @@ class UserSelectorView extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (controller.searchResults.isNotEmpty) SizedBox(height: 24),
               if (controller.searchResults.isNotEmpty)
                 Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 50),
-                    itemCount: controller.searchResults.length,
-                    separatorBuilder: (context, i) => SizedBox(height: 20),
-                    itemBuilder: (context, i) {
-                      final user = controller.searchResults[i];
-                      return _buildUserTile(controller, user);
-                    },
-                  ),
+                  child:
+                      _buildResultsList(controller, controller.searchResults),
                 ),
             ],
           ),
@@ -148,13 +147,24 @@ class UserSelectorView extends StatelessWidget {
         ),
       );
 
-  Widget _buildUserTile(UserFinderController controller, DiscourseUser user) =>
-      MyListTile(
-        iconData: FluentIcons.person_16_regular,
-        title: user.username,
-        subtitle: user.aboutMe, // should be the user's about
-        photoUrl: user.photoUrl,
-        isSelected: controller.selectedUsers.contains(user),
-        onPressed: () => controller.toggleSelectUser(user),
+  Widget _buildResultsList(
+    UserFinderController controller,
+    List<DiscourseUser> results,
+  ) =>
+      ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        itemCount: results.length,
+        separatorBuilder: (context, i) => SizedBox(height: 20),
+        itemBuilder: (context, i) {
+          final user = results[i];
+          return MyListTile(
+            iconData: FluentIcons.person_16_regular,
+            title: user.username,
+            subtitle: user.aboutMe,
+            photoUrl: user.photoUrl,
+            isSelected: controller.selectedUsers.contains(user),
+            onPressed: () => controller.toggleSelectUser(user),
+          );
+        },
       );
 }

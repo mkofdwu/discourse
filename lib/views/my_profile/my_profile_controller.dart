@@ -84,7 +84,7 @@ class MyProfileController extends GetxController {
     );
   }
 
-  void goToSettings() => Get.to(SettingsView());
+  void toSettings() => Get.to(SettingsView());
 
-  void goToFriendsList() => Get.to(SettingsView()); // TODO
+  void toFriendsList() => Get.to(SettingsView()); // TODO
 }

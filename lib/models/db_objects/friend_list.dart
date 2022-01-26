@@ -35,10 +35,8 @@ class FriendList {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is FriendList &&
-        other.id == id &&
-        other.name == name &&
-        other.friendIds == friendIds;
+    // used in radio group for selecting friends list
+    return other is FriendList && other.id == id;
   }
 
   @override

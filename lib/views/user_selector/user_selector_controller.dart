@@ -11,10 +11,11 @@ class UserFinderController extends GetxController {
   final searchController = TextEditingController();
 
   final bool _canSelectMultiple;
+  final List<DiscourseUser>? _onlyUsers;
   List<DiscourseUser> searchResults = [];
   List<DiscourseUser> selectedUsers = [];
 
-  UserFinderController(this._canSelectMultiple);
+  UserFinderController(this._canSelectMultiple, this._onlyUsers);
 
   @override
   void onReady() {
@@ -25,10 +26,20 @@ class UserFinderController extends GetxController {
   }
 
   Future<void> refreshResults() async {
-    searchResults = await _userDb.searchForUsers(
-      searchController.text,
-      _auth.id,
-    );
+    final query = searchController.text;
+    if (query.isEmpty) {
+      searchResults = [];
+      update();
+      return;
+    }
+    if (_onlyUsers != null) {
+      searchResults = _onlyUsers!
+          .where((user) =>
+              user.username.toLowerCase().startsWith(query.toLowerCase()))
+          .toList();
+    } else {
+      searchResults = await _userDb.searchForUsers(query, _auth.id);
+    }
     update();
   }
 

@@ -20,17 +20,17 @@ class SettingsView extends StatelessWidget {
             children: [
               SettingTile(
                 name: 'Notifications',
-                onPressed: controller.goToNotifs,
+                onPressed: controller.toNotifs,
               ),
               SizedBox(height: 14),
               SettingTile(
                 name: 'Privacy',
-                onPressed: controller.goToPrivacy,
+                onPressed: controller.toPrivacy,
               ),
               SizedBox(height: 14),
               SettingTile(
                 name: 'Change password',
-                onPressed: controller.goToChangePassword,
+                onPressed: controller.toChangePassword,
               ),
               SizedBox(height: 14),
               SettingTile(

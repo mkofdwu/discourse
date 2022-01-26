@@ -1,3 +1,4 @@
+import 'package:discourse/models/db_objects/friend_list.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/radio_group.dart';
@@ -48,14 +49,24 @@ class PrivacySettingsView extends StatelessWidget {
                 trailing: SizedBox.shrink(),
                 bottom: Column(
                   children: [
-                    RadioGroup(
-                      options: [
-                        'All friends',
-                        'Tree family',
-                        'Elephant friends'
-                      ],
-                      defaultOption: 'All friends',
-                      onSelect: (option) {},
+                    FutureBuilder<List<FriendList>>(
+                      future: controller.myFriendLists(),
+                      builder: (context, snapshot) {
+                        final lists = snapshot.hasData
+                            ? Map<FriendList, String>.fromEntries(snapshot.data!
+                                .map((friendList) =>
+                                    MapEntry(friendList, friendList.name)))
+                            : <FriendList, String>{};
+                        final defaultFriendList = snapshot.hasData
+                            ? controller.defaultFriendList(snapshot.data!)
+                            : null;
+                        return RadioGroup<FriendList?>(
+                          options: {null: 'All friends'}..addAll(lists),
+                          defaultValue: defaultFriendList,
+                          onSelect: controller.changeDefaultFriendList,
+                          onEdit: controller.editFriendList,
+                        );
+                      },
                     ),
                     SizedBox(height: 8),
                     MyButton(
@@ -63,7 +74,7 @@ class PrivacySettingsView extends StatelessWidget {
                       fillWidth: true,
                       isPrimary: false,
                       prefixIcon: FluentIcons.add_16_filled,
-                      onPressed: () {},
+                      onPressed: controller.toNewFriendList,
                     ),
                     SizedBox(height: 6),
                   ],

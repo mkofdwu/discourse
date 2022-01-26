@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/friend_list.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/unsent_story.dart';
@@ -14,6 +15,8 @@ abstract class BaseStoryDbService {
   Future<void> postStory(UnsentStory story);
   Future<void> deleteStory(String storyId);
   Future<void> updateStory(String storyId, dynamic newContent);
+  Future<List<FriendList>> myFriendLists();
+  Future<FriendList> newFriendList(String name, List<String> friendIds);
 }
 
 class StoryDbService extends GetxService implements BaseStoryDbService {
@@ -79,5 +82,21 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
       'content': newContent,
       'editedTimestamp': DateTime.now(),
     });
+  }
+
+  @override
+  Future<List<FriendList>> myFriendLists() async {
+    final snapshot =
+        await _usersRef.doc(_auth.id).collection('friendLists').get();
+    return snapshot.docs.map((doc) => FriendList.fromDoc(doc)).toList();
+  }
+
+  @override
+  Future<FriendList> newFriendList(String name, List<String> friendIds) async {
+    final ref = await _usersRef
+        .doc(_auth.id)
+        .collection('friendLists')
+        .add({'name': name, 'friendIds': friendIds});
+    return FriendList(id: ref.id, name: name, friendIds: friendIds);
   }
 }

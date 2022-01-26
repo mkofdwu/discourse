@@ -68,7 +68,7 @@ class ChatsView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    onPressed: controller.goToActivity,
+                    onPressed: controller.toActivity,
                   ),
                 ],
               ),
@@ -145,7 +145,7 @@ class ChatsView extends StatelessWidget {
       );
 
   Widget _buildYourStoryButton(ChatsController controller) => PressedBuilder(
-        onPressed: controller.goToMyStory,
+        onPressed: controller.toMyStory,
         builder: (pressed) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Stack(
@@ -247,7 +247,7 @@ class ChatsView extends StatelessWidget {
                                     FluentIcons.more_vertical_20_regular: () =>
                                         controller.showChatOptions(chat),
                                   },
-                                  onPressed: () => controller.goToChat(chat),
+                                  onPressed: () => controller.toChat(chat),
                                 ),
                               );
                             });

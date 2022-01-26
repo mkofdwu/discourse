@@ -29,7 +29,7 @@ class MyProfileView extends StatelessWidget {
                   ),
                   OpacityFeedback(
                     child: Icon(FluentIcons.options_24_regular),
-                    onPressed: controller.goToSettings,
+                    onPressed: controller.toSettings,
                   ),
                 ],
               ),
@@ -74,7 +74,7 @@ class MyProfileView extends StatelessWidget {
               SizedBox(height: 14),
               SettingTile(
                 name: 'Friends',
-                onPressed: controller.goToFriendsList,
+                onPressed: controller.toFriendsList,
               ),
             ],
           ),

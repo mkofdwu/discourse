@@ -10,11 +10,11 @@ import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 class SettingsController extends GetxController {
   final _auth = Get.find<AuthService>();
 
-  void goToNotifs() => Get.to(() => NotificationSettingsView());
+  void toNotifs() => Get.to(() => NotificationSettingsView());
 
-  void goToPrivacy() => Get.to(() => PrivacySettingsView());
+  void toPrivacy() => Get.to(() => PrivacySettingsView());
 
-  void goToChangePassword() {
+  void toChangePassword() {
     Get.to(
       () => CustomFormView(
         form: CustomForm(

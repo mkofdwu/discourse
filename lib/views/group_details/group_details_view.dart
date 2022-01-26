@@ -257,7 +257,7 @@ class GroupDetailsView extends StatelessWidget {
 
   Widget _buildAddMembersButton(GroupDetailsController controller) =>
       OpacityFeedback(
-        onPressed: controller.goToAddMembers,
+        onPressed: controller.toAddMembers,
         child: Container(
           height: 50,
           padding: const EdgeInsets.symmetric(horizontal: 14),

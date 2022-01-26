@@ -175,7 +175,7 @@ class ChatView extends StatelessWidget {
       );
 
   Widget _appBarContent(ChatController controller) => OpacityFeedback(
-        onPressed: controller.goToChatDetails,
+        onPressed: controller.toChatDetails,
         child: Row(
           children: [
             PhotoOrIcon(
@@ -223,7 +223,7 @@ class ChatView extends StatelessWidget {
           if (controller.canDeleteSelectedMessages)
             FluentIcons.delete_20_regular: controller.deleteSelectedMessages,
           if (controller.canGoToViewedBy)
-            FluentIcons.eye_show_20_regular: controller.goToMessageViewedBy,
+            FluentIcons.eye_show_20_regular: controller.toMessageViewedBy,
         },
       );
   // PreferredSize(

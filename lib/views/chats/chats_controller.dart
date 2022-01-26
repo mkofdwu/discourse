@@ -25,7 +25,7 @@ class ChatsController extends GetxController {
 
   Future<List<UserChat>> getChats() => _commonChatDb.myChats();
 
-  void goToActivity() async {
+  void toActivity() async {
     await Get.to(ActivityView());
     update(); // if all requests have been cleared
   }
@@ -40,7 +40,7 @@ class ChatsController extends GetxController {
     ));
   }
 
-  void goToMyStory() async {
+  void toMyStory() async {
     await Get.to(MyStoryView());
     update();
   }
@@ -92,5 +92,5 @@ class ChatsController extends GetxController {
     update();
   }
 
-  void goToChat(UserChat chat) => Get.to(() => ChatView(chat: chat));
+  void toChat(UserChat chat) => Get.to(() => ChatView(chat: chat));
 }
