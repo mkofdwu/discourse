@@ -1,7 +1,9 @@
 import 'package:discourse/widgets/app_bar.dart';
+import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/radio_group.dart';
 import 'package:discourse/widgets/setting_tile.dart';
 import 'package:discourse/widgets/switch.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -44,13 +46,27 @@ class PrivacySettingsView extends StatelessWidget {
                 name: 'Story privacy',
                 description: 'Control who can view your stories',
                 trailing: SizedBox.shrink(),
-                bottom: Align(
-                  alignment: Alignment.centerLeft,
-                  child: RadioGroup(
-                    options: ['All friends', 'Tree family', 'Elephant friends'],
-                    defaultOption: 'All friends',
-                    onSelect: (option) {},
-                  ),
+                bottom: Column(
+                  children: [
+                    RadioGroup(
+                      options: [
+                        'All friends',
+                        'Tree family',
+                        'Elephant friends'
+                      ],
+                      defaultOption: 'All friends',
+                      onSelect: (option) {},
+                    ),
+                    SizedBox(height: 8),
+                    MyButton(
+                      text: 'Add friend list',
+                      fillWidth: true,
+                      isPrimary: false,
+                      prefixIcon: FluentIcons.add_16_filled,
+                      onPressed: () {},
+                    ),
+                    SizedBox(height: 6),
+                  ],
                 ),
               ),
             ],

@@ -113,6 +113,7 @@ class GroupDetailsController extends GetxController {
 
   void goToAddMembers() {
     Get.to(UserSelectorView(
+      title: 'Add members',
       canSelectMultiple: true,
       onSubmit: (selectedUsers) async {
         await _groupChatDb.addMembers(

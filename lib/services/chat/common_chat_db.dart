@@ -3,22 +3,31 @@ import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
-import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
-class CommonChatDbService extends GetxService {
+abstract class BaseCommonChatService {
+  Future<List<UserChat>> myChats();
+  Future<void> setPinChat(String chatId, bool pinned);
+  Future<void> stopReadingChat(String chatId);
+  Future<void> startReadingChat(String chatId);
+}
+
+class CommonChatDbService extends GetxService implements BaseCommonChatService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
-  final _messagesDb = Get.find<MessagesDbService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
 
+  @override
   Future<List<UserChat>> myChats() async {
     // TODO: sort by has unread messages
-    final chatsSnapshot =
-        await _usersRef.doc(_auth.id).collection('chats').get();
+    final chatsSnapshot = await _usersRef
+        .doc(_auth.id)
+        .collection('chats')
+        .orderBy('pinned', descending: true)
+        .get();
     final userChats = <UserChat>[];
     for (final doc in chatsSnapshot.docs) {
       final data = doc.data();
@@ -43,6 +52,7 @@ class CommonChatDbService extends GetxService {
     return userChats;
   }
 
+  @override
   Future<void> setPinChat(String chatId, bool pinned) async {
     await _usersRef
         .doc(_auth.id)
@@ -51,6 +61,7 @@ class CommonChatDbService extends GetxService {
         .update({'pinned': pinned});
   }
 
+  @override
   Future<void> stopReadingChat(String chatId) async {
     await _usersRef
         .doc(_auth.id)
@@ -59,6 +70,7 @@ class CommonChatDbService extends GetxService {
         .update({'lastReadAt': DateTime.now()});
   }
 
+  @override
   Future<void> startReadingChat(String chatId) async {
     await _usersRef
         .doc(_auth.id)

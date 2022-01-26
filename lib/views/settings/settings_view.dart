@@ -40,6 +40,12 @@ class SettingsView extends StatelessWidget {
                   onChanged: (value) {},
                 ),
               ),
+              SizedBox(height: 36),
+              SettingTile(
+                name: 'Sign out',
+                isDangerous: true,
+                onPressed: controller.signOut,
+              ),
             ],
           ),
         ),

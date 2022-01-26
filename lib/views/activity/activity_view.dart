@@ -30,7 +30,7 @@ class ActivityView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/undraw no data.png',
+                      'assets/images/undraw_no_data.png',
                       width: 160,
                     ),
                     SizedBox(height: 48),

@@ -21,6 +21,7 @@ class StoryBorderPainter extends CustomPainter {
       ..color = Palette.orange
       ..style = PaintingStyle.stroke;
     if (storyNum == 1) {
+      if (seenNum == 1) paint.color = Get.theme.primaryColor.withOpacity(0.2);
       canvas.drawArc(
         Rect.fromLTWH(0, 0, size.width, size.height),
         0,
@@ -31,7 +32,7 @@ class StoryBorderPainter extends CustomPainter {
     } else {
       double sweepAngle = 360 / storyNum - 6;
       for (int i = 0; i < storyNum; i++) {
-        if (i == seenNum) {
+        if (i >= storyNum - seenNum) {
           paint.color = Get.theme.primaryColor.withOpacity(0.2);
         }
         canvas.drawArc(

@@ -32,7 +32,7 @@ class PrivateChatDbService extends GetxService
   Future<UserChat> getChatWith(DiscourseUser otherUser) async {
     final querySnapshot = await _usersRef
         .doc(_auth.id)
-        .collection('privateChats')
+        .collection('chats')
         .where('otherUserId', isEqualTo: otherUser.id)
         .limit(1)
         .get();
@@ -66,11 +66,7 @@ class PrivateChatDbService extends GetxService
       'memberIds': [_auth.id, otherUser.id],
     });
     await _messagesRef.doc(chatDoc.id).set({});
-    await _usersRef
-        .doc(_auth.id)
-        .collection('privateChats')
-        .doc(chatDoc.id)
-        .set({
+    await _usersRef.doc(_auth.id).collection('chats').doc(chatDoc.id).set({
       'type': 0,
       'lastReadAt': null,
       'pinned': false,
@@ -85,7 +81,7 @@ class PrivateChatDbService extends GetxService
     } else {
       await _usersRef
           .doc(otherUser.id)
-          .collection('privateChats')
+          .collection('chats')
           .doc(chatDoc.id)
           .set({
         'type': 0,
@@ -104,7 +100,7 @@ class PrivateChatDbService extends GetxService
 
   @override
   Future<void> addUserPrivateChat(String chatId, String otherUserId) async {
-    await _usersRef.doc(_auth.id).collection('privateChats').doc(chatId).set({
+    await _usersRef.doc(_auth.id).collection('chats').doc(chatId).set({
       'type': 0,
       'lastReadAt': null,
       'pinned': false,

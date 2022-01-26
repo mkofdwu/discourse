@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/services/auth.dart';
+import 'package:get/get.dart';
 
 enum StoryType { text, photo }
 
@@ -21,6 +23,8 @@ class StoryPage {
     required this.viewedAt,
   });
 
+  bool get viewedByMe => viewedAt.containsKey(Get.find<AuthService>().id);
+
   factory StoryPage.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return StoryPage(
@@ -40,7 +44,7 @@ class StoryPage {
         'content': content,
         'sentTimestamp': sentTimestamp,
         'editedTimestamp': editedTimestamp,
-        'sentIds': editedTimestamp,
-        'viewedAt': editedTimestamp,
+        'sentToIds': sentToIds,
+        'viewedAt': viewedAt,
       };
 }

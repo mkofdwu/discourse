@@ -10,7 +10,10 @@ import 'package:get/get.dart';
 abstract class BaseStoryDbService {
   Future<List<StoryPage>> myStory();
   Future<List<StoryPage>> getUserStory(String userId);
+  Future<Map<DiscourseUser, List<StoryPage>>> friendsStories();
   Future<void> postStory(UnsentStory story);
+  Future<void> deleteStory(String storyId);
+  Future<void> updateStory(String storyId, dynamic newContent);
 }
 
 class StoryDbService extends GetxService implements BaseStoryDbService {
@@ -30,11 +33,15 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
     return snapshot.docs.map((doc) => StoryPage.fromDoc(doc)).toList();
   }
 
+  @override
   Future<Map<DiscourseUser, List<StoryPage>>> friendsStories() async {
     final friendIds = await _relationships.getFriends();
     final stories = <DiscourseUser, List<StoryPage>>{};
     for (final userId in friendIds) {
-      stories[await _userDb.getUser(userId)] = await getUserStory(userId);
+      final story = await getUserStory(userId);
+      if (story.isNotEmpty) {
+        stories[await _userDb.getUser(userId)] = story;
+      }
     }
     return stories;
   }
@@ -58,6 +65,19 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
       // 'editedTimestamp': null,
       'sentToIds': story.sendToIds,
       'viewedAt': {},
+    });
+  }
+
+  @override
+  Future<void> deleteStory(String storyId) async {
+    await _usersRef.doc(_auth.id).collection('story').doc(storyId).delete();
+  }
+
+  @override
+  Future<void> updateStory(String storyId, dynamic newContent) async {
+    await _usersRef.doc(_auth.id).collection('story').doc(storyId).update({
+      'content': newContent,
+      'editedTimestamp': DateTime.now(),
     });
   }
 }

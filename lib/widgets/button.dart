@@ -10,6 +10,7 @@ class MyButton extends StatelessWidget {
   final bool isPrimary;
   final bool fillWidth;
   final bool isLoading;
+  final IconData? prefixIcon;
   final IconData? suffixIcon;
   final FutureOr<dynamic> Function() onPressed;
 
@@ -19,6 +20,7 @@ class MyButton extends StatelessWidget {
     this.isPrimary = true,
     this.fillWidth = false,
     this.isLoading = false,
+    this.prefixIcon,
     this.suffixIcon,
     required this.onPressed,
   }) : super(key: key);
@@ -48,6 +50,13 @@ class MyButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (prefixIcon != null)
+                    Icon(
+                      prefixIcon!,
+                      color: isPrimary ? Colors.black : Colors.white,
+                      size: 16,
+                    ),
+                  if (prefixIcon != null) SizedBox(width: 8),
                   Text(
                     text,
                     style: TextStyle(

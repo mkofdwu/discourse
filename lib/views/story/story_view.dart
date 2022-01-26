@@ -103,9 +103,9 @@ class _StoryViewState extends State<StoryView>
           ),
         ),
         padding: EdgeInsets.fromLTRB(
-          28,
-          20 + Get.mediaQuery.padding.top,
-          28,
+          24,
+          18 + Get.mediaQuery.padding.top,
+          24,
           50,
         ),
         child: Column(
@@ -150,7 +150,7 @@ class _StoryViewState extends State<StoryView>
                 ),
                 SizedBox(width: 16),
                 Text(
-                  'Your story',
+                  widget.title,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,

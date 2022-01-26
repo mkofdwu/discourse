@@ -9,6 +9,7 @@ class SettingTile extends StatelessWidget {
   final String? description;
   final Widget? trailing;
   final Widget? bottom;
+  final bool isDangerous;
   final Function()? onPressed;
 
   const SettingTile({
@@ -17,6 +18,7 @@ class SettingTile extends StatelessWidget {
     this.description,
     this.trailing,
     this.bottom,
+    this.isDangerous = false,
     this.onPressed,
   }) : super(key: key);
 
@@ -51,7 +53,12 @@ class SettingTile extends StatelessWidget {
                       Text(
                         name,
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700),
+                          color: isDangerous
+                              ? Palette.red
+                              : Get.theme.primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       if (description != null) SizedBox(height: 14),
                       if (description != null)
@@ -60,7 +67,12 @@ class SettingTile extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 12),
-                trailing ?? Icon(FluentIcons.chevron_right_20_filled, size: 20),
+                trailing ??
+                    Icon(
+                      FluentIcons.chevron_right_20_filled,
+                      color: isDangerous ? Palette.red : Get.theme.primaryColor,
+                      size: 20,
+                    ),
               ],
             ),
             if (bottom != null)
