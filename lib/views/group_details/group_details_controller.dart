@@ -1,7 +1,6 @@
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
-import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/storage.dart';
@@ -18,7 +17,6 @@ class GroupDetailsController extends GetxController {
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _media = Get.find<MediaService>();
   final _storage = Get.find<StorageService>();
-  final _auth = Get.find<AuthService>();
 
   final UserGroupChat _chat;
 
@@ -116,7 +114,7 @@ class GroupDetailsController extends GetxController {
       title: 'Add members',
       canSelectMultiple: true,
       onSubmit: (selectedUsers) async {
-        await _groupChatDb.addMembers(
+        await _groupChatDb.addOrSendInvites(
           _chat.id,
           selectedUsers.map((user) => Member.create(user)).toList(),
         );

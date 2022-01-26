@@ -62,10 +62,10 @@ class SetGroupDetailsController extends GetxController {
       description: '',
       photoUrl: photo?.url,
       // service will add member or send request accordingly
+      // and add the current user as owner
       members: (sendInvitesTo + addMembers)
-              .map((user) => Member.create(user))
-              .toList() +
-          [Member.create(_auth.currentUser, role: MemberRole.owner)],
+          .map((user) => Member.create(user))
+          .toList(),
     ));
     Get.off(ChatView(chat: chat));
   }

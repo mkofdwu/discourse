@@ -15,7 +15,7 @@ abstract class BaseGroupChatDbService {
   Future<GroupChatData> getChatData(String chatId);
   Future<void> updateChatData(String chatId, GroupChatData data);
   Future<UserGroupChat> newGroup(GroupChatData data);
-  Future<void> addMembers(String chatId, List<Member> members);
+  Future<void> addOrSendInvites(String chatId, List<Member> members);
   Future<void> removeMember(String chatId, String userId);
   Future<void> updateMemberRole(
     String chatId,
@@ -60,7 +60,11 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   Future<UserGroupChat> newGroup(GroupChatData data) async {
     final chatDoc = await _groupChatsRef.add(data.toData());
     await _messagesRef.doc(chatDoc.id).set({});
-    await addMembers(chatDoc.id, data.members);
+    await _addMember(
+      chatDoc.id,
+      Member.create(_auth.currentUser, role: MemberRole.owner),
+    );
+    await addOrSendInvites(chatDoc.id, data.members);
     return UserGroupChat(
       id: chatDoc.id,
       lastReadAt: null,
@@ -69,36 +73,43 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     );
   }
 
+  Future<void> _addMember(String chatId, Member member) async {
+    // as of now there is no security on the backend to enforce permissions
+    // assert(!(await _relationships.needToAsk(
+    //     member.user.id, RequestType.groupInvite)));
+    await _usersRef
+        .doc(member.user.id)
+        .collection('chats')
+        .doc(chatId)
+        .set({'type': 1, 'lastReadAt': null, 'pinned': false});
+    await _groupChatsRef
+        .doc(chatId)
+        .collection('members')
+        .doc(member.user.id)
+        .set(member.toData());
+  }
+
+  Future<void> _sendGroupInvite(String chatId, String userId) async {
+    // assert(await _relationships.needToAsk(user.id, RequestType.groupInvite));
+    await _requests.sendRequest(UnsentRequest(
+      toUserId: userId,
+      type: RequestType.groupInvite,
+      data: chatId,
+    ));
+  }
+
   @override
-  Future<void> addMembers(
-    String chatId,
-    List<Member> members,
-  ) async {
+  Future<void> addOrSendInvites(String chatId, List<Member> members) async {
     for (final member in members) {
       // as of now there is no security on the backend to enforce permissions
       if (await _relationships.needToAsk(
           member.user.id, RequestType.groupInvite)) {
-        await _requests.sendRequest(UnsentRequest(
-          toUserId: member.user.id,
-          type: RequestType.groupInvite,
-          data: chatId,
-        ));
+        _sendGroupInvite(chatId, member.user.id);
       } else {
-        await _usersRef
-            .doc(member.user.id)
-            .collection('chats')
-            .doc(chatId)
-            .set({'type': 1, 'lastReadAt': null, 'pinned': false});
-        await _groupChatsRef
-            .doc(chatId)
-            .collection('members')
-            .doc(member.user.id)
-            .set(member.toData());
+        _addMember(chatId, member);
       }
     }
   }
-
-  Future<void> sendGroupInvite(List<Member> members) async {}
 
   Future<void> addUserGroupChat(String chatId) async {
     await _usersRef
