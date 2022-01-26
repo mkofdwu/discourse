@@ -16,14 +16,14 @@ abstract class BaseRequestsService {
 }
 
 class RequestsService extends GetxService implements BaseRequestsService {
-  final _requestsRef = FirebaseFirestore.instance.collection('requests');
+  final _usersRef = FirebaseFirestore.instance.collection('users');
 
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
 
   @override
   Future<List<ReceivedRequest>> myRequests() async {
-    final requestsSnapshot = await _requestsRef
+    final requestsSnapshot = await _usersRef
         .doc(_auth.id)
         .collection('requests')
         .where('accepted', isNull: true)
@@ -36,7 +36,7 @@ class RequestsService extends GetxService implements BaseRequestsService {
 
   @override
   Future<bool> hasNewRequests() async {
-    final requestsSnapshot = await _requestsRef
+    final requestsSnapshot = await _usersRef
         .doc(_auth.id)
         .collection('requests')
         .where('accepted', isNull: true)
@@ -48,7 +48,7 @@ class RequestsService extends GetxService implements BaseRequestsService {
   @override
   Future<void> sendRequest(UnsentRequest request) async {
     // TODO: check if blocked or the same request has already been sent
-    await _requestsRef.doc(request.toUserId).collection('requests').add({
+    await _usersRef.doc(request.toUserId).collection('requests').add({
       'fromUserId': _auth.id,
       'type': request.type.index,
       'data': request.data,
@@ -58,7 +58,7 @@ class RequestsService extends GetxService implements BaseRequestsService {
 
   Future<void> _setRequestStatus(
       ReceivedRequest request, bool? accepted) async {
-    await _requestsRef
+    await _usersRef
         .doc(_auth.id)
         .collection('requests')
         .doc(request.id)
@@ -75,7 +75,7 @@ class RequestsService extends GetxService implements BaseRequestsService {
 
   @override
   Future<List<ReceivedRequest>> requestsIRejected() async {
-    final requestsSnapshot = await _requestsRef
+    final requestsSnapshot = await _usersRef
         .doc(_auth.id)
         .collection('requests')
         .where('accepted', isEqualTo: false)
