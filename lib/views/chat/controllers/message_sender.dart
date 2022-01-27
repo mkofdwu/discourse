@@ -1,7 +1,6 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +9,6 @@ import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/storage.dart';
 
 class MessageSenderController extends GetxController {
-  final _auth = Get.find<AuthService>();
   final _messagesDb = Get.find<MessagesDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _storage = Get.find<StorageService>();

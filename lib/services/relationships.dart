@@ -38,6 +38,7 @@ class RelationshipsService extends GetxService
         .update({'relationships.${_auth.id}': status.index});
   }
 
+  @override
   Future<RelationshipStatus> relationshipWithMe(String otherUserId) async {
     if (otherUserId == _auth.id) {
       // this might not be completely true and might cause problems later

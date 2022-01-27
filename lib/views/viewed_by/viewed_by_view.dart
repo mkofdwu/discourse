@@ -21,6 +21,7 @@ class ViewedByView extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 20),
                     child: MyListTile(
                       title: user.username,
+                      photoUrl: user.photoUrl,
                       subtitle: null,
                       iconData: FluentIcons.person_16_regular,
                     ),

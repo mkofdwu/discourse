@@ -5,6 +5,7 @@ import 'package:discourse/services/storage.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
+import 'package:discourse/views/friends/friends_view.dart';
 import 'package:discourse/views/settings/settings_view.dart';
 import 'package:discourse/widgets/bottom_sheets/input_bottom_sheet.dart';
 import 'package:get/get.dart';
@@ -86,5 +87,5 @@ class MyProfileController extends GetxController {
 
   void toSettings() => Get.to(SettingsView());
 
-  void toFriendsList() => Get.to(SettingsView()); // TODO
+  void toFriendsList() => Get.to(FriendsView());
 }

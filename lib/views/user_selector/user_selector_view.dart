@@ -11,6 +11,7 @@ import 'user_selector_controller.dart';
 
 class UserSelectorView extends StatelessWidget {
   final String title;
+  final String prompt;
   final bool canSelectMultiple;
   final List<DiscourseUser>? onlyUsers; // only select from within this list
   final Function(List<DiscourseUser>) onSubmit;
@@ -18,6 +19,7 @@ class UserSelectorView extends StatelessWidget {
   const UserSelectorView({
     Key? key,
     required this.title,
+    this.prompt = "Enter someone's username to start searching",
     required this.canSelectMultiple,
     this.onlyUsers,
     required this.onSubmit,
@@ -78,7 +80,7 @@ class UserSelectorView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 64),
                     child: Text(
-                      "Enter someone's username to start searching, select a user to start a chat with them.",
+                      prompt,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Get.theme.primaryColor.withOpacity(0.2),

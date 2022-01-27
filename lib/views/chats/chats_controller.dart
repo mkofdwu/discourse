@@ -33,6 +33,8 @@ class ChatsController extends GetxController {
   void newGroup() {
     Get.to(UserSelectorView(
       title: 'Select members',
+      prompt:
+          "Find members to add to this group. If you aren't friends with a person an invite will be sent to them",
       canSelectMultiple: true,
       onSubmit: (selectedUsers) async {
         Get.off(SetGroupDetailsView(members: selectedUsers));
@@ -65,6 +67,7 @@ class ChatsController extends GetxController {
       _messagesDb.numUnreadMessagesStream(chat.id, chat.lastReadAt);
 
   void showChatOptions(UserChat chat) async {
+    // TODO: update these
     final choice = await Get.bottomSheet(ChoiceBottomSheet(
       title: 'Chat options',
       choices: [

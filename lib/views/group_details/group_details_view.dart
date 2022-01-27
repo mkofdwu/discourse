@@ -1,6 +1,5 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';

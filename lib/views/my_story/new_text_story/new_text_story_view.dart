@@ -21,7 +21,7 @@ class NewTextStoryView extends StatelessWidget {
           builder: (pressed) => Container(
             width: 60,
             height: 60,
-            margin: const EdgeInsets.only(bottom: 10, right: 4),
+            margin: const EdgeInsets.only(bottom: 16, right: 4),
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(30),
@@ -105,17 +105,39 @@ class NewTextStoryView extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  height: 40,
+                  height: 48,
                   color: Colors.black.withOpacity(0.2),
                   child: Row(
                     children: [
                       SizedBox(width: 36),
                       Text(
-                        'Send to 15 people',
+                        'Send to ${controller.selectedFriendList?.name ?? 'all friends'}',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      PressedBuilder(
+                        onPressed: controller.changeFriendList,
+                        builder: (pressed) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                Colors.black.withOpacity(pressed ? 0.2 : 0.16),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Change',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
                     ],

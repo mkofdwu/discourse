@@ -3,7 +3,6 @@ import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/photo.dart';
-import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/relationships.dart';
@@ -16,7 +15,6 @@ class SetGroupDetailsController extends GetxController {
   final _media = Get.find<MediaService>();
   final _relationships = Get.find<RelationshipsService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
-  final _auth = Get.find<AuthService>();
   final _storage = Get.find<StorageService>();
 
   final nameController = TextEditingController();

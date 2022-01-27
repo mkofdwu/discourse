@@ -73,6 +73,47 @@ class ChatsView extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 40),
+              // announcement
+              Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: Palette.black3,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        FluentIcons.info_24_regular,
+                        color: Palette.orange,
+                        size: 24,
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Vestibulum, cras',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Morbi id donec aliquet elit. Volutpat morbi egestas accumsan, non.',
+                              style: TextStyle(
+                                color: Get.theme.primaryColor.withOpacity(0.8),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+              SizedBox(height: 36),
+              //
               Text(
                 'Stories',
                 style: TextStyle(
