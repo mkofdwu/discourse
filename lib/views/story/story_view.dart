@@ -181,14 +181,14 @@ class _StoryViewState extends State<StoryView>
       return;
     }
     final dx = details.globalPosition.dx;
-    if (dx < Get.width / 3) {
+    if (dx < Get.width / 2) {
       if (_currentPage == 0) {
         _animController!.forward();
         return;
       }
       setState(() => _currentPage -= 1);
       _loadCurrentStory();
-    } else if (dx > Get.width * 2 / 3) {
+    } else {
       if (_currentPage + 1 < widget.story.length) {
         setState(() => _currentPage += 1);
         _loadCurrentStory();
