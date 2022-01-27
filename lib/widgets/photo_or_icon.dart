@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class PhotoOrIcon extends StatelessWidget {
   final double size;
   final double iconSize;
+  final double? radius; // if is not a circle
   final Color backgroundColor;
   final String? photoUrl;
   final File? photoFile;
@@ -16,6 +17,7 @@ class PhotoOrIcon extends StatelessWidget {
     Key? key,
     this.size = 40,
     this.iconSize = 16,
+    this.radius,
     this.backgroundColor = Palette.black3,
     required this.photoUrl,
     this.photoFile,
@@ -29,18 +31,22 @@ class PhotoOrIcon extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(size / 2),
+              borderRadius: BorderRadius.circular(radius ?? size / 2),
               color: backgroundColor,
             ),
             child: Center(
               child: Icon(placeholderIcon, size: iconSize),
             ),
           )
-        : CircleAvatar(
-            radius: size / 2,
-            backgroundImage: photoFile != null
-                ? FileImage(photoFile!)
-                : CachedNetworkImageProvider(photoUrl!) as ImageProvider,
+        : SizedBox(
+            width: size,
+            height: size,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius ?? size / 2),
+              child: photoFile != null
+                  ? Image.file(photoFile!, fit: BoxFit.cover)
+                  : CachedNetworkImage(imageUrl: photoUrl!, fit: BoxFit.cover),
+            ),
           );
   }
 }

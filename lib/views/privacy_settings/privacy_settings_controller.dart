@@ -5,6 +5,8 @@ import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/views/privacy_settings/friend_list/friend_list_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
+import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:get/get.dart';
 
 class PrivacySettingsController extends GetxController {
@@ -28,9 +30,33 @@ class PrivacySettingsController extends GetxController {
     // update(); <-- changes in ui are already reflected by radiogroup
   }
 
-  void editFriendList(FriendList? list) async {
-    if (list == null) return;
-    Get.to(FriendListView(selectedFriends: selectedFriends));
+  void editFriendList(FriendList? friendList) async {
+    // a bit confusing
+    if (friendList == null) return;
+    final result = await Get.to(FriendListView(
+      title: 'Edit friend list',
+      listName: friendList.name,
+      friends: friendList.friends, // will be copied in view constructor
+      actions: {
+        FluentIcons.delete_20_regular: () async {
+          final confirm = await Get.bottomSheet(YesNoBottomSheet(
+            title: 'Delete list?',
+            subtitle: 'Are you sure you want to delete this friend list?',
+          ));
+          if (confirm ?? false) {
+            await _storyDb.deleteFriendList(friendList.id);
+            Get.back(); // return to this page
+            update();
+          }
+        },
+      },
+    ));
+    if (result != null) {
+      friendList.name = result['name'];
+      friendList.friends = result['friends'];
+      await _storyDb.updateFriendList(friendList);
+      update();
+    }
   }
 
   void toNewFriendList() async {
@@ -40,8 +66,17 @@ class PrivacySettingsController extends GetxController {
       title: 'Select friends',
       canSelectMultiple: true,
       onlyUsers: friends,
-      onSubmit: (selectedUsers) {
-        Get.to(FriendListView(selectedFriends: selectedUsers));
+      onSubmit: (selectedUsers) async {
+        final result = await Get.to(FriendListView(
+          title: 'New friend list',
+          listName: '',
+          friends: selectedUsers,
+        ));
+        if (result != null) {
+          await _storyDb.newFriendList(result['name'], result['friends']);
+          Get.back(); // return to this page
+          update();
+        }
       },
     ));
   }

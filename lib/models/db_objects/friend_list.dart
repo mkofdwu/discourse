@@ -1,35 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/user.dart';
 
 class FriendList {
   final String id;
   String name;
-  List<String> friendIds;
+  List<DiscourseUser> friends;
 
   FriendList({
     required this.id,
     required this.name,
-    required this.friendIds,
+    required this.friends,
   });
 
-  factory FriendList.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory FriendList.fromDoc(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+    List<DiscourseUser> friends,
+  ) {
     final data = doc.data()!;
     return FriendList(
       id: doc.id,
       name: data['name'],
-      friendIds: List<String>.from(data['friendIds']),
+      friends: friends,
     );
   }
 
   Map<String, dynamic> toData() {
     return {
       'name': name,
-      'friendIds': friendIds,
+      'friendIds': friends.map((user) => user.id).toList(),
     };
   }
 
   @override
-  String toString() =>
-      'FriendList(id: $id, name: $name, friendIds: $friendIds)';
+  String toString() => 'FriendList(id: $id, name: $name, friends: $friends)';
 
   @override
   bool operator ==(Object other) {
@@ -40,5 +43,5 @@ class FriendList {
   }
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode ^ friendIds.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ friends.hashCode;
 }

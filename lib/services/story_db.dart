@@ -16,7 +16,9 @@ abstract class BaseStoryDbService {
   Future<void> deleteStory(String storyId);
   Future<void> updateStory(String storyId, dynamic newContent);
   Future<List<FriendList>> myFriendLists();
-  Future<FriendList> newFriendList(String name, List<String> friendIds);
+  Future<FriendList> newFriendList(String name, List<DiscourseUser> friends);
+  Future<void> updateFriendList(FriendList friendList);
+  Future<void> deleteFriendList(String id);
 }
 
 class StoryDbService extends GetxService implements BaseStoryDbService {
@@ -88,15 +90,39 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
   Future<List<FriendList>> myFriendLists() async {
     final snapshot =
         await _usersRef.doc(_auth.id).collection('friendLists').get();
-    return snapshot.docs.map((doc) => FriendList.fromDoc(doc)).toList();
+    final friendLists = <FriendList>[];
+    for (final doc in snapshot.docs) {
+      final friendIds = List<String>.from(doc.data()['friendIds']);
+      final friends =
+          await Future.wait(friendIds.map((id) => _userDb.getUser(id)));
+      friendLists.add(FriendList.fromDoc(doc, friends));
+    }
+    return friendLists;
   }
 
   @override
-  Future<FriendList> newFriendList(String name, List<String> friendIds) async {
-    final ref = await _usersRef
+  Future<FriendList> newFriendList(
+      String name, List<DiscourseUser> friends) async {
+    final ref = await _usersRef.doc(_auth.id).collection('friendLists').add({
+      'name': name,
+      'friendIds': friends.map((user) => user.id).toList(),
+    });
+    return FriendList(id: ref.id, name: name, friends: friends);
+  }
+
+  @override
+  Future<void> updateFriendList(FriendList friendList) async {
+    // FIXME: like the method for updating documents in other services,
+    // this could be optimized
+    await _usersRef
         .doc(_auth.id)
         .collection('friendLists')
-        .add({'name': name, 'friendIds': friendIds});
-    return FriendList(id: ref.id, name: name, friendIds: friendIds);
+        .doc(friendList.id)
+        .update(friendList.toData());
+  }
+
+  @override
+  Future<void> deleteFriendList(String id) async {
+    await _usersRef.doc(_auth.id).collection('friendLists').doc(id).delete();
   }
 }

@@ -24,7 +24,7 @@ class NewPhotoStoryController extends GetxController {
       content: _photo.url!,
       sendToIds: selectedFriendList == null
           ? await _relationships.getFriends()
-          : selectedFriendList!.friendIds,
+          : selectedFriendList!.friends.map((user) => user.id).toList(),
     ));
     Get.back();
   }

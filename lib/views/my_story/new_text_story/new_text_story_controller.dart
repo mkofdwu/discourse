@@ -19,7 +19,7 @@ class NewTextStoryController extends GetxController {
       content: textController.text,
       sendToIds: selectedFriendList == null
           ? await _relationships.getFriends()
-          : selectedFriendList!.friendIds,
+          : selectedFriendList!.friends.map((user) => user.id).toList(),
     ));
     Get.back();
   }
