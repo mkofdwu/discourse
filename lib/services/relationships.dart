@@ -15,6 +15,7 @@ enum RelationshipStatus {
 abstract class BaseRelationshipsService {
   Future<void> setMutualRelationship(
       String otherUserId, RelationshipStatus status);
+  Future<void> blockUser(String otherUserId);
   Future<RelationshipStatus> relationshipWithMe(String otherUserId);
   Future<bool> needToAsk(String otherUserId, RequestType request);
   Future<List<String>> getUsersWithRelationship(RelationshipStatus status);
@@ -36,6 +37,14 @@ class RelationshipsService extends GetxService
     await _usersRef
         .doc(otherUserId)
         .update({'relationships.${_auth.id}': status.index});
+  }
+
+  @override
+  Future<void> blockUser(String otherUserId) async {
+    _auth.currentUser.relationships[otherUserId] = RelationshipStatus.blocked;
+    await _usersRef.doc(_auth.id).update({
+      'relationships.$otherUserId': RelationshipStatus.blocked.index,
+    });
   }
 
   @override

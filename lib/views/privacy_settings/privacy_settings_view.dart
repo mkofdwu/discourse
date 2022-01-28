@@ -72,6 +72,11 @@ class PrivacySettingsView extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(height: 16),
+              SettingTile(
+                name: 'Blocked users',
+                onPressed: controller.toBlockedUsers,
+              ),
             ],
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/views/friends/friends_view.dart';
+import 'package:discourse/views/privacy_settings/blocked_users/blocked_users_view.dart';
 import 'package:discourse/views/privacy_settings/friend_list/friend_list_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
@@ -87,5 +88,9 @@ class PrivacySettingsController extends GetxController {
         }
       },
     ));
+  }
+
+  void toBlockedUsers() {
+    Get.to(BlockedUsersView());
   }
 }
