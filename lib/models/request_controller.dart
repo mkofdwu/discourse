@@ -3,6 +3,7 @@ import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/received_request.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/requests.dart';
 import 'package:get/get.dart';
@@ -74,6 +75,7 @@ class TalkRequestController extends RequestController {
 
 class FriendRequestController extends RequestController {
   final _relationships = Get.find<RelationshipsService>();
+  final _miscCache = Get.find<MiscCache>();
 
   FriendRequestController(ReceivedRequest request) : super(request);
 
@@ -94,6 +96,7 @@ class FriendRequestController extends RequestController {
     // TODO: if this is a degrade do nothing
     await _relationships.setMutualRelationship(
         request.fromUser.id, RelationshipStatus.friend);
+    _miscCache.myFriends.add(request.fromUser);
   }
 }
 

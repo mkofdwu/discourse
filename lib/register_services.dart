@@ -5,6 +5,7 @@ import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/services/media.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/requests.dart';
 import 'package:discourse/services/storage.dart';
@@ -29,4 +30,5 @@ void registerServices() {
   Get.put(ChatExportService());
   // story
   Get.put(StoryDbService());
+  Get.put(MiscCache());
 }

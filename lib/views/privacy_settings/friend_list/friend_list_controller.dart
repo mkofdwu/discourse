@@ -1,13 +1,11 @@
 import 'package:discourse/models/db_objects/user.dart';
-import 'package:discourse/services/relationships.dart';
-import 'package:discourse/services/user_db.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class FriendListController extends GetxController {
-  final _relationships = Get.find<RelationshipsService>();
-  final _userDb = Get.find<UserDbService>();
+  final _miscCache = Get.find<MiscCache>();
 
   late List<DiscourseUser> friends;
 
@@ -21,12 +19,10 @@ class FriendListController extends GetxController {
   }
 
   void addFriends() async {
-    // FIXME: this operation may be very expensive
     // only show friends that have not been added to list
-    final unselectedFriends = await Future.wait(
-        (await _relationships.getFriends())
-            .where((userId) => !friends.any((user) => user.id == userId))
-            .map((userId) => _userDb.getUser(userId)));
+    final unselectedFriends = _miscCache.myFriends
+        .where((user) => !friends.any((selected) => selected.id == user.id))
+        .toList();
     Get.to(UserSelectorView(
       title: 'Add friends',
       canSelectMultiple: true,

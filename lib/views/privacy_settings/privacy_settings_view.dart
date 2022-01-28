@@ -49,25 +49,17 @@ class PrivacySettingsView extends StatelessWidget {
                 trailing: SizedBox.shrink(),
                 bottom: Column(
                   children: [
-                    FutureBuilder<List<FriendList>>(
-                      future: controller.myFriendLists(),
-                      builder: (context, snapshot) {
-                        final lists = snapshot.hasData
-                            ? Map<FriendList, String>.fromEntries(snapshot.data!
-                                .map((friendList) =>
-                                    MapEntry(friendList, friendList.name)))
-                            : <FriendList, String>{};
-                        final defaultFriendList = snapshot.hasData
-                            ? controller.defaultFriendList(snapshot.data!)
-                            : null;
-                        return RadioGroup<FriendList?>(
-                          options: {null: 'All friends'}..addAll(lists),
-                          defaultValue: defaultFriendList,
-                          onSelect: controller.changeDefaultFriendList,
-                          onEdit: controller.editFriendList,
-                        );
-                      },
-                    ),
+                    (() {
+                      final lists = Map<FriendList, String>.fromEntries(
+                          controller.myFriendLists.map((friendList) =>
+                              MapEntry(friendList, friendList.name)));
+                      return RadioGroup<FriendList?>(
+                        options: {null: 'All friends'}..addAll(lists),
+                        defaultValue: controller.defaultFriendList,
+                        onSelect: controller.changeDefaultFriendList,
+                        onEdit: controller.editFriendList,
+                      );
+                    })(),
                     SizedBox(height: 8),
                     MyButton(
                       text: 'Add friend list',

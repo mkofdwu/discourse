@@ -1,15 +1,11 @@
 import 'package:discourse/models/db_objects/user.dart';
-import 'package:discourse/services/relationships.dart';
-import 'package:discourse/services/user_db.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:get/get.dart';
 
 class FriendsController extends GetxController {
-  final _relationships = Get.find<RelationshipsService>();
-  final _userDb = Get.find<UserDbService>();
+  final _miscCache = Get.find<MiscCache>();
 
-  Future<List<DiscourseUser>> getFriends() async =>
-      Future.wait((await _relationships.getFriends())
-          .map((userId) => _userDb.getUser(userId)));
+  List<DiscourseUser> get myFriends => _miscCache.myFriends;
 
   void showFriendOptions(DiscourseUser user) {
     // TODO

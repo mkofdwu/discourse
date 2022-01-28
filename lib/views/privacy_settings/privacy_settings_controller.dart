@@ -1,8 +1,9 @@
 import 'package:discourse/models/db_objects/friend_list.dart';
 import 'package:discourse/services/auth.dart';
-import 'package:discourse/services/relationships.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
+import 'package:discourse/views/friends/friends_view.dart';
 import 'package:discourse/views/privacy_settings/friend_list/friend_list_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
@@ -10,14 +11,14 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:get/get.dart';
 
 class PrivacySettingsController extends GetxController {
-  final _relationships = Get.find<RelationshipsService>();
   final _userDb = Get.find<UserDbService>();
   final _storyDb = Get.find<StoryDbService>();
+  final _miscCache = Get.find<MiscCache>();
   final _auth = Get.find<AuthService>();
 
-  Future<List<FriendList>> myFriendLists() => _storyDb.myFriendLists();
+  List<FriendList> get myFriendLists => _miscCache.myFriendLists;
 
-  FriendList? defaultFriendList(List<FriendList> myFriendLists) {
+  FriendList? get defaultFriendList {
     final listId = _auth.currentUser.settings.showStoryTo;
     if (listId == null) return null;
     final defaultList = myFriendLists.where((list) => list.id == listId);
@@ -32,7 +33,11 @@ class PrivacySettingsController extends GetxController {
 
   void editFriendList(FriendList? friendList) async {
     // a bit confusing
-    if (friendList == null) return;
+    if (friendList == null) {
+      // selecting all friends
+      Get.to(FriendsView());
+      return;
+    }
     final result = await Get.to(FriendListView(
       title: 'Edit friend list',
       listName: friendList.name,
@@ -45,6 +50,7 @@ class PrivacySettingsController extends GetxController {
           ));
           if (confirm ?? false) {
             await _storyDb.deleteFriendList(friendList.id);
+            _miscCache.myFriendLists.remove(friendList);
             Get.back(); // return to this page
             update();
           }
@@ -60,12 +66,10 @@ class PrivacySettingsController extends GetxController {
   }
 
   void toNewFriendList() async {
-    final friends = await Future.wait((await _relationships.getFriends())
-        .map((userId) => _userDb.getUser(userId)));
     Get.to(UserSelectorView(
       title: 'Select friends',
       canSelectMultiple: true,
-      onlyUsers: friends,
+      onlyUsers: _miscCache.myFriends,
       onSubmit: (selectedUsers) async {
         final result = await Get.to(FriendListView(
           title: 'New friend list',
@@ -73,7 +77,11 @@ class PrivacySettingsController extends GetxController {
           friends: selectedUsers,
         ));
         if (result != null) {
-          await _storyDb.newFriendList(result['name'], result['friends']);
+          final newList = await _storyDb.newFriendList(
+            result['name'],
+            result['friends'],
+          );
+          _miscCache.myFriendLists.add(newList);
           Get.back(); // return to this page
           update();
         }
