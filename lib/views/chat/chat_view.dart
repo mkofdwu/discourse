@@ -2,7 +2,6 @@ import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/utils/show_private_chat_options.dart';
 import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
@@ -166,7 +165,7 @@ class ChatView extends StatelessWidget {
                 Expanded(child: _appBarContent(controller)),
                 OpacityFeedback(
                   child: Icon(FluentIcons.more_vertical_24_regular),
-                  onPressed: showPrivateChatOptions,
+                  onPressed: controller.showChatOptions,
                 ),
               ],
             ),

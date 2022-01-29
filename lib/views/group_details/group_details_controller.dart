@@ -1,6 +1,8 @@
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
+import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/storage.dart';
@@ -21,6 +23,8 @@ class GroupDetailsController extends GetxController {
   final UserGroupChat _chat;
 
   GroupDetailsController(this._chat);
+
+  DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
 
   void viewGroupPhoto() async {
     if (_chat.photoUrl != null) {
@@ -54,8 +58,8 @@ class GroupDetailsController extends GetxController {
     final newPhoto = await _media.selectPhoto();
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
-      _chat.data.photoUrl = newPhoto.url;
-      await _groupChatDb.updateChatData(_chat.id, _chat.data);
+      _chat.groupData.photoUrl = newPhoto.url;
+      await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
       update();
     }
   }
@@ -66,8 +70,8 @@ class GroupDetailsController extends GetxController {
       subtitle: 'Are you sure you want to remove the group photo?',
     ));
     if (confirmed ?? false) {
-      _chat.data.photoUrl = null;
-      await _groupChatDb.updateChatData(_chat.id, _chat.data);
+      _chat.groupData.photoUrl = null;
+      await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
       Get.back();
       update();
     }
@@ -80,12 +84,12 @@ class GroupDetailsController extends GetxController {
         fields: [
           Field(
             'name',
-            _chat.data.name,
+            _chat.groupData.name,
             textFieldBuilder(label: 'Name'),
           ),
           Field(
             'description',
-            _chat.data.description,
+            _chat.groupData.description,
             textFieldBuilder(
               label: 'Description',
               isMultiline: true,
@@ -98,9 +102,9 @@ class GroupDetailsController extends GetxController {
             setErrors({'name': 'Your group needs to have a name'});
             return;
           }
-          _chat.data.name = inputs['name'];
-          _chat.data.description = inputs['description'];
-          await _groupChatDb.updateChatData(_chat.id, _chat.data);
+          _chat.groupData.name = inputs['name'];
+          _chat.groupData.description = inputs['description'];
+          await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
           update();
         },
       ),

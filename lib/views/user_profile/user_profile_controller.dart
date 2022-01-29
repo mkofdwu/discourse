@@ -27,9 +27,11 @@ class UserProfileController extends GetxController {
   void showProfileOptions() async {
     final choice = await Get.bottomSheet(ChoiceBottomSheet(
       title: _user.username,
-      choices: const [
+      choices: [
         'Send message',
-        'Request friend',
+        relationship == RelationshipStatus.friend
+            ? 'Remove friend'
+            : 'Request friend',
         'Block',
       ],
     ));

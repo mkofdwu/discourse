@@ -40,7 +40,7 @@ class GroupDetailsView extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     OpacityFeedback(
-                      child: chat.data.description.isEmpty
+                      child: chat.groupData.description.isEmpty
                           ? Row(
                               children: const [
                                 Icon(
@@ -58,36 +58,44 @@ class GroupDetailsView extends StatelessWidget {
                                 ),
                               ],
                             )
-                          : Text(chat.data.description),
+                          : Text(chat.groupData.description),
                       onPressed: controller.editNameAndDescription,
                     ),
                     SizedBox(height: 36),
                     Text(
-                      '${chat.data.members.length} members',
+                      '${chat.groupData.members.length} members',
                       style: TextStyle(
                         color: Get.theme.primaryColor.withOpacity(0.4),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     SizedBox(height: 20),
-                    ...chat.data.members.map(
-                      (member) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: MyListTile(
-                          title: member.user.username,
-                          subtitle: member.user.aboutMe,
-                          iconData: FluentIcons.person_16_regular,
-                          suffixIcons: {
-                            FluentIcons.more_vertical_20_regular: () =>
-                                controller.showMemberOptions(member),
-                          },
-                          onPressed: () {
-                            Get.to(UserProfileView(user: member.user));
-                          },
-                        ),
-                      ),
+                    MyListTile(
+                      title: 'You',
+                      subtitle: controller.currentUser.aboutMe,
+                      iconData: FluentIcons.person_16_regular,
                     ),
-                    SizedBox(height: 8),
+                    ...chat.groupData.members
+                        .where(
+                            (member) => member.user != controller.currentUser)
+                        .map(
+                          (member) => Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: MyListTile(
+                              title: member.user.username,
+                              subtitle: member.user.aboutMe,
+                              iconData: FluentIcons.person_16_regular,
+                              suffixIcons: {
+                                FluentIcons.more_vertical_20_regular: () =>
+                                    controller.showMemberOptions(member),
+                              },
+                              onPressed: () {
+                                Get.to(UserProfileView(user: member.user));
+                              },
+                            ),
+                          ),
+                        ),
+                    SizedBox(height: 24),
                     _buildAddMembersButton(controller),
                     SizedBox(height: 36),
                     _buildDangerButton(

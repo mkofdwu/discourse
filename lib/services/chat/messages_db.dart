@@ -142,7 +142,7 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
     Message message,
   ) async {
     final viewedBy = <DiscourseUser>[];
-    for (final member in chat.data.members) {
+    for (final member in chat.groupData.members) {
       final lastReadAt = await _getLastReadAt(member.user.id, chat.id);
       if (lastReadAt != null && message.sentTimestamp.isBefore(lastReadAt)) {
         viewedBy.add(member.user);

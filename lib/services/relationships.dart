@@ -9,16 +9,15 @@ enum RelationshipStatus {
   none,
   canTalk,
   friend,
-  closeFriend,
 }
 
 abstract class BaseRelationshipsService {
   Future<void> setMutualRelationship(
       String otherUserId, RelationshipStatus status);
   Future<void> blockUser(String otherUserId);
+  Future<void> unblockUser(String otherUserId);
   Future<RelationshipStatus> relationshipWithMe(String otherUserId);
   Future<bool> needToAsk(String otherUserId, RequestType request);
-  Future<List<String>> getUsersWithRelationship(RelationshipStatus status);
 }
 
 class RelationshipsService extends GetxService
@@ -48,10 +47,24 @@ class RelationshipsService extends GetxService
   }
 
   @override
+  Future<void> unblockUser(String otherUserId) async {
+    // revert to relationship other user has with me
+    var rs = await relationshipWithMe(otherUserId);
+    if (rs == RelationshipStatus.blocked) {
+      // if other user also blocked me
+      rs = RelationshipStatus.none;
+    }
+    _auth.currentUser.relationships[otherUserId] = rs;
+    await _usersRef.doc(_auth.id).update({
+      'relationships.$otherUserId': rs.index,
+    });
+  }
+
+  @override
   Future<RelationshipStatus> relationshipWithMe(String otherUserId) async {
     if (otherUserId == _auth.id) {
       // this might not be completely true and might cause problems later
-      return RelationshipStatus.closeFriend;
+      return RelationshipStatus.friend;
     }
     final doc = await _usersRef.doc(otherUserId).get();
     final rsIdx = doc.data()!['relationships'][_auth.id];
@@ -81,8 +94,7 @@ class RelationshipsService extends GetxService
     return _isRequestNeeded(rs, request);
   }
 
-  @override
-  Future<List<String>> getUsersWithRelationship(
+  Future<List<String>> _getUsersWithRelationship(
       RelationshipStatus status) async {
     return _auth.currentUser.relationships.entries
         .where((entry) => entry.value == status)
@@ -91,5 +103,8 @@ class RelationshipsService extends GetxService
   }
 
   Future<List<String>> getFriends() =>
-      getUsersWithRelationship(RelationshipStatus.friend);
+      _getUsersWithRelationship(RelationshipStatus.friend);
+
+  Future<List<String>> getBlockedUsers() =>
+      _getUsersWithRelationship(RelationshipStatus.blocked);
 }

@@ -1,4 +1,5 @@
 import 'package:discourse/services/chat/common_chat_db.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
@@ -11,6 +12,7 @@ import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/views/viewed_by/viewed_by_view.dart';
+import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +25,7 @@ class ChatController extends GetxController {
   final _messageSender = Get.find<MessageSenderController>();
   final _messageSelection = Get.find<MessageSelectionController>();
   final _chatExport = Get.find<ChatExportService>();
+  final _miscCache = Get.find<MiscCache>();
 
   final UserChat _chat;
 
@@ -39,10 +42,8 @@ class ChatController extends GetxController {
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
   bool get isPrivateChat => _chat is UserPrivateChat;
-  Member member(String userId) => (_chat as UserGroupChat)
-      .data
-      .members
-      .firstWhere((member) => member.user.id == userId);
+  Member member(String userId) =>
+      _chat.groupData.members.firstWhere((member) => member.user.id == userId);
 
   ScrollController get scrollController => _scrollController;
   bool get showGoToBottomArrow =>
@@ -84,6 +85,44 @@ class ChatController extends GetxController {
       await Get.to(GroupDetailsView(chat: _chat as UserGroupChat));
     }
     onStartReading();
+  }
+
+  void showChatOptions() async {
+    final choice = await Get.bottomSheet(ChoiceBottomSheet(
+      title: 'Chat options',
+      choices: [
+        'Find in chat',
+        'Go to date',
+        'Export history',
+        'Clear chat',
+        (_chat is UserGroupChat)
+            ? 'Leave group'
+            : (_miscCache.myFriends
+                    .contains((chat as UserPrivateChat).otherUser)
+                ? 'Remove friend'
+                : 'Request friend'),
+        if (_chat is UserPrivateChat) 'Block',
+      ],
+    ));
+    if (choice == null) return;
+    switch (choice) {
+      case 'Find in chat':
+        break;
+      case 'Go to date':
+        break;
+      case 'Export history':
+        break;
+      case 'Clear chat':
+        break;
+      case 'Leave group':
+        break;
+      case 'Request friend':
+        break;
+      case 'Remove friend':
+        break;
+      case 'Block':
+        break;
+    }
   }
 
   void toMessageViewedBy() async {

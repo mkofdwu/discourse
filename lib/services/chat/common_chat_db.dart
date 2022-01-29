@@ -3,6 +3,7 @@ import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
+import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
@@ -17,6 +18,7 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
+  final _privateChatDb = Get.find<PrivateChatDbService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
 
@@ -38,7 +40,7 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
           lastReadAt: data['lastReadAt']?.toDate(),
           pinned: data['pinned'],
           otherUser: await _userDb.getUser(data['otherUserId']),
-          data: PrivateChatData(),
+          data: await _privateChatDb.getChatData(doc.id),
         ));
       } else {
         userChats.add(UserGroupChat(
@@ -81,5 +83,9 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
     // (as long as this page is open)
     // when leaving chat page will be reset to current time
     // safe to assume user user will not leave page open for this long
+  }
+
+  Future<void> deletePhoto(String photoUrl) async {
+    // TODO
   }
 }

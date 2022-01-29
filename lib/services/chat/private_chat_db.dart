@@ -14,6 +14,7 @@ abstract class BasePrivateChatDbService {
   Future<UserChat> getChatWith(DiscourseUser user);
   Future<UserPrivateChat> createChatWith(DiscourseUser otherUser);
   Future<void> addUserPrivateChat(String chatId, String otherUserId);
+  Future<PrivateChatData> getChatData(String chatId);
 }
 
 class PrivateChatDbService extends GetxService
@@ -52,7 +53,7 @@ class PrivateChatDbService extends GetxService
       lastReadAt: data['lastReadAt']?.toDate(),
       pinned: data['pinned'],
       otherUser: await _userDb.getUser(data['otherUserId']),
-      data: PrivateChatData(),
+      data: await getChatData(doc.id),
     );
   }
 
@@ -64,6 +65,7 @@ class PrivateChatDbService extends GetxService
     // but chats without messages aren't displayed
     final chatDoc = await _privateChatsRef.add({
       'memberIds': [_auth.id, otherUser.id],
+      'mediaUrls': [],
     });
     await _messagesRef.doc(chatDoc.id).set({});
     await _usersRef.doc(_auth.id).collection('chats').doc(chatDoc.id).set({
@@ -94,7 +96,7 @@ class PrivateChatDbService extends GetxService
       id: chatDoc.id,
       pinned: false,
       otherUser: otherUser,
-      data: PrivateChatData(),
+      data: PrivateChatData(mediaUrls: []),
     );
   }
 
@@ -106,5 +108,16 @@ class PrivateChatDbService extends GetxService
       'pinned': false,
       'otherUserId': otherUserId,
     });
+  }
+
+  @override
+  Future<PrivateChatData> getChatData(String chatId) async {
+    final doc = await _privateChatsRef.doc(chatId).get();
+    return PrivateChatData.fromDoc(doc);
+  }
+
+  @override
+  Future<void> updateChatData(String chatId, GroupChatData newData) async {
+    await _privateChatsRef.doc(chatId).update(newData.toData());
   }
 }

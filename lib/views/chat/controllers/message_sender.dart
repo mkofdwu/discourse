@@ -40,7 +40,7 @@ class MessageSenderController extends GetxController {
       }
     } else {
       // send the message
-      await _uploadMessagePhoto(unsentMessage);
+      await _uploadMessagePhoto(unsentMessage, chat);
       await _messagesDb.sendMessage(unsentMessage);
       unsentMessages.remove(unsentMessage);
       update();
@@ -49,10 +49,10 @@ class MessageSenderController extends GetxController {
 
   Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
     final privateChat =
-        await _privateChatDb.createChatWith(chat.data.otherUser);
+        await _privateChatDb.createChatWith(chat.nonExistentData.otherUser);
     for (UnsentMessage unsent in List.from(unsentMessages)) {
       unsent.chatId = privateChat.id;
-      await _uploadMessagePhoto(unsent);
+      await _uploadMessagePhoto(unsent, privateChat);
       await _messagesDb.sendMessage(unsent);
       unsentMessages.remove(unsent);
     }
@@ -60,9 +60,12 @@ class MessageSenderController extends GetxController {
     update();
   }
 
-  Future<void> _uploadMessagePhoto(UnsentMessage message) async {
+  Future<void> _uploadMessagePhoto(UnsentMessage message, UserChat chat) async {
     if (message.photo != null && message.photo!.isLocal) {
       await _storage.uploadPhoto(message.photo!, 'messagephoto');
+    }
+    if (message.photo != null) {
+      chat.data.mediaUrls.add(message.photo!.url!);
     }
   }
 }

@@ -4,10 +4,23 @@ import 'package:discourse/models/db_objects/user.dart';
 
 enum ChatType { private, group }
 
-abstract class ChatData {}
+abstract class ChatData {
+  List<String> mediaUrls; // photos and videos (just photos for now)
+
+  ChatData(this.mediaUrls);
+}
 
 class PrivateChatData extends ChatData {
-  PrivateChatData();
+  PrivateChatData({required List<String> mediaUrls}) : super(mediaUrls);
+
+  factory PrivateChatData.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return PrivateChatData(mediaUrls: List<String>.from(data['mediaUrls']));
+  }
+
+  Map<String, dynamic> toData() {
+    return {'mediaUrls': mediaUrls};
+  }
 }
 
 class GroupChatData extends ChatData {
@@ -21,7 +34,8 @@ class GroupChatData extends ChatData {
     required this.description,
     this.photoUrl,
     required this.members,
-  });
+    required List<String> mediaUrls,
+  }) : super(mediaUrls);
 
   factory GroupChatData.fromDoc(
     DocumentSnapshot<Map<String, dynamic>> doc,
@@ -33,6 +47,7 @@ class GroupChatData extends ChatData {
       description: data['description'],
       photoUrl: data['photoUrl'],
       members: members,
+      mediaUrls: List<String>.from(data['mediaUrls']),
     );
   }
 
@@ -41,6 +56,7 @@ class GroupChatData extends ChatData {
       'name': name,
       'description': description,
       'photoUrl': photoUrl,
+      'mediaUrls': mediaUrls,
     };
   }
 }
@@ -48,5 +64,5 @@ class GroupChatData extends ChatData {
 class NonExistentChatData extends ChatData {
   final DiscourseUser otherUser;
 
-  NonExistentChatData({required this.otherUser});
+  NonExistentChatData({required this.otherUser}) : super([]);
 }

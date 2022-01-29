@@ -6,19 +6,22 @@ abstract class UserChat {
   final String id;
   DateTime? lastReadAt;
   bool pinned;
+  ChatData data;
 
   UserChat({
     required this.id,
     this.lastReadAt,
     required this.pinned,
+    required this.data,
   });
 
   String? get photoUrl;
   String get title;
   String? get subtitle;
 
-  // PrivateChatData get privateData => data as PrivateChatData;
-  // GroupChatData get groupData => data as GroupChatData;
+  PrivateChatData get privateData => data as PrivateChatData;
+  GroupChatData get groupData => data as GroupChatData;
+  NonExistentChatData get nonExistentData => data as NonExistentChatData;
 
   @override
   bool operator ==(Object other) => other is UserChat && id == other.id;
@@ -29,18 +32,18 @@ abstract class UserChat {
 
 class UserPrivateChat extends UserChat {
   final DiscourseUser otherUser;
-  PrivateChatData data;
 
   UserPrivateChat({
     required String id,
     DateTime? lastReadAt,
     required bool pinned,
     required this.otherUser,
-    required this.data,
+    required PrivateChatData data,
   }) : super(
           id: id,
           lastReadAt: lastReadAt,
           pinned: pinned,
+          data: data,
         );
 
   @override
@@ -54,44 +57,44 @@ class UserPrivateChat extends UserChat {
 }
 
 class UserGroupChat extends UserChat {
-  GroupChatData data;
-
   UserGroupChat({
     required String id,
     DateTime? lastReadAt,
     required bool pinned,
-    required this.data,
+    required GroupChatData data,
   }) : super(
           id: id,
           lastReadAt: lastReadAt,
           pinned: pinned,
+          data: data,
         );
 
   @override
-  String? get photoUrl => data.photoUrl;
+  String? get photoUrl => groupData.photoUrl;
 
   @override
-  String get title => data.name;
+  String get title => groupData.name;
 
   @override
-  String get subtitle => '${data.members.length} members';
+  String get subtitle => '${groupData.members.length} members';
 }
 
 class NonExistentChat extends UserChat {
   // private chat that does not have any messages yet
-  NonExistentChatData data;
-
   NonExistentChat({
     required DiscourseUser otherUser,
     required List<Member> members,
-  })  : data = NonExistentChatData(otherUser: otherUser),
-        super(id: '', pinned: false);
+  }) : super(
+          id: '',
+          pinned: false,
+          data: NonExistentChatData(otherUser: otherUser),
+        );
 
   @override
   String? get photoUrl => null;
 
   @override
-  String get title => data.otherUser.username;
+  String get title => nonExistentData.otherUser.username;
 
   @override
   String? get subtitle => null;

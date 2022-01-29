@@ -41,7 +41,7 @@ class MessageController extends GetxController {
     final currentChat = Get.find<UserChat>();
     if (currentChat is UserPrivateChat) return Palette.orange;
     currentChat as UserGroupChat;
-    final repliedMessageSender = currentChat.data.members
+    final repliedMessageSender = currentChat.groupData.members
         .firstWhere((m) => m.user.id == _message.repliedMessage!.sender.id);
     return repliedMessageSender.color;
   }

@@ -83,7 +83,8 @@ class ActivityView extends StatelessWidget {
                         ),
                       )
                       .toList(),
-                )),
+                ),
+              ),
       ),
     );
   }

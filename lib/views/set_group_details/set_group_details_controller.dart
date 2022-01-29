@@ -64,6 +64,7 @@ class SetGroupDetailsController extends GetxController {
       members: (sendInvitesTo + addMembers)
           .map((user) => Member.create(user))
           .toList(),
+      mediaUrls: [],
     ));
     Get.off(ChatView(chat: chat));
   }
