@@ -53,7 +53,7 @@ class UserPrivateChat extends UserChat {
   String get title => otherUser.username;
 
   @override
-  String? get subtitle => null;
+  String? get subtitle => null; // TODO: show user lastSeenAt
 }
 
 class UserGroupChat extends UserChat {
@@ -81,20 +81,22 @@ class UserGroupChat extends UserChat {
 
 class NonExistentChat extends UserChat {
   // private chat that does not have any messages yet
+  final DiscourseUser otherUser;
+
   NonExistentChat({
-    required DiscourseUser otherUser,
+    required this.otherUser,
     required List<Member> members,
   }) : super(
           id: '',
           pinned: false,
-          data: NonExistentChatData(otherUser: otherUser),
+          data: NonExistentChatData(),
         );
 
   @override
-  String? get photoUrl => null;
+  String? get photoUrl => otherUser.photoUrl;
 
   @override
-  String get title => nonExistentData.otherUser.username;
+  String get title => otherUser.username;
 
   @override
   String? get subtitle => null;

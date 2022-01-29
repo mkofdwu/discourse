@@ -15,19 +15,20 @@ abstract class BasePrivateChatDbService {
   Future<UserPrivateChat> createChatWith(DiscourseUser otherUser);
   Future<void> addUserPrivateChat(String chatId, String otherUserId);
   Future<PrivateChatData> getChatData(String chatId);
+  Future<void> updateChatData(String chatId, PrivateChatData newData);
 }
 
 class PrivateChatDbService extends GetxService
     implements BasePrivateChatDbService {
-  final _usersRef = FirebaseFirestore.instance.collection('users');
-  final _messagesRef = FirebaseFirestore.instance.collection('messages');
-  final _privateChatsRef =
-      FirebaseFirestore.instance.collection('privateChats');
-
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _relationships = Get.find<RelationshipsService>();
   final _requests = Get.find<RequestsService>();
+
+  final _usersRef = FirebaseFirestore.instance.collection('users');
+  final _messagesRef = FirebaseFirestore.instance.collection('messages');
+  final _privateChatsRef =
+      FirebaseFirestore.instance.collection('privateChats');
 
   @override
   Future<UserChat> getChatWith(DiscourseUser otherUser) async {
@@ -117,7 +118,7 @@ class PrivateChatDbService extends GetxService
   }
 
   @override
-  Future<void> updateChatData(String chatId, GroupChatData newData) async {
+  Future<void> updateChatData(String chatId, PrivateChatData newData) async {
     await _privateChatsRef.doc(chatId).update(newData.toData());
   }
 }

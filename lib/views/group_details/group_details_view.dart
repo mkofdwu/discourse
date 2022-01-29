@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
@@ -61,7 +64,7 @@ class GroupDetailsView extends StatelessWidget {
                           : Text(chat.groupData.description),
                       onPressed: controller.editNameAndDescription,
                     ),
-                    SizedBox(height: 36),
+                    SizedBox(height: 40),
                     Text(
                       '${chat.groupData.members.length} members',
                       style: TextStyle(
@@ -97,7 +100,19 @@ class GroupDetailsView extends StatelessWidget {
                         ),
                     SizedBox(height: 24),
                     _buildAddMembersButton(controller),
-                    SizedBox(height: 36),
+                    SizedBox(height: 40),
+                    if (chat.data.mediaUrls.isNotEmpty) ...[
+                      Text(
+                        'Photos & videos',
+                        style: TextStyle(
+                          color: Get.theme.primaryColor.withOpacity(0.4),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      _buildPhotosAndVideosList(controller),
+                      SizedBox(height: 40),
+                    ],
                     _buildDangerButton(
                       'Leave group',
                       FluentIcons.sign_out_20_regular,
@@ -109,11 +124,11 @@ class GroupDetailsView extends StatelessWidget {
                       FluentIcons.delete_20_regular,
                       controller.deleteGroup,
                     ),
+                    SizedBox(height: 60),
                   ],
                 ),
               ),
             ),
-            SliverFillRemaining(),
           ],
         ),
       ),
@@ -139,9 +154,12 @@ class GroupDetailsView extends StatelessWidget {
                   background: GestureDetector(
                     onTap: controller.viewGroupPhoto,
                     child: chat.photoUrl != null
-                        ? Image.network(
-                            chat.photoUrl!,
-                            fit: BoxFit.cover,
+                        ? Hero(
+                            tag: chat.photoUrl!,
+                            child: Image.network(
+                              chat.photoUrl!,
+                              fit: BoxFit.cover,
+                            ),
                           )
                         : Container(
                             color: Palette.orange.withOpacity(0.6),
@@ -291,6 +309,66 @@ class GroupDetailsView extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      );
+
+  Widget _buildPhotosAndVideosList(GroupDetailsController controller) =>
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: chat.data.mediaUrls.reversed
+                  .take(min(3, chat.data.mediaUrls.length))
+                  .map<Widget>((photoUrl) => OpacityFeedback(
+                        onPressed: () => controller.toExaminePhoto(photoUrl),
+                        child: Hero(
+                          tag: photoUrl,
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: CachedNetworkImage(
+                              imageUrl: photoUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ))
+                  .toList() +
+              [
+                if (chat.data.mediaUrls.length > 3)
+                  OpacityFeedback(
+                    onPressed: controller.toPhotosAndVideos,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Palette.black2,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            (chat.data.mediaUrls.length - 3).toString(),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(
+                            FluentIcons.chevron_right_16_regular,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
         ),
       );
 

@@ -1,6 +1,7 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:discourse/services/storage.dart';
 class MessageSenderController extends GetxController {
   final _messagesDb = Get.find<MessagesDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
+  final _groupChatDb = Get.find<GroupChatDbService>();
   final _storage = Get.find<StorageService>();
 
   final textController = TextEditingController();
@@ -48,8 +50,7 @@ class MessageSenderController extends GetxController {
   }
 
   Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
-    final privateChat =
-        await _privateChatDb.createChatWith(chat.nonExistentData.otherUser);
+    final privateChat = await _privateChatDb.createChatWith(chat.otherUser);
     for (UnsentMessage unsent in List.from(unsentMessages)) {
       unsent.chatId = privateChat.id;
       await _uploadMessagePhoto(unsent, privateChat);
@@ -65,7 +66,13 @@ class MessageSenderController extends GetxController {
       await _storage.uploadPhoto(message.photo!, 'messagephoto');
     }
     if (message.photo != null) {
+      // FIXME: there might be a better way to do this
       chat.data.mediaUrls.add(message.photo!.url!);
+      if (chat is UserPrivateChat) {
+        await _privateChatDb.updateChatData(chat.id, chat.privateData);
+      } else if (chat is UserGroupChat) {
+        await _groupChatDb.updateChatData(chat.id, chat.groupData);
+      }
     }
   }
 }

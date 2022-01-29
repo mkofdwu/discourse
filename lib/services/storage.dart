@@ -34,4 +34,7 @@ class StorageService extends GetxService {
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
     return List.generate(10, (i) => chars[random.nextInt(chars.length)]).join();
   }
+
+  Future<void> deletePhoto(String photoUrl) =>
+      FirebaseStorage.instance.refFromURL(photoUrl).delete();
 }

@@ -225,41 +225,6 @@ class ChatView extends StatelessWidget {
             FluentIcons.eye_show_20_regular: controller.toMessageViewedBy,
         },
       );
-  // PreferredSize(
-  //   preferredSize: Size.fromHeight(76),
-  //   child: SafeArea(
-  //     child: Container(
-  //       height: 76,
-  //       padding: const EdgeInsets.symmetric(horizontal: 30),
-  //       color: Get.theme.primaryColorLight,
-  //       child: Row(
-  //         children: [
-  //           Text(
-  //             '${controller.numMessagesSelected} selected',
-  //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-  //           ),
-  //           Spacer(),
-  //           if (controller.canReplyToSelectedMessages)
-  //             OpacityFeedback(
-  //               onPressed: controller.replyToSelectedMessages,
-  //               child: Icon(FluentIcons.arrow_reply_20_regular, size: 20),
-  //             ),
-  //           if (controller.canReplyToSelectedMessages) SizedBox(width: 16),
-  //           if (controller.canDeleteSelectedMessages)
-  //             OpacityFeedback(
-  //               onPressed: controller.deleteSelectedMessages,
-  //               child: Icon(FluentIcons.delete_20_regular, size: 20),
-  //             ),
-  //           if (controller.canDeleteSelectedMessages) SizedBox(width: 16),
-  //           OpacityFeedback(
-  //             onPressed: controller.cancelMessageSelection,
-  //             child: Icon(FluentIcons.dismiss_20_regular, size: 20),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   ),
-  // );
 
   Widget _buildTypingIndicator(ChatController controller) =>
       StreamBuilder<String?>(

@@ -4,6 +4,7 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
+import 'package:discourse/services/storage.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
@@ -19,6 +20,7 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
   final _userDb = Get.find<UserDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
+  final _storage = Get.find<StorageService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
 
@@ -85,7 +87,13 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
     // safe to assume user user will not leave page open for this long
   }
 
-  Future<void> deletePhoto(String photoUrl) async {
-    // TODO
+  Future<void> deletePhotos(List<String> photoUrls, UserChat chat) async {
+    await FirebaseFirestore.instance
+        .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
+        .doc(chat.id)
+        .update({'mediaUrls': FieldValue.arrayRemove(photoUrls)});
+    for (final photoUrl in photoUrls) {
+      await _storage.deletePhoto(photoUrl);
+    }
   }
 }

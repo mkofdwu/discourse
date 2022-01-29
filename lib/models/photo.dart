@@ -14,4 +14,6 @@ class Photo {
     assert(url != null);
     isLocal = false;
   }
+
+  String get heroTag => isLocal ? file!.path : url!;
 }

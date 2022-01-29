@@ -44,6 +44,7 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                 setState(() => _zoomedIn = false);
               }
             },
+            heroAttributes: PhotoViewHeroAttributes(tag: widget.photo.heroTag),
             imageProvider: widget.photo.isLocal
                 ? FileImage(widget.photo.file!) as ImageProvider
                 : CachedNetworkImageProvider(widget.photo.url!),

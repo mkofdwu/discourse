@@ -35,7 +35,6 @@ class ChatController extends GetxController {
   final _messageKeys = <String, GlobalKey>{};
   final _scrollController = ScrollController();
 
-  UserChat get chat => _chat;
   bool get isLoadingMessages => _isLoadingMessages;
   List<Message> get messages => _messages;
   GlobalKey messageKey(String messageId) => _messageKeys[messageId]!;
@@ -64,13 +63,13 @@ class ChatController extends GetxController {
   }
 
   void onStartReading() {
-    _commonChatDb.startReadingChat(chat.id);
+    _commonChatDb.startReadingChat(_chat.id);
   }
 
   // TODO: check if turning off phone or other stuff calls this
   void onStopReading() {
     // when the user is no longer looking at the chat log
-    _commonChatDb.stopReadingChat(chat.id);
+    _commonChatDb.stopReadingChat(_chat.id);
   }
 
   Stream<String?> typingTextStream() => _whosTyping.typingTextStream(_chat.id);
@@ -98,7 +97,7 @@ class ChatController extends GetxController {
         (_chat is UserGroupChat)
             ? 'Leave group'
             : (_miscCache.myFriends
-                    .contains((chat as UserPrivateChat).otherUser)
+                    .contains((_chat as UserPrivateChat).otherUser)
                 ? 'Remove friend'
                 : 'Request friend'),
         if (_chat is UserPrivateChat) 'Block',
@@ -210,6 +209,14 @@ class ChatController extends GetxController {
     ));
     if (confirmed ?? false) {
       await _messagesDb.deleteMessages(_messageSelection.selectedMessages);
+      final photoUrls = _messageSelection.selectedMessages
+          .where((message) => message.photo != null)
+          .map((message) => message.photo!.url!)
+          .toList();
+      await _commonChatDb.deletePhotos(photoUrls, _chat);
+      for (final photoUrl in photoUrls) {
+        _chat.data.mediaUrls.remove(photoUrl);
+      }
       _messageSelection.cancelSelection();
     }
   }

@@ -33,12 +33,45 @@ class SetGroupDetailsView extends StatelessWidget {
               _buildPhotoAndName(controller),
               SizedBox(height: 44),
               if (controller.addMembers.isNotEmpty) ...[
-                Text(
-                  'Add members',
-                  style: TextStyle(
-                    color: Get.theme.primaryColor.withOpacity(0.4),
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Add members',
+                      style: TextStyle(
+                        color: Get.theme.primaryColor.withOpacity(0.4),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Spacer(),
+                    OpacityFeedback(
+                      onPressed: controller.addFriends,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(10, 7, 12, 7),
+                        decoration: BoxDecoration(
+                          color: Palette.black2,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(
+                              FluentIcons.add_16_regular,
+                              color: Palette.orange,
+                              size: 16,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Friends',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Palette.orange,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 24),
                 Row(

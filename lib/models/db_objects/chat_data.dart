@@ -62,7 +62,5 @@ class GroupChatData extends ChatData {
 }
 
 class NonExistentChatData extends ChatData {
-  final DiscourseUser otherUser;
-
-  NonExistentChatData({required this.otherUser}) : super([]);
+  NonExistentChatData() : super([]);
 }

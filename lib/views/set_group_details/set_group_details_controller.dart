@@ -5,9 +5,11 @@ import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/storage.dart';
 import 'package:discourse/views/chat/chat_view.dart';
+import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +18,7 @@ class SetGroupDetailsController extends GetxController {
   final _relationships = Get.find<RelationshipsService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _storage = Get.find<StorageService>();
+  final _miscCache = Get.find<MiscCache>();
 
   final nameController = TextEditingController();
   String? nameError;
@@ -44,6 +47,36 @@ class SetGroupDetailsController extends GetxController {
       photo = newPhoto;
       update();
     }
+  }
+
+  void addFriends() {
+    // copied from friendlistview
+    final unselectedFriends = _miscCache.myFriends
+        .where((user) => !addMembers.any((selected) => selected.id == user.id))
+        .toList();
+    Get.to(UserSelectorView(
+      title: 'Add friends',
+      canSelectMultiple: true,
+      onlyUsers: unselectedFriends,
+      onSubmit: (selectedUsers) {
+        addMembers.addAll(selectedUsers);
+        Get.back();
+        update();
+      },
+    ));
+  }
+
+  void inviteMore() {
+    // copied from friendlistview
+    Get.to(UserSelectorView(
+      title: 'Add members',
+      canSelectMultiple: true,
+      onSubmit: (selectedUsers) {
+        addMembers.addAll(selectedUsers);
+        Get.back();
+        update();
+      },
+    ));
   }
 
   Future<void> submit() async {

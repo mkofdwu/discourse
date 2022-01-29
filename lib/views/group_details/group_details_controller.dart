@@ -9,6 +9,7 @@ import 'package:discourse/services/storage.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/examine_photo/examine_photo_view.dart';
+import 'package:discourse/views/media_list/media_list_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
@@ -105,6 +106,7 @@ class GroupDetailsController extends GetxController {
           _chat.groupData.name = inputs['name'];
           _chat.groupData.description = inputs['description'];
           await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
+          Get.back();
           update();
         },
       ),
@@ -131,7 +133,28 @@ class GroupDetailsController extends GetxController {
     ));
   }
 
-  void leaveGroup() {}
+  void toExaminePhoto(String photoUrl) {
+    Get.to(ExaminePhotoView(photo: Photo.url(photoUrl)));
+  }
+
+  void toPhotosAndVideos() {
+    Get.to(MediaListView(photoUrls: _chat.data.mediaUrls.reversed.toList()));
+  }
+
+  void leaveGroup() async {
+    final confirmed = await Get.bottomSheet(YesNoBottomSheet(
+      title: 'Leave group?',
+      subtitle:
+          'Are you sure you want to leave this chat? You will need someone to add you back in afterwards.',
+    ));
+    if (confirmed ?? false) {
+      // TODO: fixme startreading / stop reading chat is triggered after this
+      // causing an error and update() is not called in home page
+      await _groupChatDb.leaveGroup(_chat.id);
+      Get.back();
+      Get.back();
+    }
+  }
 
   void deleteGroup() {}
 }
