@@ -5,3 +5,7 @@ String formatTime(DateTime dateTime) {
 String formatDate(DateTime dateTime) {
   return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
 }
+
+bool isSameDay(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}

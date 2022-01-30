@@ -61,7 +61,12 @@ class ChatsController extends GetxController {
   }
 
   void viewStory(DiscourseUser user, List<StoryPage> story) {
-    Get.to(StoryView(title: "${user.username}'s story", story: story));
+    Get.to(StoryView(
+      title: "${user.username}'s story",
+      story: story,
+      // TODO
+      onShowOptions: () async {},
+    ));
   }
 
   Stream<Message> lastMessageStream(UserChat chat) =>

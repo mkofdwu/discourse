@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// use this in the future when security is enforced (possibly by using an express server)
+
 class UserProfile {
   final String id;
   String username;

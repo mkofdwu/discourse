@@ -4,6 +4,7 @@ import 'package:discourse/services/story_db.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
 import 'package:discourse/views/my_story/new_text_story/new_text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
+import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 
@@ -22,12 +23,34 @@ class MyStoryController extends GetxController {
         'You dont have anything added to your story. Try writing something or adding a photo first',
       );
     } else {
-      Get.to(StoryView(title: 'Your story', story: myStory));
+      Get.to(StoryView(
+        title: 'Your story',
+        story: myStory,
+        // TODO
+        onShowOptions: () async {
+          final choice = await Get.bottomSheet(ChoiceBottomSheet(
+            title: 'Story options',
+            choices: const ['Reply', 'Show viewed by'],
+          ));
+          if (choice == null) return;
+        },
+      ));
     }
   }
 
   void viewSingleStory(StoryPage story) {
-    Get.to(StoryView(title: 'Your story', story: [story]));
+    Get.to(StoryView(
+      title: 'Your story',
+      story: [story],
+      // TODO
+      onShowOptions: () async {
+        final choice = await Get.bottomSheet(ChoiceBottomSheet(
+          title: 'Story options',
+          choices: const ['Reply', 'Show viewed by'],
+        ));
+        if (choice == null) return;
+      },
+    ));
   }
 
   void deleteStory(StoryPage story) async {

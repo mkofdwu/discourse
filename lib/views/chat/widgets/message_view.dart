@@ -81,8 +81,10 @@ class MessageView extends StatelessWidget {
     );
   }
 
-  Widget _buildPhotoView(Photo photo) =>
-      CachedNetworkImage(imageUrl: photo.url!, width: 200);
+  Widget _buildPhotoView(Photo photo) => Hero(
+        tag: photo.heroTag,
+        child: CachedNetworkImage(imageUrl: photo.url!, width: 200),
+      );
 
   Widget _buildRepliedMessageView(RepliedMessage repliedMessage, Color color) =>
       Container(

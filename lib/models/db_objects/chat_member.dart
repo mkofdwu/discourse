@@ -45,7 +45,7 @@ class Member {
   factory Member.removed(DiscourseUser user) {
     return Member(
       user: user,
-      color: Color(0xFFDDDDDD),
+      color: Color(0xFF888888),
       role: MemberRole.removed,
     );
   }

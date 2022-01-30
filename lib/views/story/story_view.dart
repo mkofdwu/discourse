@@ -9,11 +9,13 @@ import 'package:get/get.dart';
 class StoryView extends StatefulWidget {
   final String title;
   final List<StoryPage> story;
+  final Future Function() onShowOptions;
 
   const StoryView({
     Key? key,
     required this.title,
     required this.story,
+    required this.onShowOptions,
   }) : super(key: key);
 
   @override
@@ -86,6 +88,28 @@ class _StoryViewState extends State<StoryView>
             })(),
           ),
           _buildTop(),
+          Positioned(
+            bottom: 60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Swipe up to respond',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -160,7 +184,11 @@ class _StoryViewState extends State<StoryView>
                 Spacer(),
                 OpacityFeedback(
                   child: Icon(FluentIcons.more_vertical_24_regular, size: 24),
-                  onPressed: () {},
+                  onPressed: () async {
+                    _animController!.stop();
+                    await widget.onShowOptions();
+                    _animController!.forward();
+                  },
                 ),
               ],
             ),

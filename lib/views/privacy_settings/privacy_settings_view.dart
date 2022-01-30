@@ -20,7 +20,7 @@ class PrivacySettingsView extends StatelessWidget {
       init: PrivacySettingsController(),
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Privacy Settings'),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 40),
           child: Column(
             children: [

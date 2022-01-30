@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -160,5 +161,12 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
     return snapshot.docs
         .map((doc) => Photo.url(doc.data()['photoUrl']))
         .toList();
+  }
+
+  Future<void> newAlert(String chatId, AlertType type, String content) async {
+    await _messagesRef
+        .doc(chatId)
+        .collection('messages')
+        .add({'type': type.index, 'content': content});
   }
 }

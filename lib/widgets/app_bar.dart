@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 PreferredSize myAppBar({
   required String title,
   Map<IconData, Function()>? actions,
+  Function()? onBack,
 }) {
   return PreferredSize(
     preferredSize: Size.fromHeight(76),
@@ -18,7 +19,7 @@ PreferredSize myAppBar({
           children: [
             OpacityFeedback(
               child: Icon(FluentIcons.chevron_left_20_regular),
-              onPressed: () => Get.back(),
+              onPressed: onBack ?? () => Get.back(),
             ),
             SizedBox(width: 24),
             Text(

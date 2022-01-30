@@ -1,6 +1,9 @@
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/services/user_db.dart';
+import 'package:discourse/utils/format_date_time.dart';
+import 'package:get/get.dart';
 
 abstract class UserChat {
   final String id;
@@ -17,7 +20,7 @@ abstract class UserChat {
 
   String? get photoUrl;
   String get title;
-  String? get subtitle;
+  Stream<String?> get subtitle;
 
   PrivateChatData get privateData => data as PrivateChatData;
   GroupChatData get groupData => data as GroupChatData;
@@ -53,7 +56,15 @@ class UserPrivateChat extends UserChat {
   String get title => otherUser.username;
 
   @override
-  String? get subtitle => null; // TODO: show user lastSeenAt
+  Stream<String?> get subtitle => Get.find<UserDbService>()
+          .userLastSeenStream(otherUser.id)
+          .asyncMap((lastSeen) {
+        if (lastSeen == null) return 'online';
+        return 'last seen ' +
+            (isSameDay(lastSeen, DateTime.now())
+                ? formatTime(lastSeen)
+                : formatDate(lastSeen));
+      });
 }
 
 class UserGroupChat extends UserChat {
@@ -76,7 +87,8 @@ class UserGroupChat extends UserChat {
   String get title => groupData.name;
 
   @override
-  String get subtitle => '${groupData.members.length} members';
+  Stream<String> get subtitle =>
+      Stream.value('${groupData.members.length} members');
 }
 
 class NonExistentChat extends UserChat {
@@ -99,5 +111,13 @@ class NonExistentChat extends UserChat {
   String get title => otherUser.username;
 
   @override
-  String? get subtitle => null;
+  Stream<String?> get subtitle => Get.find<UserDbService>()
+          .userLastSeenStream(otherUser.id)
+          .asyncMap((lastSeen) {
+        if (lastSeen == null) return 'online';
+        return 'last seen ' +
+            (isSameDay(lastSeen, DateTime.now())
+                ? formatTime(lastSeen)
+                : formatDate(lastSeen));
+      });
 }

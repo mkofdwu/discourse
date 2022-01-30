@@ -8,6 +8,7 @@ class DiscourseUser {
   String username;
   String? photoUrl;
   String? aboutMe;
+  DateTime? lastSeen;
   UserSettings settings;
   Map<String, RelationshipStatus> relationships;
 
@@ -15,8 +16,9 @@ class DiscourseUser {
     required this.id,
     required this.email,
     required this.username,
-    this.photoUrl,
-    this.aboutMe,
+    required this.photoUrl,
+    required this.aboutMe,
+    required this.lastSeen,
     required this.settings,
     required this.relationships,
   });
@@ -29,6 +31,7 @@ class DiscourseUser {
       username: data['username'],
       photoUrl: data['photoUrl'],
       aboutMe: data['aboutMe'],
+      lastSeen: data['lastSeen']?.toDate(),
       settings: UserSettings.fromMap(data['settings']),
       relationships: Map<String, int>.from(data['relationships']).map(
         (userId, rsIdx) => MapEntry(userId, RelationshipStatus.values[rsIdx]),
@@ -42,6 +45,7 @@ class DiscourseUser {
       'username': username,
       'photoUrl': photoUrl,
       'aboutMe': aboutMe,
+      'lastSeen': lastSeen,
       'settings': settings.toMap(),
       'relationships':
           relationships.map((userId, rs) => MapEntry(userId, rs.index)),
@@ -50,7 +54,7 @@ class DiscourseUser {
 
   @override
   String toString() =>
-      'DiscourseUser(id: $id, email: $email, username: $username, photoUrl: $photoUrl)';
+      'DiscourseUser(id: $id, email: $email, username: $username)';
 
   @override
   bool operator ==(Object other) {

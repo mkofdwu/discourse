@@ -103,6 +103,9 @@ class AuthService extends GetxService implements BaseAuthService {
         id: credential.user!.uid,
         email: email,
         username: username,
+        photoUrl: null,
+        aboutMe: null,
+        lastSeen: null,
         settings: UserSettings(
           enableNotifications: true,
           showStoryTo: null,

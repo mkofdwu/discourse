@@ -7,6 +7,8 @@ abstract class BaseUserDbService {
   Future<DiscourseUser?> getUserByUsername(String username);
   Future<void> setUserData(DiscourseUser user); // updates all user data
   Future<void> deleteUser(String id);
+  Future<void> setLastSeen(String id, DateTime? lastSeen);
+  Stream<DateTime?> userLastSeenStream(String id);
 }
 
 class UserDbService extends GetxService implements BaseUserDbService {
@@ -59,4 +61,16 @@ class UserDbService extends GetxService implements BaseUserDbService {
     }
     return users;
   }
+
+  @override
+  Future<void> setLastSeen(String id, DateTime? lastSeen) async {
+    // id has to be current user's id
+    await _usersRef.doc(id).update({'lastSeen': lastSeen});
+  }
+
+  @override
+  Stream<DateTime?> userLastSeenStream(String id) => _usersRef
+      .doc(id)
+      .snapshots()
+      .asyncMap<DateTime?>((doc) => doc.data()!['lastSeen']?.toDate());
 }

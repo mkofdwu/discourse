@@ -15,7 +15,7 @@ abstract class BaseRelationshipsService {
   Future<void> setMutualRelationship(
       String otherUserId, RelationshipStatus status);
   Future<void> blockUser(String otherUserId);
-  Future<void> unblockUser(String otherUserId);
+  Future<RelationshipStatus> unblockUser(String otherUserId);
   Future<RelationshipStatus> relationshipWithMe(String otherUserId);
   Future<bool> needToAsk(String otherUserId, RequestType request);
 }
@@ -47,7 +47,7 @@ class RelationshipsService extends GetxService
   }
 
   @override
-  Future<void> unblockUser(String otherUserId) async {
+  Future<RelationshipStatus> unblockUser(String otherUserId) async {
     // revert to relationship other user has with me
     var rs = await relationshipWithMe(otherUserId);
     if (rs == RelationshipStatus.blocked) {
@@ -58,6 +58,7 @@ class RelationshipsService extends GetxService
     await _usersRef.doc(_auth.id).update({
       'relationships.$otherUserId': rs.index,
     });
+    return rs;
   }
 
   @override

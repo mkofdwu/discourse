@@ -1,3 +1,4 @@
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
@@ -10,6 +11,7 @@ import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
+import 'package:discourse/views/date_selector/date_selector_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/views/viewed_by/viewed_by_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
@@ -41,8 +43,10 @@ class ChatController extends GetxController {
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
   bool get isPrivateChat => _chat is UserPrivateChat;
-  Member member(String userId) =>
-      _chat.groupData.members.firstWhere((member) => member.user.id == userId);
+  Member member(DiscourseUser user) => _chat.groupData.members.firstWhere(
+        (m) => m.user == user,
+        orElse: () => Member.removed(user),
+      );
 
   ScrollController get scrollController => _scrollController;
   bool get showGoToBottomArrow =>
@@ -63,12 +67,14 @@ class ChatController extends GetxController {
   }
 
   void onStartReading() {
+    if (_chat is NonExistentChat) return;
     _commonChatDb.startReadingChat(_chat.id);
   }
 
   // TODO: check if turning off phone or other stuff calls this
   void onStopReading() {
     // when the user is no longer looking at the chat log
+    if (_chat is NonExistentChat) return;
     _commonChatDb.stopReadingChat(_chat.id);
   }
 
@@ -132,6 +138,10 @@ class ChatController extends GetxController {
         await _messagesDb.getViewedBy(_chat as UserGroupChat, message);
     await Get.to(ViewedByView(viewedBy: viewedBy));
     onStartReading();
+  }
+
+  void toSelectDate() async {
+    final date = await Get.to(DateSelectorView(title: 'Go to date'));
   }
 
   void exportChat() {

@@ -1,3 +1,4 @@
+import 'package:discourse/utils/format_date_time.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
@@ -110,23 +111,89 @@ class ChatView extends StatelessWidget {
           if (controller.isPrivateChat) return SizedBox.shrink();
           final prevMessage = controller.messages[i + 1]; // list is reversed
           final nextMessage = controller.messages[i];
-          if (prevMessage.sender != nextMessage.sender && !nextMessage.fromMe) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
-              child:
-                  _buildSenderDetails(controller.member(nextMessage.sender.id)),
-            );
-          }
-          return SizedBox.shrink();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isSameDay(
+                prevMessage.sentTimestamp,
+                nextMessage.sentTimestamp,
+              ))
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 60, 40, 24),
+                  child: OpacityFeedback(
+                    onPressed: controller.toSelectDate,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatDate(nextMessage.sentTimestamp),
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          _dayOfWeek(nextMessage.sentTimestamp),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (prevMessage.sender != nextMessage.sender &&
+                  !nextMessage.fromMe)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
+                  child: _buildSenderDetails(
+                      controller.member(nextMessage.sender)),
+                ),
+            ],
+          );
         },
       );
+
+  String _formatDate(DateTime date) {
+    if (isSameDay(date, DateTime.now())) return 'Today';
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return '${date.day} ${monthNames[date.month - 1]}';
+  }
+
+  String _dayOfWeek(DateTime date) {
+    const weekdayNames = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+    return weekdayNames[date.weekday - 1];
+  }
 
   Widget _buildSenderDetails(Member member) => Row(
         children: [
           PhotoOrIcon(
             size: 32,
             photoUrl: member.user.photoUrl,
-            placeholderIcon: FluentIcons.person_16_regular,
+            placeholderIcon: member.role == MemberRole.removed
+                ? FluentIcons.delete_16_regular
+                : FluentIcons.person_16_regular,
           ),
           SizedBox(width: 16),
           Text(
@@ -191,20 +258,22 @@ class ChatView extends StatelessWidget {
                 children: [
                   Text(
                     chat.title,
-                    style: chat.subtitle != null
-                        ? TextStyle(fontSize: 16, fontWeight: FontWeight.w500)
-                        : TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
-                  if (chat.subtitle != null) SizedBox(height: 4),
-                  if (chat.subtitle != null)
-                    Text(
-                      chat.subtitle!,
-                      style: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.6),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  SizedBox(height: 4),
+                  StreamBuilder<String?>(
+                    stream: chat.subtitle,
+                    builder: (context, snapshot) {
+                      return Text(
+                        snapshot.data ?? '',
+                        style: TextStyle(
+                          color: Get.theme.primaryColor.withOpacity(0.6),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -215,6 +284,7 @@ class ChatView extends StatelessWidget {
   PreferredSizeWidget _buildMessageSelectionAppBar(ChatController controller) =>
       myAppBar(
         title: '${controller.numMessagesSelected} selected',
+        onBack: controller.cancelMessageSelection,
         actions: {
           if (controller.canReplyToSelectedMessages)
             FluentIcons.arrow_reply_20_regular:
