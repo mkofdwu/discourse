@@ -26,14 +26,14 @@ class MessageView extends StatelessWidget {
       builder: (controller) => ReplyGesture(
         onReply: controller.replyToThis,
         accountForWidth: !message.fromMe,
-        child: Container(
-          // selection indicator
-          color:
-              controller.isSelected() ? Palette.orange.withOpacity(0.1) : null,
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
-          child: GestureDetector(
-            onTap: controller.onTap,
-            onLongPress: controller.toggleSelectMessage,
+        child: GestureDetector(
+          onTap: controller.onTap,
+          onLongPress: controller.toggleSelectMessage,
+          child: Container(
+            color: controller.isSelected()
+                ? Palette.orange.withOpacity(0.1)
+                : Colors.transparent,
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
             child: Row(
               mainAxisAlignment: message.fromMe
                   ? MainAxisAlignment.end
@@ -51,7 +51,7 @@ class MessageView extends StatelessWidget {
                   child: Column(
                     children: [
                       if (message.photo != null)
-                        _buildPhotoView(message.photo!),
+                        _buildPhotoView(controller, message.photo!),
                       Container(
                         width: message.photo != null ? 200 : null,
                         padding: const EdgeInsets.symmetric(
@@ -62,6 +62,7 @@ class MessageView extends StatelessWidget {
                             children: [
                               if (message.repliedMessage != null)
                                 _buildRepliedMessageView(
+                                  controller,
                                   message.repliedMessage!,
                                   controller.getRepliedMessageColor(),
                                 ),
@@ -81,12 +82,17 @@ class MessageView extends StatelessWidget {
     );
   }
 
-  Widget _buildPhotoView(Photo photo) => Hero(
-        tag: photo.heroTag,
-        child: CachedNetworkImage(imageUrl: photo.url!, width: 200),
+  Widget _buildPhotoView(MessageController controller, Photo photo) =>
+      GestureDetector(
+        onTap: controller.viewPhoto,
+        child: Hero(
+          tag: photo.heroTag,
+          child: CachedNetworkImage(imageUrl: photo.url!, width: 200),
+        ),
       );
 
-  Widget _buildRepliedMessageView(RepliedMessage repliedMessage, Color color) =>
+  Widget _buildRepliedMessageView(MessageController controller,
+          RepliedMessage repliedMessage, Color color) =>
       Container(
         decoration: BoxDecoration(
           border: Border(
@@ -97,37 +103,40 @@ class MessageView extends StatelessWidget {
         ),
         padding: const EdgeInsets.only(bottom: 12),
         margin: const EdgeInsets.only(bottom: 14),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Transform.rotate(
-              angle: pi,
-              child: Icon(FluentIcons.text_quote_20_filled, size: 20),
-            ),
-            SizedBox(width: 8),
-            Flexible(
-              child: Opacity(
-                opacity: 0.6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      repliedMessage.sender.username,
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      repliedMessage.isDeleted
-                          ? 'Deleted message'
-                          : repliedMessage.reprContent,
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ],
+        child: GestureDetector(
+          onTap: () => controller.scrollToRepliedMessage(repliedMessage),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Transform.rotate(
+                angle: pi,
+                child: Icon(FluentIcons.text_quote_20_filled, size: 20),
+              ),
+              SizedBox(width: 8),
+              Flexible(
+                child: Opacity(
+                  opacity: 0.6,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        repliedMessage.sender.username,
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        repliedMessage.isDeleted
+                            ? 'Deleted message'
+                            : repliedMessage.reprContent,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 

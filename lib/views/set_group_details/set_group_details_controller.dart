@@ -71,12 +71,23 @@ class SetGroupDetailsController extends GetxController {
     Get.to(UserSelectorView(
       title: 'Add members',
       canSelectMultiple: true,
+      excludeUsers: _miscCache.myFriends + sendInvitesTo,
       onSubmit: (selectedUsers) {
-        addMembers.addAll(selectedUsers);
+        sendInvitesTo.addAll(selectedUsers);
         Get.back();
         update();
       },
     ));
+  }
+
+  void removeAddMember(DiscourseUser friend) {
+    addMembers.remove(friend);
+    update();
+  }
+
+  void removeInvite(DiscourseUser user) {
+    sendInvitesTo.remove(user);
+    update();
   }
 
   Future<void> submit() async {

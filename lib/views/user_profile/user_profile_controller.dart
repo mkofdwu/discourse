@@ -3,6 +3,9 @@ import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/requests.dart';
+import 'package:discourse/utils/ask_block_friend.dart';
+import 'package:discourse/utils/ask_remove_friend.dart';
+import 'package:discourse/utils/request_friend.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
@@ -10,7 +13,6 @@ import 'package:get/get.dart';
 
 class UserProfileController extends GetxController {
   final _privateChatDb = Get.find<PrivateChatDbService>();
-  final _requests = Get.find<RequestsService>();
   final _relationships = Get.find<RelationshipsService>();
 
   final DiscourseUser _user;
@@ -49,14 +51,13 @@ class UserProfileController extends GetxController {
         Get.to(ChatView(chat: chat));
         break;
       case 'Request friend':
-        await _requests.sendRequest(UnsentRequest(
-          toUserId: _user.id,
-          type: RequestType.friend,
-          data: null,
-        ));
-        Get.snackbar('Success', 'Your friend request has been sent');
+        requestFriend(_user.id);
+        break;
+      case 'Remove friend':
+        askRemoveFriend(_user, update);
         break;
       case 'Block':
+        askBlockFriend(_user, update);
         break;
     }
   }

@@ -5,6 +5,7 @@ import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:photo_view/photo_view.dart';
 
 class StoryView extends StatefulWidget {
   final String title;
@@ -80,8 +81,19 @@ class _StoryViewState extends State<StoryView>
                 case StoryType.photo:
                   return Material(
                     // make region clickable
-                    child: Center(
-                      child: CachedNetworkImage(imageUrl: page.content),
+                    child: PhotoView(
+                      backgroundDecoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                      ),
+                      minScale: PhotoViewComputedScale.contained,
+                      scaleStateChangedCallback: (scaleState) {
+                        if (scaleState.name == 'zoomedIn') {
+                          _animController!.stop();
+                        } else {
+                          _animController!.forward();
+                        }
+                      },
+                      imageProvider: CachedNetworkImageProvider(page.content),
                     ),
                   );
               }

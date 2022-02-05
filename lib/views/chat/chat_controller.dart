@@ -39,7 +39,6 @@ class ChatController extends GetxController {
 
   bool get isLoadingMessages => _isLoadingMessages;
   List<Message> get messages => _messages;
-  GlobalKey messageKey(String messageId) => _messageKeys[messageId]!;
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
   bool get isPrivateChat => _chat is UserPrivateChat;
@@ -116,8 +115,10 @@ class ChatController extends GetxController {
       case 'Go to date':
         break;
       case 'Export history':
+        _chatExport.exportChat(_chat);
         break;
       case 'Clear chat':
+        // only for admin?
         break;
       case 'Leave group':
         break;
@@ -161,6 +162,13 @@ class ChatController extends GetxController {
 
   // messages list
 
+  GlobalKey messageKey(String messageId) {
+    if (!_messageKeys.containsKey(messageId)) {
+      _messageKeys[messageId] = GlobalKey();
+    }
+    return _messageKeys[messageId]!;
+  }
+
   void streamMoreMessages() {
     if (_chat is NonExistentChat) return;
     _numMessages += 40;
@@ -168,15 +176,14 @@ class ChatController extends GetxController {
     update();
     _messagesDb.streamMessages(_chat.id, _numMessages).listen((messages) {
       _messages = messages;
-      for (final message in _messages) {
-        _messageKeys[message.id] = GlobalKey();
-      }
       _isLoadingMessages = false;
       update();
     });
   }
 
   void scrollToMessage(String messageId) {
+    // TODO: fixme if message has not been scrolled to yet listview hasnt built it yet
+    // so there is no context
     if (_messageKeys.containsKey(messageId)) {
       Scrollable.ensureVisible(
         _messageKeys[messageId]!.currentContext!,

@@ -8,15 +8,15 @@ import 'package:photo_view/photo_view.dart';
 
 import 'photo_edit_controller.dart';
 
-class NewPhotoStoryView extends StatelessWidget {
+class PhotoEditView extends StatelessWidget {
   final Photo photo;
 
-  const NewPhotoStoryView({Key? key, required this.photo}) : super(key: key);
+  const PhotoEditView({Key? key, required this.photo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<NewPhotoStoryController>(
-      init: NewPhotoStoryController(photo),
+    return GetBuilder<PhotoEditController>(
+      init: PhotoEditController(photo),
       builder: (controller) => Scaffold(
         body: Stack(
           children: [
@@ -55,7 +55,7 @@ class NewPhotoStoryView extends StatelessWidget {
                   ),
                   SizedBox(width: 20),
                   Text(
-                    'Post photo',
+                    'Edit photo',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   Spacer(),

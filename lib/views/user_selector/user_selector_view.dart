@@ -14,6 +14,7 @@ class UserSelectorView extends StatelessWidget {
   final String prompt;
   final bool canSelectMultiple;
   final List<DiscourseUser>? onlyUsers; // only select from within this list
+  final List<DiscourseUser>? excludeUsers;
   final Function(List<DiscourseUser>) onSubmit;
 
   const UserSelectorView({
@@ -22,19 +23,20 @@ class UserSelectorView extends StatelessWidget {
     this.prompt = "Enter someone's username to start searching",
     required this.canSelectMultiple,
     this.onlyUsers,
+    this.excludeUsers,
     required this.onSubmit,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserFinderController>(
+    return GetBuilder<UserSelectorController>(
       global: false,
-      init: UserFinderController(canSelectMultiple, onlyUsers),
+      init: UserSelectorController(canSelectMultiple, onlyUsers, excludeUsers),
       builder: _builder,
     );
   }
 
-  Widget _builder(UserFinderController controller) => Scaffold(
+  Widget _builder(UserSelectorController controller) => Scaffold(
         floatingActionButton: controller.selectedUsers.isEmpty
             ? null
             : Padding(
@@ -112,7 +114,7 @@ class UserSelectorView extends StatelessWidget {
         ),
       );
 
-  Widget _buildSearchTextField(UserFinderController controller) => Container(
+  Widget _buildSearchTextField(UserSelectorController controller) => Container(
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
@@ -150,7 +152,7 @@ class UserSelectorView extends StatelessWidget {
       );
 
   Widget _buildResultsList(
-    UserFinderController controller,
+    UserSelectorController controller,
     List<DiscourseUser> results,
   ) =>
       ListView.separated(

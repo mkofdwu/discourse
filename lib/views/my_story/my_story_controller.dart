@@ -1,16 +1,22 @@
 import 'package:discourse/models/db_objects/story_page.dart';
+import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
-import 'package:discourse/views/my_story/new_text_story/new_text_story_view.dart';
+import 'package:discourse/views/my_story/new_text_story/text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
+import 'package:discourse/services/relationships.dart';
+import 'package:discourse/services/storage.dart';
+import 'package:discourse/models/unsent_story.dart';
 import 'package:get/get.dart';
 
 class MyStoryController extends GetxController {
   final _storyDb = Get.find<StoryDbService>();
   final _media = Get.find<MediaService>();
+  final _storage = Get.find<StorageService>();
+  final _relationships = Get.find<RelationshipsService>();
 
   Future<List<StoryPage>> getMyStory() => _storyDb.myStory();
 
@@ -53,6 +59,21 @@ class MyStoryController extends GetxController {
     ));
   }
 
+  void editStory(StoryPage story) async {
+    if (story.type == StoryType.text) {
+      await Get.to(TextStoryView(defaultStory: story));
+    } else {
+      final editedPhoto = await Get.to<Photo>(PhotoEditView(
+        photo: Photo.url(story.content),
+      ));
+      if (editedPhoto == null) return;
+      await _storage.deletePhoto(story.content); // old photo
+      await _storage.uploadPhoto(editedPhoto, 'storyphoto');
+      await _storyDb.updateStory(story.id, editedPhoto.url);
+    }
+    update();
+  }
+
   void deleteStory(StoryPage story) async {
     final confirm = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Delete story?',
@@ -66,14 +87,22 @@ class MyStoryController extends GetxController {
   }
 
   void newTextPost() async {
-    await Get.to(NewTextStoryView());
+    await Get.to(TextStoryView());
     update();
   }
 
   void newPhotoPost() async {
     final photo = await _media.selectPhoto();
     if (photo != null) {
-      await Get.to(NewPhotoStoryView(photo: photo));
+      final editedPhoto = await Get.to<Photo>(PhotoEditView(photo: photo));
+      if (editedPhoto == null) return;
+      await _storage.uploadPhoto(editedPhoto, 'storyphoto');
+      await _storyDb.postStory(UnsentStory(
+        type: StoryType.photo,
+        content: editedPhoto.url!,
+        sendToIds: await _relationships
+            .getFriends(), // future: select friend list before posting photo
+      ));
       update();
     }
   }

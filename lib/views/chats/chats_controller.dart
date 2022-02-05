@@ -1,11 +1,14 @@
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/messages_db.dart';
 import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/requests.dart';
 import 'package:discourse/services/story_db.dart';
+import 'package:discourse/utils/ask_remove_friend.dart';
+import 'package:discourse/utils/request_friend.dart';
 import 'package:discourse/views/activity/activity_view.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
@@ -15,6 +18,7 @@ import 'package:discourse/views/story/story_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
+import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 
@@ -101,8 +105,10 @@ class ChatsController extends GetxController {
         togglePinChat(chat);
         break;
       case 'Remove friend':
+        askRemoveFriend((chat as UserPrivateChat).otherUser, update);
         break;
       case 'Request friend':
+        requestFriend((chat as UserPrivateChat).otherUser.id);
         break;
       case 'Leave group':
         break;

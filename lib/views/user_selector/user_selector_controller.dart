@@ -4,7 +4,7 @@ import 'package:discourse/services/user_db.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-class UserFinderController extends GetxController {
+class UserSelectorController extends GetxController {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
 
@@ -12,10 +12,15 @@ class UserFinderController extends GetxController {
 
   final bool _canSelectMultiple;
   final List<DiscourseUser>? _onlyUsers;
+  final List<DiscourseUser>? _excludeUsers;
   List<DiscourseUser> searchResults = [];
   List<DiscourseUser> selectedUsers = [];
 
-  UserFinderController(this._canSelectMultiple, this._onlyUsers);
+  UserSelectorController(
+    this._canSelectMultiple,
+    this._onlyUsers,
+    this._excludeUsers,
+  );
 
   @override
   void onReady() {
@@ -39,6 +44,11 @@ class UserFinderController extends GetxController {
           .toList();
     } else {
       searchResults = await _userDb.searchForUsers(query, _auth.id);
+    }
+    if (_excludeUsers != null) {
+      searchResults = searchResults
+          .where((user) => !_excludeUsers!.contains(user))
+          .toList();
     }
     update();
   }

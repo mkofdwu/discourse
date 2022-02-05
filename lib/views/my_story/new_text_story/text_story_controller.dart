@@ -8,12 +8,18 @@ import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class NewTextStoryController extends GetxController {
+class TextStoryController extends GetxController {
   final _storyDb = Get.find<StoryDbService>();
   final _miscCache = Get.find<MiscCache>();
 
+  final StoryPage? _defaultStory;
+
   FriendList? selectedFriendList; // if null, send to all friends
   final textController = TextEditingController();
+
+  TextStoryController(this._defaultStory) {
+    if (_defaultStory != null) textController.text = _defaultStory!.content;
+  }
 
   void changeFriendList() async {
     final choice = await Get.bottomSheet(ChoiceBottomSheet(
@@ -52,15 +58,19 @@ class NewTextStoryController extends GetxController {
   }
 
   void submit() async {
-    await _storyDb.postStory(UnsentStory(
-      type: StoryType.text,
-      content: textController.text,
-      sendToIds: (selectedFriendList == null
-              ? _miscCache.myFriends
-              : selectedFriendList!.friends)
-          .map((user) => user.id)
-          .toList(),
-    ));
+    if (_defaultStory == null) {
+      await _storyDb.postStory(UnsentStory(
+        type: StoryType.text,
+        content: textController.text,
+        sendToIds: (selectedFriendList == null
+                ? _miscCache.myFriends
+                : selectedFriendList!.friends)
+            .map((user) => user.id)
+            .toList(),
+      ));
+    } else {
+      await _storyDb.updateStory(_defaultStory!.id, textController.text);
+    }
     Get.back();
   }
 }

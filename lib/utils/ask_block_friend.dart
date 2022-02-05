@@ -4,15 +4,13 @@ import 'package:discourse/services/relationships.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 
-Future<void> askRemoveFriend(DiscourseUser user, Function() updateUi) async {
+Future<void> askBlockFriend(DiscourseUser user, Function() updateUi) async {
   final confirmed = await Get.bottomSheet(YesNoBottomSheet(
-    title: 'Remove friend?',
-    subtitle:
-        "Are you sure you want to stop being friends with ${user.username}? You'll have to send them a new request if you change your mind",
+    title: 'Block friend?',
+    subtitle: 'Are you sure you want to block ${user.username}?',
   ));
   if (confirmed ?? false) {
-    await Get.find<RelationshipsService>()
-        .setMutualRelationship(user.id, RelationshipStatus.none);
+    await Get.find<RelationshipsService>().blockUser(user.id);
     Get.find<MiscCache>().myFriends.remove(user);
     updateUi();
   }

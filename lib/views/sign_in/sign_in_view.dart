@@ -58,7 +58,7 @@ class SignInView extends StatelessWidget {
                     height: 1,
                     color: Get.theme.colorScheme.onBackground,
                   ),
-                  Spacer(),
+                  SizedBox(height: 120),
                   MyTextField(
                     controller: controller.emailController,
                     label: 'Email',
