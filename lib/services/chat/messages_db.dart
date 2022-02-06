@@ -33,13 +33,20 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
     return Message(
       id: doc.id,
       chatId: chatId,
-      sender: await _userDb.getUser(data['senderId']),
+      sender: await _userDb.getUser(data[
+          'senderId']), // hopefully firebase caches these requests, otherwise may have to optimize this
       repliedMessage: repliedMessage,
       photo: data['photoUrl'] == null ? null : Photo.url(data['photoUrl']),
       text: data['text'],
       sentTimestamp: data['sentTimestamp'].toDate(),
       fromMe: data['senderId'] == _auth.id,
     );
+  }
+
+  Future<Message> getMessage(String chatId, String id) async {
+    final doc =
+        await _messagesRef.doc(chatId).collection('messages').doc(id).get();
+    return _messageFromDoc(doc);
   }
 
   Future<RepliedMessage> _getRepliedMessage(
@@ -76,12 +83,29 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         );
   }
 
+  Future<List<Message>> fetchMoreMessages(
+    String chatId,
+    DateTime timestamp,
+    int numMessages,
+    bool fetchOlder,
+  ) async {
+    // beforeTimestamp is the timestamp of the earliest message fetched (at the top of the chat log)
+    final snapshot = await _messagesRef
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('sentTimestamp', descending: fetchOlder)
+        .startAfter([timestamp])
+        .limit(numMessages)
+        .get();
+    return Future.wait((fetchOlder ? snapshot.docs.reversed : snapshot.docs)
+        .map((doc) => _messageFromDoc(doc)));
+  }
+
   @override
   Stream<Message> lastMessageStream(String chatId) =>
       streamMessages(chatId, 1).asyncMap((list) => list.single);
 
   Stream<int> numUnreadMessagesStream(String chatId, DateTime? lastReadAt) =>
-      // TODO: test with null
       _messagesRef
           .doc(chatId)
           .collection('messages')

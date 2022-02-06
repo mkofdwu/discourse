@@ -4,6 +4,7 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
+import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/message.dart';
@@ -34,7 +35,7 @@ class MessageController extends GetxController {
   }
 
   void scrollToRepliedMessage(RepliedMessage message) {
-    Get.find<ChatController>().scrollToMessage(message.id);
+    Get.find<MessageListController>().scrollToMessage(message.id);
   }
 
   void replyToThis() {

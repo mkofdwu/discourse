@@ -1,6 +1,4 @@
 import 'package:discourse/utils/format_date_time.dart';
-import 'package:discourse/views/chat/controllers/message_selection.dart';
-import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
@@ -16,6 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'chat_controller.dart';
+import 'controllers/message_list.dart';
+import 'controllers/message_selection.dart';
+import 'controllers/message_sender.dart';
 
 class ChatView extends StatelessWidget {
   final UserChat chat;
@@ -27,6 +28,7 @@ class ChatView extends StatelessWidget {
     Get.put<UserChat>(chat); // current chat
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
+    Get.put<MessageListController>(MessageListController());
     return GetBuilder<ChatController>(
       // global: false, <- should not be here
       init: ChatController(chat),
@@ -94,64 +96,84 @@ class ChatView extends StatelessWidget {
     );
   }
 
-  Widget _buildMessagesList(ChatController controller) => ListView.separated(
+  Widget _buildMessagesList(ChatController controller) => SingleChildScrollView(
         padding: const EdgeInsets.only(top: 40, bottom: 100),
         reverse: true,
         controller: controller.scrollController,
-        itemCount: controller.messages.length,
-        itemBuilder: (context, i) {
-          final message = controller.messages[i];
-          if (message.isDeleted) return DeletedMessageView(message: message);
-          return MessageView(
-            key: controller.messageKey(message.id),
-            message: message,
-          );
-        },
-        separatorBuilder: (context, i) {
-          if (controller.isPrivateChat) return SizedBox.shrink();
-          final prevMessage = controller.messages[i + 1]; // list is reversed
-          final nextMessage = controller.messages[i];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!isSameDay(
-                prevMessage.sentTimestamp,
-                nextMessage.sentTimestamp,
-              ))
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 60, 40, 24),
-                  child: OpacityFeedback(
-                    onPressed: controller.toSelectDate,
-                    child: Column(
+        child: Column(
+          children: controller.messages
+              .asMap()
+              .map((i, message) {
+                final message = controller.messages[i];
+                final messageWidget = message.isDeleted
+                    ? DeletedMessageView(message: message)
+                    : MessageView(
+                        key: controller.messageKey(message.id),
+                        message: message,
+                      );
+                if (i - 1 < 0) {
+                  return MapEntry(i, messageWidget);
+                }
+
+                final prevMessage = controller.messages[i - 1];
+                return MapEntry(
+                    i,
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _formatDate(nextMessage.sentTimestamp),
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _dayOfWeek(nextMessage.sentTimestamp),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
+                        if (!isSameDay(
+                          prevMessage.sentTimestamp,
+                          message.sentTimestamp,
+                        )) ...[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
+                            child: OpacityFeedback(
+                              onPressed: controller.toSelectDate,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _formatDate(message.sentTimestamp),
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    _dayOfWeek(message.sentTimestamp),
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            height: 1,
+                            width: double.infinity,
+                            color: Colors.white.withOpacity(0.1),
+                            margin: const EdgeInsets.symmetric(horizontal: 30),
+                          ),
+                          SizedBox(height: 32),
+                        ],
+                        if (controller.isPrivateChat &&
+                            prevMessage.sender != message.sender &&
+                            !message.fromMe)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                top: 20, left: 30, bottom: 8),
+                            child: _buildSenderDetails(
+                                controller.member(message.sender)),
+                          ),
+                        messageWidget,
                       ],
-                    ),
-                  ),
-                ),
-              if (prevMessage.sender != nextMessage.sender &&
-                  !nextMessage.fromMe)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
-                  child: _buildSenderDetails(
-                      controller.member(nextMessage.sender)),
-                ),
-            ],
-          );
-        },
+                    ));
+              })
+              .values
+              .toList(),
+        ),
       );
 
   String _formatDate(DateTime date) {

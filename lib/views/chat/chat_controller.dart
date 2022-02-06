@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/misc_cache.dart';
+import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
@@ -24,39 +27,35 @@ class ChatController extends GetxController {
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
-  final _messageSender = Get.find<MessageSenderController>();
-  final _messageSelection = Get.find<MessageSelectionController>();
   final _chatExport = Get.find<ChatExportService>();
   final _miscCache = Get.find<MiscCache>();
 
+  final _messageSender = Get.find<MessageSenderController>();
+  final _messageSelection = Get.find<MessageSelectionController>();
+  final _messageList = Get.find<MessageListController>();
+
   final UserChat _chat;
 
-  bool _isLoadingMessages = false;
-  int _numMessages = 0;
-  List<Message> _messages = [];
-  final _messageKeys = <String, GlobalKey>{};
-  final _scrollController = ScrollController();
-
-  bool get isLoadingMessages => _isLoadingMessages;
-  List<Message> get messages => _messages;
   bool get isSelectingMessages => _messageSelection.isSelecting;
   int get numMessagesSelected => _messageSelection.selectedMessages.length;
-  bool get isPrivateChat => _chat is UserPrivateChat;
+  bool get isPrivateChat => _chat is UserPrivateChat; // temporary function
   Member member(DiscourseUser user) => _chat.groupData.members.firstWhere(
         (m) => m.user == user,
         orElse: () => Member.removed(user),
       );
 
-  ScrollController get scrollController => _scrollController;
-  bool get showGoToBottomArrow =>
-      _scrollController.hasClients ? _scrollController.offset > 100 : false;
+  // or just expose messageList?
+  List<Message> get messages => _messageList.messages;
+  ScrollController get scrollController => _messageList.scrollController;
+  bool get showGoToBottomArrow => _messageList.showGoToBottomArrow;
+  int get numNewMessages => _messageList.numNewMessages;
+  GlobalKey messageKey(String messageId) => _messageList.messageKey(messageId);
+  void scrollToBottom() => _messageList.scrollToBottom();
 
   ChatController(this._chat);
 
   @override
-  void onReady() {
-    _scrollController.addListener(() => update());
-    streamMoreMessages();
+  void onReady() async {
     onStartReading();
   }
 
@@ -157,51 +156,6 @@ class ChatController extends GetxController {
     ));
     if (confirmed ?? false) {
       _groupChatDb.leaveGroup(_chat.id);
-    }
-  }
-
-  // messages list
-
-  GlobalKey messageKey(String messageId) {
-    if (!_messageKeys.containsKey(messageId)) {
-      _messageKeys[messageId] = GlobalKey();
-    }
-    return _messageKeys[messageId]!;
-  }
-
-  void streamMoreMessages() {
-    if (_chat is NonExistentChat) return;
-    _numMessages += 40;
-    _isLoadingMessages = true;
-    update();
-    _messagesDb.streamMessages(_chat.id, _numMessages).listen((messages) {
-      _messages = messages;
-      _isLoadingMessages = false;
-      update();
-    });
-  }
-
-  void scrollToMessage(String messageId) {
-    // TODO: fixme if message has not been scrolled to yet listview hasnt built it yet
-    // so there is no context
-    if (_messageKeys.containsKey(messageId)) {
-      Scrollable.ensureVisible(
-        _messageKeys[messageId]!.currentContext!,
-        duration: const Duration(milliseconds: 400),
-        alignment: 0.8,
-      );
-    }
-  }
-
-  void scrollToBottom() {
-    if (_scrollController.offset > 1000) {
-      _scrollController.jumpTo(0);
-    } else {
-      _scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeIn,
-      );
     }
   }
 
