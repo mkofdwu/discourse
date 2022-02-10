@@ -31,7 +31,7 @@ class ChatsView extends StatelessWidget {
           ),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -118,16 +118,18 @@ class ChatsView extends StatelessWidget {
                 'Stories',
                 style: TextStyle(
                   color: Get.theme.primaryColor.withOpacity(0.4),
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(height: 20),
               _buildStories(controller),
-              SizedBox(height: 40),
+              SizedBox(height: 48),
               Text(
                 'Chats',
                 style: TextStyle(
                   color: Get.theme.primaryColor.withOpacity(0.4),
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -259,7 +261,7 @@ class ChatsView extends StatelessWidget {
                 .map((chat) => StreamBuilder(
                       stream: controller.lastMessageStream(chat),
                       builder: (context, AsyncSnapshot<Message?> snapshot) {
-                        String subtitle = '';
+                        String? subtitle;
                         if (snapshot.hasData) {
                           final message = snapshot.data!;
                           // all these are private chats, if from other person dont repeat username

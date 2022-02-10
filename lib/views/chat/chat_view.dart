@@ -1,3 +1,4 @@
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/utils/format_date_time.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -7,6 +8,7 @@ import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/views/chat/widgets/participants_typing.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/app_state_handler.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/thomas_scroll.dart';
@@ -59,7 +61,7 @@ class ChatView extends StatelessWidget {
                 ),
                 if (!controller.messageSelection.isSelecting)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 28, 30, 36),
+                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
                     child: MessageDraftView(),
                   ),
               ],
@@ -128,7 +130,7 @@ class ChatView extends StatelessWidget {
                 ),
                 SizedBox(height: 32),
               ],
-              if (controller.isPrivateChat &&
+              if (!controller.isPrivateChat &&
                   prevMessage.sender != message.sender &&
                   !message.fromMe)
                 Padding(
@@ -161,7 +163,7 @@ class ChatView extends StatelessWidget {
               ],
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -241,18 +243,18 @@ class ChatView extends StatelessWidget {
         child: SafeArea(
           child: Container(
             height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             color: Get.theme.primaryColorLight,
             child: Row(
               children: [
-                OpacityFeedback(
-                  child: Icon(FluentIcons.chevron_left_20_regular),
+                MyIconButton(
+                  FluentIcons.chevron_left_24_regular,
                   onPressed: () => Get.back(),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 12),
                 Expanded(child: _appBarContent(controller)),
-                OpacityFeedback(
-                  child: Icon(FluentIcons.more_vertical_24_regular),
+                MyIconButton(
+                  FluentIcons.more_vertical_24_regular,
                   onPressed: controller.showChatOptions,
                 ),
               ],
@@ -333,19 +335,47 @@ class ChatView extends StatelessWidget {
   ) =>
       GestureDetector(
         onTap: messageListController.scrollToBottom,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Color(0xFF404040),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            FluentIcons.chevron_double_down_16_regular,
-            size: 16,
-            color: Colors.white,
-          ),
+        child: Stack(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              margin: EdgeInsets.only(top: 8, right: 6),
+              decoration: BoxDecoration(
+                color: Color(0xFF404040),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                FluentIcons.chevron_double_down_16_regular,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
+            if (messageListController.numNewMessages > 0)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Palette.orange,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      messageListController.numNewMessages.toString(),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       );
 }

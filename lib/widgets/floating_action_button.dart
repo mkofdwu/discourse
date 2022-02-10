@@ -17,14 +17,21 @@ class MyFloatingActionButton extends StatelessWidget {
     return OpacityFeedback(
       onPressed: onPressed,
       child: Container(
-        width: 48,
-        height: 48,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           color: Palette.orange,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              offset: Offset(0, 10),
+              blurRadius: 20,
+            ),
+          ],
         ),
         child: Center(
-          child: Icon(iconData, color: Colors.black, size: 20),
+          child: Icon(iconData, color: Colors.black, size: 24),
         ),
       ),
     );

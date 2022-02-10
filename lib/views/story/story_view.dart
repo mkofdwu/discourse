@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -180,8 +181,8 @@ class _StoryViewState extends State<StoryView>
             SizedBox(height: 24),
             Row(
               children: [
-                OpacityFeedback(
-                  child: Icon(FluentIcons.chevron_left_24_regular, size: 24),
+                MyIconButton(
+                  FluentIcons.chevron_left_24_regular,
                   onPressed: Get.back,
                 ),
                 SizedBox(width: 16),
@@ -194,8 +195,8 @@ class _StoryViewState extends State<StoryView>
                   ),
                 ),
                 Spacer(),
-                OpacityFeedback(
-                  child: Icon(FluentIcons.more_vertical_24_regular, size: 24),
+                MyIconButton(
+                  FluentIcons.more_vertical_24_regular,
                   onPressed: () async {
                     _animController!.stop();
                     await widget.onShowOptions();

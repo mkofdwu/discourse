@@ -1,4 +1,5 @@
 import 'package:discourse/views/my_profile/my_profile_controller.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/setting_tile.dart';
@@ -27,8 +28,8 @@ class MyProfileView extends StatelessWidget {
                     'Profile',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                   ),
-                  OpacityFeedback(
-                    child: Icon(FluentIcons.options_24_regular),
+                  MyIconButton(
+                    FluentIcons.options_24_regular,
                     onPressed: controller.toSettings,
                   ),
                 ],
@@ -121,10 +122,7 @@ class MyProfileView extends StatelessWidget {
           ),
           if (showIcon) SizedBox(width: 24),
           if (showIcon)
-            OpacityFeedback(
-              child: Icon(FluentIcons.edit_20_regular, size: 20),
-              onPressed: edit,
-            ),
+            MyIconButton(FluentIcons.edit_24_regular, onPressed: edit),
         ],
       );
 }

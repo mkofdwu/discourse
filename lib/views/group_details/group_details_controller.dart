@@ -27,6 +27,14 @@ class GroupDetailsController extends GetxController {
 
   DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
 
+  MemberRole get currentUserRole => _chat.groupData.members
+      .singleWhere((member) => member.user == currentUser)
+      .role;
+
+  bool get hasAdminPrivileges =>
+      currentUserRole == MemberRole.admin ||
+      currentUserRole == MemberRole.owner;
+
   void viewGroupPhoto() async {
     if (_chat.photoUrl != null) {
       await Get.to(ExaminePhotoView(
@@ -79,6 +87,7 @@ class GroupDetailsController extends GetxController {
   }
 
   void editNameAndDescription() {
+    if (!hasAdminPrivileges) return;
     Get.to(CustomFormView(
       form: CustomForm(
         title: 'Group details',
@@ -113,7 +122,26 @@ class GroupDetailsController extends GetxController {
     ));
   }
 
-  void showMemberOptions(Member member) {}
+  void showMemberOptions(Member member) async {
+    if (!hasAdminPrivileges) return;
+    final choice = await Get.bottomSheet(ChoiceBottomSheet(
+      title: 'Member options',
+      choices: [
+        if (member.role == MemberRole.member) 'Make admin',
+        if (member.role == MemberRole.admin) 'Remove admin',
+        if (currentUserRole == MemberRole.owner) 'Transfer ownership',
+        'Remove member',
+      ],
+    ));
+    if (choice == null) return;
+    switch (choice) {
+      // TODO
+      case 'Make admin':
+      case 'Remove admin':
+      case 'Transfer ownership':
+      case 'Remove member':
+    }
+  }
 
   void toAddMembers() {
     Get.to(UserSelectorView(

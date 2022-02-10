@@ -1,4 +1,5 @@
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 class MyListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final String? tag;
   final String? photoUrl;
   final IconData iconData; // icon displayed if photoUrl is null
   final List<Widget> extraWidgets;
@@ -19,6 +21,7 @@ class MyListTile extends StatelessWidget {
     Key? key,
     required this.title,
     required this.subtitle,
+    this.tag,
     this.photoUrl,
     required this.iconData,
     this.extraWidgets = const [],
@@ -39,17 +42,19 @@ class MyListTile extends StatelessWidget {
             Stack(
               children: [
                 PhotoOrIcon(
+                  size: 52,
+                  iconSize: 20,
                   photoUrl: photoUrl,
                   placeholderIcon: isSelected ? null : iconData,
                 ),
                 if (isSelected)
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
                       border: Border.all(color: Palette.orange, width: 2),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(26),
                     ),
                     child: Center(
                       child: Icon(
@@ -61,21 +66,39 @@ class MyListTile extends StatelessWidget {
                   ),
               ],
             ),
-            SizedBox(width: 18),
+            SizedBox(width: 22),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: subtitle == null ? 16 : 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: subtitle == null ? 18 : 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      if (tag != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Palette.orange,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            tag!,
+                            style: TextStyle(color: Colors.black, fontSize: 10),
+                          ),
+                        ),
+                    ],
                   ),
-                  if (subtitle != null) SizedBox(height: 6),
+                  if (subtitle != null) SizedBox(height: 8),
                   if (subtitle != null)
                     Text(
                       subtitle!,
@@ -83,7 +106,7 @@ class MyListTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Get.theme.primaryColor.withOpacity(0.6),
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -94,13 +117,7 @@ class MyListTile extends StatelessWidget {
             ...suffixIcons
                 .map((iconData, onTapIcon) => MapEntry(
                       iconData,
-                      OpacityFeedback(
-                        onPressed: onTapIcon,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Icon(iconData, size: 20),
-                        ),
-                      ),
+                      MyIconButton(iconData, onPressed: onTapIcon),
                     ))
                 .values
           ],

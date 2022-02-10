@@ -2,10 +2,13 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
+import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +17,17 @@ import 'group_details_controller.dart';
 
 double lerp(double from, double to, double extent) {
   return from + extent * (to - from);
+}
+
+String? _memberRoleToString(MemberRole role) {
+  switch (role) {
+    case MemberRole.owner:
+      return 'owner';
+    case MemberRole.admin:
+      return 'admin';
+    default:
+      return null;
+  }
 }
 
 class GroupDetailsView extends StatelessWidget {
@@ -76,6 +90,7 @@ class GroupDetailsView extends StatelessWidget {
                     MyListTile(
                       title: 'You',
                       subtitle: controller.currentUser.aboutMe,
+                      tag: _memberRoleToString(controller.currentUserRole),
                       iconData: FluentIcons.person_16_regular,
                     ),
                     ...chat.groupData.members
@@ -87,10 +102,12 @@ class GroupDetailsView extends StatelessWidget {
                             child: MyListTile(
                               title: member.user.username,
                               subtitle: member.user.aboutMe,
+                              tag: _memberRoleToString(member.role),
                               iconData: FluentIcons.person_16_regular,
                               suffixIcons: {
-                                FluentIcons.more_vertical_20_regular: () =>
-                                    controller.showMemberOptions(member),
+                                if (controller.hasAdminPrivileges)
+                                  FluentIcons.more_vertical_20_regular: () =>
+                                      controller.showMemberOptions(member),
                               },
                               onPressed: () {
                                 Get.to(UserProfileView(user: member.user));
@@ -98,8 +115,9 @@ class GroupDetailsView extends StatelessWidget {
                             ),
                           ),
                         ),
-                    SizedBox(height: 24),
-                    _buildAddMembersButton(controller),
+                    if (controller.hasAdminPrivileges) SizedBox(height: 24),
+                    if (controller.hasAdminPrivileges)
+                      _buildAddMembersButton(controller),
                     SizedBox(height: 40),
                     if (chat.data.mediaUrls.isNotEmpty) ...[
                       Text(
@@ -118,12 +136,13 @@ class GroupDetailsView extends StatelessWidget {
                       FluentIcons.sign_out_20_regular,
                       controller.leaveGroup,
                     ),
-                    SizedBox(height: 12),
-                    _buildDangerButton(
-                      'Disband group',
-                      FluentIcons.delete_20_regular,
-                      controller.deleteGroup,
-                    ),
+                    if (controller.hasAdminPrivileges) SizedBox(height: 12),
+                    if (controller.hasAdminPrivileges)
+                      _buildDangerButton(
+                        'Disband group',
+                        FluentIcons.delete_20_regular,
+                        controller.deleteGroup,
+                      ),
                     SizedBox(height: 60),
                   ],
                 ),
@@ -206,6 +225,7 @@ class GroupDetailsView extends StatelessWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
+                                // TODO
                                 'Created by you, 19/04/2021',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.6),
@@ -215,13 +235,11 @@ class GroupDetailsView extends StatelessWidget {
                             ],
                           ),
                         ),
-                        OpacityFeedback(
-                          child: Icon(
+                        if (controller.hasAdminPrivileges)
+                          MyIconButton(
                             FluentIcons.edit_24_regular,
-                            size: lerp(20, 24, extent),
+                            onPressed: controller.editNameAndDescription,
                           ),
-                          onPressed: controller.editNameAndDescription,
-                        ),
                       ],
                     ),
                   ),
@@ -230,10 +248,15 @@ class GroupDetailsView extends StatelessWidget {
                 SafeArea(
                   child: Padding(
                     padding: EdgeInsets.only(
-                      top: lerp(28, 44, extent),
-                      left: lerp(30, 50, extent),
+                      top: lerp(20, 44, extent),
+                      left: lerp(24, 50, extent),
                     ),
-                    child: _buildBackButton(extent),
+                    child: extent < 0.1
+                        ? MyIconButton(
+                            FluentIcons.chevron_left_24_regular,
+                            onPressed: Get.back,
+                          )
+                        : _buildBackButton(extent),
                   ),
                 ),
               ],
@@ -242,41 +265,40 @@ class GroupDetailsView extends StatelessWidget {
         ),
       );
 
-  Widget _buildBackButton(double extent) => OpacityFeedback(
+  Widget _buildBackButton(double extent) => PressedBuilder(
         onPressed: Get.back,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.1),
-                    Colors.black.withOpacity(0),
-                  ],
-                ),
-              ),
-              child: Icon(
+        builder: (pressed) => AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(pressed ? 0.2 : 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Icon(
                 FluentIcons.chevron_left_20_regular,
                 size: 20,
               ),
-            ),
-            SizedBox(width: 10),
-            Text(
-              'BACK',
-              style: TextStyle(
-                color: Colors.white.withOpacity(lerp(0, 1, extent)),
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.4,
-                shadows: [
-                  Shadow(
-                    blurRadius: 14,
-                    color: Colors.black.withOpacity(0.25),
-                  ),
-                ],
+              SizedBox(width: 8),
+              Text(
+                'BACK',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(lerp(0, 1, extent)),
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.4,
+                  // shadows: [
+                  //   Shadow(
+                  //     blurRadius: 14,
+                  //     color: Colors.black.withOpacity(0.25),
+                  //   ),
+                  // ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 

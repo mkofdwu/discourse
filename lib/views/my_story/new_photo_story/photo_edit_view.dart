@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/models/photo.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -49,9 +50,9 @@ class PhotoEditView extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  OpacityFeedback(
+                  MyIconButton(
+                    FluentIcons.chevron_left_24_regular,
                     onPressed: Get.back,
-                    child: Icon(FluentIcons.chevron_left_24_regular, size: 24),
                   ),
                   SizedBox(width: 20),
                   Text(
@@ -59,8 +60,8 @@ class PhotoEditView extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   Spacer(),
-                  OpacityFeedback(
-                    child: Icon(FluentIcons.checkmark_24_regular, size: 24),
+                  MyIconButton(
+                    FluentIcons.checkmark_24_regular,
                     onPressed: controller.submit,
                   ),
                 ],

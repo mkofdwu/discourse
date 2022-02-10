@@ -25,8 +25,11 @@ class MessageListController extends GetxController {
   int numNewMessages =
       0; // used if user has not scrolled to bottom; this number is displayed on the scroll to bottom FAB
 
+  double get _trueOffset =>
+      scrollController.position.pixels -
+      scrollController.position.minScrollExtent;
   bool get showGoToBottomArrow =>
-      scrollController.hasClients ? scrollController.offset > 100 : false;
+      scrollController.hasClients && _trueOffset > 80;
 
   @override
   void onReady() async {
@@ -90,10 +93,24 @@ class MessageListController extends GetxController {
       if (messages.last.id != lastMessage.id) {
         if (_reachedBottom) {
           messages.add(lastMessage);
-        } else {
+        }
+        if (showGoToBottomArrow) {
           numNewMessages += 1;
         }
         update();
+        if (lastMessage.fromMe) {
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            scrollToBottom();
+          });
+        } else if (_reachedBottom && !showGoToBottomArrow) {
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            scrollController.animateTo(
+              scrollController.position.minScrollExtent,
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeIn,
+            );
+          });
+        }
       }
     });
   }
@@ -144,6 +161,7 @@ class MessageListController extends GetxController {
   void onScroll() {
     update(); // for scroll to bottom button display conditionally
     if (scrollController.position.atEdge) {
+      // this works also without checking true offset
       if (scrollController.position.pixels >= 0) {
         // scrolled to the top
         if (!_reachedTop) _fetchMoreMessages(true);
@@ -161,7 +179,7 @@ class MessageListController extends GetxController {
     }
 
     final bottom = scrollController.position.minScrollExtent;
-    if (scrollController.offset > 1000) {
+    if (_trueOffset > 1000) {
       scrollController.jumpTo(bottom);
     } else {
       scrollController.animateTo(
@@ -170,5 +188,9 @@ class MessageListController extends GetxController {
         curve: Curves.easeIn,
       );
     }
+
+    // this may not be completely accurate
+    numNewMessages = 0;
+    update();
   }
 }

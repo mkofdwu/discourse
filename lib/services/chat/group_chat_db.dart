@@ -23,6 +23,7 @@ abstract class BaseGroupChatDbService {
     MemberRole newRole,
   );
   Future<void> leaveGroup(String chatId);
+  Future<void> disbandGroup(String chatId);
 }
 
 class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
@@ -146,5 +147,10 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   Future<void> leaveGroup(String chatId) async {
     await removeMember(chatId, _auth.id);
     await _usersRef.doc(_auth.id).collection('chats').doc(chatId).delete();
+  }
+
+  @override
+  Future<void> disbandGroup(String chatId) async {
+    // TODO: or lock group?
   }
 }

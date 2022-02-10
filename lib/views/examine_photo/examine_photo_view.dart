@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -67,13 +68,12 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
               ),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                OpacityFeedback(
+                MyIconButton(
+                  FluentIcons.chevron_left_24_regular,
                   onPressed: Get.back,
-                  child: Icon(FluentIcons.chevron_left_24_regular, size: 24),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 12),
                 Text(
                   widget.title,
                   style: TextStyle(
@@ -85,9 +85,9 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                 ...widget.suffixIcons
                     .map((iconData, onPressed) => MapEntry(
                           iconData,
-                          OpacityFeedback(
-                            child: Icon(iconData, size: 24),
-                            onPressed: onPressed,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: MyIconButton(iconData, onPressed: onPressed),
                           ),
                         ))
                     .values,

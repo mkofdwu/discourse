@@ -50,9 +50,11 @@ class BlockedUsersView extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(18),
                                 ),
                                 child: Center(
-                                    child: Icon(
-                                        FluentIcons.arrow_undo_16_regular,
-                                        size: 16)),
+                                  child: Icon(
+                                    FluentIcons.arrow_undo_16_regular,
+                                    size: 16,
+                                  ),
+                                ),
                               ),
                               onPressed: () => controller.unblockUser(user),
                             ),

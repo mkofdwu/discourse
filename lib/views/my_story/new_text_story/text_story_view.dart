@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -81,11 +82,8 @@ class TextStoryView extends StatelessWidget {
 
   Widget _buildTop() => Row(
         children: [
-          OpacityFeedback(
-            child: Icon(
-              FluentIcons.chevron_left_24_regular,
-              size: 24,
-            ),
+          MyIconButton(
+            FluentIcons.chevron_left_24_regular,
             onPressed: () => Get.back(),
           ),
           SizedBox(width: 16),

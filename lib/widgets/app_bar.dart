@@ -1,3 +1,4 @@
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +18,11 @@ PreferredSize myAppBar({
         color: Get.theme.primaryColorLight,
         child: Row(
           children: [
-            OpacityFeedback(
-              child: Icon(FluentIcons.chevron_left_20_regular),
+            MyIconButton(
+              FluentIcons.chevron_left_20_regular,
               onPressed: onBack ?? () => Get.back(),
             ),
-            SizedBox(width: 24),
+            SizedBox(width: 20),
             Text(
               title,
               style: TextStyle(
@@ -38,10 +39,7 @@ PreferredSize myAppBar({
                       iconData,
                       Padding(
                         padding: const EdgeInsets.only(left: 16),
-                        child: GestureDetector(
-                          child: Icon(iconData, size: 20),
-                          onTap: onPressed,
-                        ),
+                        child: MyIconButton(iconData, onPressed: onPressed),
                       )),
                 )
                 .values
