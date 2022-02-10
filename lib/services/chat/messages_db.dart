@@ -94,7 +94,10 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         .doc(chatId)
         .collection('messages')
         .orderBy('sentTimestamp', descending: fetchOlder)
-        .startAfter([timestamp])
+        // for some reason with fetchOlder = false it also fetches the message with exact timestamp
+        // hence I add this small offset
+        .startAfter(
+            [timestamp.add(Duration(milliseconds: fetchOlder ? -1 : 1))])
         .limit(numMessages)
         .get();
     return Future.wait((fetchOlder ? snapshot.docs.reversed : snapshot.docs)

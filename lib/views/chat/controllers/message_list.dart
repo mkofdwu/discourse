@@ -3,19 +3,21 @@ import 'dart:async';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-const CHUNK_SIZE = 40; // load 50 messages at a time
+const CHUNK_SIZE = 20; // load 50 messages at a time
 
 class MessageListController extends GetxController {
   final _messagesDb = Get.find<MessagesDbService>();
   final _chat = Get.find<UserChat>();
 
-  final scrollController = ScrollController();
+  final scrollController = ScrollController(
+      initialScrollOffset: -80); // specific to customscrollview with center
 
   // first element is the oldest, last element is most recent message.
-  final messages = <Message>[];
+  final messages = TopBottomList<Message>([]);
   final _messageKeys = <String, GlobalKey>{};
   bool _reachedTop = false;
   bool _reachedBottom = false;
@@ -30,11 +32,11 @@ class MessageListController extends GetxController {
   void onReady() async {
     scrollController.addListener(onScroll);
     // required to specify timestamp since there are no messages yet
-    await fetchMoreMessages(true,
+    await _fetchMoreMessages(true,
         timestamp: DateTime.now().add(Duration(hours: 1)));
     _reachedBottom = true;
     update();
-    watchLastMessage();
+    _watchLastMessage();
   }
 
   @override
@@ -49,7 +51,8 @@ class MessageListController extends GetxController {
     return _messageKeys[messageId]!;
   }
 
-  Future<void> fetchMoreMessages(bool fetchOlder, {DateTime? timestamp}) async {
+  Future<void> _fetchMoreMessages(bool fetchOlder,
+      {DateTime? timestamp}) async {
     // this function returns true if end is reached; all messages in that direction
     // have been loaded
     // this function is not responsible for checking _reachedTop or
@@ -67,7 +70,7 @@ class MessageListController extends GetxController {
       fetchOlder,
     );
     if (fetchOlder) {
-      messages.insertAll(0, moreMessages);
+      messages.addAllTop(moreMessages.reversed); // adds them the correct dir
     } else {
       messages.addAll(moreMessages);
     }
@@ -79,7 +82,7 @@ class MessageListController extends GetxController {
     update();
   }
 
-  void watchLastMessage() {
+  void _watchLastMessage() {
     if (_chat is NonExistentChat) return;
     _lastMessageSubscription =
         _messagesDb.streamMessages(_chat.id, 1).listen((msgs) {
@@ -95,29 +98,30 @@ class MessageListController extends GetxController {
     });
   }
 
-  void scrollToMessage(String messageId) async {
-    // TODO: fixme if message has not been scrolled to yet listview hasnt built it yet
-    // so there is no context
-    if (_messageKeys.containsKey(messageId)) {
-      Scrollable.ensureVisible(
-        _messageKeys[messageId]!.currentContext!,
-        duration: const Duration(milliseconds: 400),
-        alignment: 0.8,
-      );
-    } else {
-      // if message is so long ago that it hasn't been loaded yet
-      jumpToMessage(messageId);
-    }
+  Future<void> scrollToMessage(String messageId) async {
+    // sadly, this doesn't work since listview hasn't built messages that are not
+    // visible yet
+    // if (_messageKeys.containsKey(messageId)) {
+    //   await Scrollable.ensureVisible(
+    //     _messageKeys[messageId]!.currentContext!,
+    //     duration: const Duration(milliseconds: 400),
+    //     alignment: 0.8,
+    //   );
+    // } else {
+    // if message is so long ago that it hasn't been loaded yet
+    await jumpToMessage(messageId);
+    // }
   }
 
-  void jumpToMessage(String messageId) async {
+  Future<void> jumpToMessage(String messageId) async {
     // this method may also be called when scrolling to specific image/video/link
     // in the chat or a starred message
     messages.clear();
+    _messageKeys.clear();
     messages.add(await _messagesDb.getMessage(_chat.id, messageId));
     // then fetch messages on either side
-    await fetchMoreMessages(true);
-    await fetchMoreMessages(false);
+    await _fetchMoreMessages(true);
+    await _fetchMoreMessages(false);
     // TODO: scroll to message
     update();
   }
@@ -125,8 +129,9 @@ class MessageListController extends GetxController {
   void jumpToTimestamp(DateTime timestamp) async {
     // fetch messages on either side
     messages.clear();
-    await fetchMoreMessages(true, timestamp: timestamp);
-    await fetchMoreMessages(false, timestamp: timestamp);
+    _messageKeys.clear();
+    await _fetchMoreMessages(true, timestamp: timestamp);
+    await _fetchMoreMessages(false, timestamp: timestamp);
     // scroll to center
     final messageId = messages[messages.length ~/ 2].id;
     Scrollable.ensureVisible(
@@ -139,23 +144,28 @@ class MessageListController extends GetxController {
   void onScroll() {
     update(); // for scroll to bottom button display conditionally
     if (scrollController.position.atEdge) {
-      if (scrollController.position.pixels == 0) {
-        // scrolled to the bottom
-        if (!_reachedBottom) fetchMoreMessages(false);
-      } else {
+      if (scrollController.position.pixels >= 0) {
         // scrolled to the top
-        if (!_reachedTop) fetchMoreMessages(true);
+        if (!_reachedTop) _fetchMoreMessages(true);
+      } else {
+        // scrolled to the bottom
+        if (!_reachedBottom) _fetchMoreMessages(false);
       }
     }
   }
 
   void scrollToBottom() {
-    // TODO: if have not reached bottom, jump there
+    if (!_reachedBottom) {
+      jumpToTimestamp(DateTime.now());
+      return;
+    }
+
+    final bottom = scrollController.position.minScrollExtent;
     if (scrollController.offset > 1000) {
-      scrollController.jumpTo(0);
+      scrollController.jumpTo(bottom);
     } else {
       scrollController.animateTo(
-        0,
+        bottom,
         duration: const Duration(milliseconds: 160),
         curve: Curves.easeIn,
       );

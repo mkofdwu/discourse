@@ -34,8 +34,9 @@ class MessageController extends GetxController {
     }
   }
 
-  void scrollToRepliedMessage(RepliedMessage message) {
-    Get.find<MessageListController>().scrollToMessage(message.id);
+  void scrollToRepliedMessage(RepliedMessage message) async {
+    await Get.find<MessageListController>().scrollToMessage(message.id);
+    Get.find<ChatController>().highlightMessage(message.id);
   }
 
   void replyToThis() {

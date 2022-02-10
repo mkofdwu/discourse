@@ -15,11 +15,17 @@ import 'message_controller.dart';
 
 class MessageView extends StatelessWidget {
   final Message message;
+  final bool isHighlighted;
 
-  const MessageView({Key? key, required this.message}) : super(key: key);
+  const MessageView({
+    Key? key,
+    required this.message,
+    required this.isHighlighted,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print('BUILD MESSAGE: ${message.text}');
     return GetBuilder<MessageController>(
       global: false,
       init: MessageController(message),
@@ -29,8 +35,10 @@ class MessageView extends StatelessWidget {
         child: GestureDetector(
           onTap: controller.onTap,
           onLongPress: controller.toggleSelectMessage,
-          child: Container(
-            color: controller.isSelected()
+          child: AnimatedContainer(
+            // TODO FIXME
+            duration: Duration(milliseconds: 400),
+            color: controller.isSelected() || isHighlighted
                 ? Palette.orange.withOpacity(0.1)
                 : Colors.transparent,
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
