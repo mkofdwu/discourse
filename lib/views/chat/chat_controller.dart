@@ -137,8 +137,10 @@ class ChatController extends GetxController {
     if (_chat is! UserGroupChat) return;
     onStopReading();
     final message = messageSelection.selectedMessages.single;
-    final viewedBy =
-        await _messagesDb.getViewedBy(_chat as UserGroupChat, message);
+    final viewedBy = await _messagesDb.getViewedBy(
+      _chat as UserGroupChat,
+      message.sentTimestamp,
+    );
     await Get.to(ViewedByView(viewedBy: viewedBy));
     onStartReading();
   }

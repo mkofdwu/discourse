@@ -193,4 +193,9 @@ class MessageListController extends GetxController {
     numNewMessages = 0;
     update();
   }
+
+  Future<bool> showSeenIndicator() async {
+    if (!messages.last.fromMe) return false;
+    return _messagesDb.isViewedByAll(_chat, messages.last.sentTimestamp);
+  }
 }

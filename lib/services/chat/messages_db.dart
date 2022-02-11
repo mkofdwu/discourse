@@ -167,16 +167,29 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
 
   Future<List<DiscourseUser>> getViewedBy(
     UserGroupChat chat,
-    Message message,
+    DateTime messageTimestamp,
   ) async {
     final viewedBy = <DiscourseUser>[];
     for (final member in chat.groupData.members) {
       final lastReadAt = await _getLastReadAt(member.user.id, chat.id);
-      if (lastReadAt != null && message.sentTimestamp.isBefore(lastReadAt)) {
+      if (lastReadAt != null && messageTimestamp.isBefore(lastReadAt)) {
         viewedBy.add(member.user);
       }
     }
     return viewedBy;
+  }
+
+  Future<bool> isViewedByAll(UserChat chat, DateTime messageTimestamp) async {
+    if (chat is UserPrivateChat) {
+      final lastReadAt = await _getLastReadAt(chat.otherUser.id, chat.id);
+      return lastReadAt != null && messageTimestamp.isBefore(lastReadAt);
+    } else {
+      final viewedBy = await getViewedBy(
+        chat as UserGroupChat,
+        messageTimestamp,
+      );
+      return viewedBy.length == chat.groupData.members.length;
+    }
   }
 
   Future<List<Photo>> getPhotos(String chatId) async {
