@@ -135,11 +135,71 @@ class GroupDetailsController extends GetxController {
     ));
     if (choice == null) return;
     switch (choice) {
-      // TODO
       case 'Make admin':
+        final confirmed = await Get.bottomSheet(YesNoBottomSheet(
+          title: 'Make admin?',
+          subtitle: 'Grant admin permissions to ${member.user.username}?',
+        ));
+        if (confirmed ?? false) {
+          await _groupChatDb.updateMemberRole(
+            _chat.id,
+            member.user.id,
+            MemberRole.admin,
+          );
+          member.role = MemberRole.admin;
+          update();
+        }
+        break;
       case 'Remove admin':
-      case 'Transfer ownership':
+        final confirmed = await Get.bottomSheet(YesNoBottomSheet(
+          title: 'Remove admin?',
+          subtitle: "Revoke ${member.user.username}'s admin premissions?",
+        ));
+        if (confirmed ?? false) {
+          await _groupChatDb.updateMemberRole(
+            _chat.id,
+            member.user.id,
+            MemberRole.member,
+          );
+          member.role = MemberRole.member;
+          update();
+        }
+        break;
+      case 'Transfer ownersip':
+        final confirmed = await Get.bottomSheet(YesNoBottomSheet(
+          title: 'Transfer ownership?',
+          subtitle:
+              "Make ${member.user.username} the owner of this group? You'll lose your ownership status",
+        ));
+        if (confirmed ?? false) {
+          await _groupChatDb.updateMemberRole(
+            _chat.id,
+            member.user.id,
+            MemberRole.owner,
+          );
+          await _groupChatDb.updateMemberRole(
+            _chat.id,
+            currentUser.id,
+            MemberRole.admin,
+          );
+          member.role = MemberRole.member;
+          final currentUserMember = _chat.groupData.members
+              .singleWhere((member) => member.user == currentUser);
+          currentUserMember.role = MemberRole.admin;
+          update();
+        }
+        break;
       case 'Remove member':
+        final confirmed = await Get.bottomSheet(YesNoBottomSheet(
+          title: 'Remove member?',
+          subtitle: "Remove ${member.user.username} from this group?",
+        ));
+        if (confirmed ?? false) {
+          await _groupChatDb.removeMember(_chat.id, member.user.id);
+          _chat.groupData.members.remove(member);
+          update();
+        }
+        break;
     }
   }
 

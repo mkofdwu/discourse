@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum AlertType {
+enum ChatAction {
+  editTitle,
+  editDescription,
+  editPhoto,
   addMember,
   removeMember,
   memberJoin,
@@ -12,7 +15,7 @@ enum AlertType {
 
 class ChatAlert {
   final String id;
-  AlertType type; // used to chose icon
+  ChatAction type; // used to chose icon
   String content;
 
   ChatAlert({
@@ -25,14 +28,14 @@ class ChatAlert {
     final data = doc.data()!;
     return ChatAlert(
       id: doc.id,
-      type: AlertType.values[data['type']],
+      type: ChatAction.values[data['type']],
       content: data['content'],
     );
   }
 
   Map<String, dynamic> toData() {
     return {
-      'type': AlertType.values.indexOf(type),
+      'type': ChatAction.values.indexOf(type),
       'content': content,
     };
   }

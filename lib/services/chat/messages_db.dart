@@ -190,7 +190,7 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         .toList();
   }
 
-  Future<void> newAlert(String chatId, AlertType type, String content) async {
+  Future<void> newAlert(String chatId, ChatAction type, String content) async {
     await _messagesRef
         .doc(chatId)
         .collection('messages')
