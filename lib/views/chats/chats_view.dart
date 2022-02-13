@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
@@ -31,110 +33,90 @@ class ChatsView extends StatelessWidget {
           ),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
+          padding: const EdgeInsets.symmetric(vertical: 44),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Good evening',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
-                  OpacityFeedback(
-                    child: Stack(
-                      children: [
-                        Icon(FluentIcons.alert_24_regular),
-                        FutureBuilder<bool>(
-                          future: controller.hasNewRequests(),
-                          builder: (context, snapshot) {
-                            if (!snapshot.hasData || !snapshot.data!) {
-                              return SizedBox.shrink();
-                            }
-                            return Positioned(
-                              top: 0,
-                              right: 1,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Palette.orange,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Good evening',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                     ),
-                    onPressed: controller.toActivity,
-                  ),
-                ],
+                    MyIconButton(
+                      FluentIcons.alert_24_regular,
+                      child: Stack(
+                        children: [
+                          Icon(FluentIcons.alert_24_regular),
+                          FutureBuilder<bool>(
+                            future: controller.hasNewRequests(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData || !snapshot.data!) {
+                                return SizedBox.shrink();
+                              }
+                              return Positioned(
+                                top: 0,
+                                right: 1,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: Palette.orange,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      onPressed: controller.toActivity,
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 40),
               // announcement
-              Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-                  decoration: BoxDecoration(
-                    color: Palette.black3,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        FluentIcons.info_24_regular,
-                        color: Palette.orange,
-                        size: 24,
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Vestibulum, cras',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Morbi id donec aliquet elit. Volutpat morbi egestas accumsan, non.',
-                              style: TextStyle(
-                                color: Get.theme.primaryColor.withOpacity(0.8),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: _buildAnnouncement(),
+              ),
               SizedBox(height: 36),
               //
-              Text(
-                'Stories',
-                style: TextStyle(
-                  color: Get.theme.primaryColor.withOpacity(0.4),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+              Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Text(
+                  'Stories',
+                  style: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.4),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               SizedBox(height: 20),
               _buildStories(controller),
               SizedBox(height: 48),
-              Text(
-                'Chats',
-                style: TextStyle(
-                  color: Get.theme.primaryColor.withOpacity(0.4),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+              Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Text(
+                  'Chats',
+                  style: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.4),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               SizedBox(height: 20),
-              _buildChatsList(controller),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: _buildChatsList(controller),
+              ),
             ],
           ),
         ),
@@ -142,10 +124,49 @@ class ChatsView extends StatelessWidget {
     );
   }
 
+  Widget _buildAnnouncement() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+        decoration: BoxDecoration(
+          color: Palette.black3,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              FluentIcons.info_28_regular,
+              color: Palette.orange,
+              size: 28,
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Vestibulum, cras',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Morbi id donec aliquet elit. Volutpat morbi egestas accumsan, non.',
+                    style: TextStyle(
+                      color: Get.theme.primaryColor.withOpacity(0.8),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+
   Widget _buildStories(ChatsController controller) => SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
+            SizedBox(width: 40),
             _buildYourStoryButton(controller),
             SizedBox(width: 28),
             FutureBuilder<Map<DiscourseUser, List<StoryPage>>>(
@@ -183,6 +204,7 @@ class ChatsView extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(width: 40),
           ],
         ),
       );
@@ -258,40 +280,41 @@ class ChatsView extends StatelessWidget {
           }
           return Column(
             children: snapshot.data!
-                .map((chat) => StreamBuilder(
-                      stream: controller.lastMessageStream(chat),
-                      builder: (context, AsyncSnapshot<Message?> snapshot) {
+                .map((chat) => StreamBuilder<ChatLogObject>(
+                      stream: controller.streamLastChatObject(chat),
+                      builder: (context, snapshot) {
                         String? subtitle;
                         if (snapshot.hasData) {
-                          final message = snapshot.data!;
-                          // all these are private chats, if from other person dont repeat username
-                          subtitle = message.fromMe
-                              ? 'You: ${message.reprContent}'
-                              : message.reprContent;
+                          final chatObject = snapshot.data!;
+                          // TODO: show icon next to text (e.g. photo or chat action icon)
+                          if (chatObject is Message) {
+                            subtitle = chatObject.fromMe
+                                ? 'You: ${chatObject.reprContent}'
+                                : chatObject.reprContent;
+                          } else {
+                            subtitle = chatObject.asChatAlert.content;
+                          }
                         }
                         return StreamBuilder<int>(
                             stream: controller.numUnreadMessagesStream(chat),
                             builder: (context, snapshot) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 20),
-                                child: MyListTile(
-                                  title: chat.title,
-                                  subtitle: subtitle,
-                                  photoUrl: chat.photoUrl,
-                                  iconData: FluentIcons.person_16_regular,
-                                  extraWidgets: [
-                                    if (snapshot.hasData && snapshot.data! > 0)
-                                      _buildNumUnreadMessages(snapshot.data!)
-                                  ],
-                                  suffixIcons: {
-                                    if (chat.pinned)
-                                      FluentIcons.pin_16_filled: () =>
-                                          controller.togglePinChat(chat),
-                                    FluentIcons.more_vertical_20_regular: () =>
-                                        controller.showChatOptions(chat),
-                                  },
-                                  onPressed: () => controller.toChat(chat),
-                                ),
+                              return MyListTile(
+                                title: chat.title,
+                                subtitle: subtitle,
+                                photoUrl: chat.photoUrl,
+                                iconData: FluentIcons.person_16_regular,
+                                extraWidgets: [
+                                  if (snapshot.hasData && snapshot.data! > 0)
+                                    _buildNumUnreadMessages(snapshot.data!)
+                                ],
+                                suffixIcons: {
+                                  if (chat.pinned)
+                                    FluentIcons.pin_16_filled: () =>
+                                        controller.togglePinChat(chat),
+                                  FluentIcons.more_vertical_20_regular: () =>
+                                      controller.showChatOptions(chat),
+                                },
+                                onPressed: () => controller.toChat(chat),
                               );
                             });
                       },

@@ -11,7 +11,7 @@ import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_export.dart';
-import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
 import 'package:discourse/views/date_selector/date_selector_view.dart';
@@ -21,7 +21,7 @@ import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {
-  final _messagesDb = Get.find<MessagesDbService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
   final _chatExport = Get.find<ChatExportService>();
@@ -137,7 +137,7 @@ class ChatController extends GetxController {
     if (_chat is! UserGroupChat) return;
     onStopReading();
     final message = messageSelection.selectedMessages.single;
-    final viewedBy = await _messagesDb.getViewedBy(
+    final viewedBy = await _chatLogDb.getViewedBy(
       _chat as UserGroupChat,
       message.sentTimestamp,
     );

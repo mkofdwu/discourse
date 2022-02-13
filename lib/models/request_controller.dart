@@ -1,6 +1,9 @@
+import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/received_request.dart';
+import 'package:discourse/services/auth.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/misc_cache.dart';
@@ -103,6 +106,8 @@ class FriendRequestController extends RequestController {
 class GroupInviteRequestController extends RequestController {
   final _relationships = Get.find<RelationshipsService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
+  final _auth = Get.find<AuthService>();
 
   GroupChatData? _chatData;
 
@@ -128,5 +133,10 @@ class GroupInviteRequestController extends RequestController {
     await _relationships.setMutualRelationship(
         request.fromUser.id, RelationshipStatus.canTalk);
     await _groupChatDb.addUserGroupChat(request.data);
+    await _chatLogDb.newAlert(
+      request.data,
+      ChatAction.memberJoin,
+      '${_auth.currentUser.username} joined the group with ${request.fromUser.username}\'s invite',
+    );
   }
 }

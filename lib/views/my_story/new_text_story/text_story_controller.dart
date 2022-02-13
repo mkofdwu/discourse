@@ -52,7 +52,7 @@ class TextStoryController extends GetxController {
         result['friends'],
       );
       _miscCache.myFriendLists.add(newList);
-      Get.back(); // return to this page
+      selectedFriendList = newList;
       update();
     }
   }

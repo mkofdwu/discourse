@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 final memberPerms = <ChatAction>[ChatAction.memberJoin, ChatAction.memberLeave];
 final adminPerms = memberPerms +
     [
-      ChatAction.editTitle,
+      ChatAction.editName,
       ChatAction.editDescription,
       ChatAction.editPhoto,
       ChatAction.addMember,

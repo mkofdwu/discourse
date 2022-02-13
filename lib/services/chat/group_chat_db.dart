@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/requests.dart';
 import 'package:discourse/services/user_db.dart';
@@ -13,24 +16,23 @@ import 'package:get/get.dart';
 
 abstract class BaseGroupChatDbService {
   Future<GroupChatData> getChatData(String chatId);
-  Future<void> updateChatData(String chatId, GroupChatData data);
   Future<UserGroupChat> newGroup(GroupChatData data);
   Future<void> addOrSendInvites(String chatId, List<Member> members);
-  Future<void> removeMember(String chatId, String userId);
-  Future<void> updateMemberRole(
-    String chatId,
-    String userId,
-    MemberRole newRole,
-  );
+  Future<void> removeMember(String chatId, DiscourseUser user);
+  Future<void> makeAdmin(String chatId, DiscourseUser user);
+  Future<void> revokeAdmin(String chatId, DiscourseUser user);
+  Future<void> transferOwnership(String chatId, DiscourseUser user);
   Future<void> leaveGroup(String chatId);
   Future<void> disbandGroup(String chatId);
 }
 
+// this class is also responsible for adding chat alerts to the log
 class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _requests = Get.find<RequestsService>();
   final _relationships = Get.find<RelationshipsService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
   final _messagesRef = FirebaseFirestore.instance.collection('messages');
@@ -52,9 +54,35 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     return GroupChatData.fromDoc(doc, members);
   }
 
-  @override
-  Future<void> updateChatData(String chatId, GroupChatData newData) async {
-    await _groupChatsRef.doc(chatId).update(newData.toData());
+  Future<void> updateName(
+    String chatId,
+    String newName, {
+    required String oldName,
+  }) async {
+    await _groupChatsRef.doc(chatId).update({'name': newName});
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.editName,
+      '${_auth.currentUser.username} changed the group name from $oldName to $newName',
+    );
+  }
+
+  Future<void> updateDescription(String chatId, String newDescription) async {
+    await _groupChatsRef.doc(chatId).update({'description': newDescription});
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.editDescription,
+      '${_auth.currentUser.username} changed the group description',
+    );
+  }
+
+  Future<void> updatePhoto(String chatId, String? newPhotoUrl) async {
+    await _groupChatsRef.doc(chatId).update({'photoUrl': newPhotoUrl});
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.editPhoto,
+      '${_auth.currentUser.username} changed the group photo',
+    );
   }
 
   @override
@@ -64,6 +92,11 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     await _addMember(
       chatDoc.id,
       Member.create(_auth.currentUser, role: MemberRole.owner),
+    );
+    await _chatLogDb.newAlert(
+      chatDoc.id,
+      ChatAction.memberJoin,
+      '${_auth.currentUser.username} created this group',
     );
     await addOrSendInvites(chatDoc.id, data.members);
     return UserGroupChat(
@@ -105,9 +138,14 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
       // as of now there is no security on the backend to enforce permissions
       if (await _relationships.needToAsk(
           member.user.id, RequestType.groupInvite)) {
-        _sendGroupInvite(chatId, member.user.id);
+        await _sendGroupInvite(chatId, member.user.id);
       } else {
-        _addMember(chatId, member);
+        await _addMember(chatId, member);
+        await _chatLogDb.newAlert(
+          chatId,
+          ChatAction.addMember,
+          '${_auth.currentUser.username} added ${member.user.username} to this group',
+        );
       }
     }
   }
@@ -125,13 +163,21 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         .set(Member.create(_auth.currentUser).toData());
   }
 
-  @override
-  Future<void> removeMember(String chatId, String userId) async {
+  Future<void> _removeMember(String chatId, String userId) async {
     await _groupChatsRef.doc(chatId).collection('members').doc(userId).delete();
   }
 
   @override
-  Future<void> updateMemberRole(
+  Future<void> removeMember(String chatId, DiscourseUser user) async {
+    await _removeMember(chatId, user.id);
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.removeMember,
+      '${_auth.currentUser.username} removed ${user.username} from this group',
+    );
+  }
+
+  Future<void> _updateMemberRole(
     String chatId,
     String userId,
     MemberRole newRole,
@@ -144,9 +190,45 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   }
 
   @override
+  Future<void> makeAdmin(String chatId, DiscourseUser user) async {
+    await _updateMemberRole(chatId, user.id, MemberRole.admin);
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.addAdmin,
+      '${_auth.currentUser.username} granted ${user.username} admin permissions',
+    );
+  }
+
+  @override
+  Future<void> revokeAdmin(String chatId, DiscourseUser user) async {
+    await _updateMemberRole(chatId, user.id, MemberRole.member);
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.removeAdmin,
+      '${_auth.currentUser.username} revoked ${user.username}\'s admin permissions',
+    );
+  }
+
+  @override
+  Future<void> transferOwnership(String chatId, DiscourseUser user) async {
+    await _updateMemberRole(chatId, _auth.id, MemberRole.admin);
+    await _updateMemberRole(chatId, user.id, MemberRole.owner);
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.transferOwnership,
+      '${_auth.currentUser.username} transferred ownership of this group to ${user.username}',
+    );
+  }
+
+  @override
   Future<void> leaveGroup(String chatId) async {
-    await removeMember(chatId, _auth.id);
+    await _removeMember(chatId, _auth.id);
     await _usersRef.doc(_auth.id).collection('chats').doc(chatId).delete();
+    await _chatLogDb.newAlert(
+      chatId,
+      ChatAction.memberLeave,
+      '${_auth.currentUser.username} left this group',
+    );
   }
 
   @override

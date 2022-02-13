@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 
 class MyIconButton extends StatelessWidget {
   final IconData iconData;
+  final Widget? child;
   final Function() onPressed;
 
-  const MyIconButton(this.iconData, {Key? key, required this.onPressed})
-      : super(key: key);
+  const MyIconButton(
+    this.iconData, {
+    Key? key,
+    this.child,
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,7 @@ class MyIconButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
         ),
         child: Center(
-          child: Icon(iconData, size: 24),
+          child: child ?? Icon(iconData, size: 24),
         ),
       ),
     );

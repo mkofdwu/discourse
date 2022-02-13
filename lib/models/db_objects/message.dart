@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
 
-class Message {
+class Message extends ChatLogObject {
   final String id;
   String chatId;
   DiscourseUser sender;
@@ -29,6 +30,9 @@ class Message {
     required this.sentTimestamp,
     required this.fromMe,
   });
+
+  @override
+  bool get isMessage => true;
 
   factory Message.fromDoc(
     DocumentSnapshot<Map<String, dynamic>> doc,
@@ -65,7 +69,7 @@ class Message {
       );
 
 // show if has photo, show text
-  String get reprContent => [photo != null ? '[Photo]' : null, text]
+  String get reprContent => [photo != null ? '\u{1f4f7}' : null, text]
       .where((s) => s != null)
       .join(' ');
 

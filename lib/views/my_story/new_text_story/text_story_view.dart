@@ -1,7 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/widgets/icon_button.dart';
-import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,7 @@ class TextStoryView extends StatelessWidget {
           builder: (pressed) => Container(
             width: 60,
             height: 60,
-            margin: const EdgeInsets.only(bottom: 16, right: 4),
+            margin: const EdgeInsets.only(bottom: 4, right: 4),
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(30),

@@ -1,14 +1,14 @@
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
-import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 class MessageSelectionController extends GetxController {
   final _messageSender = Get.find<MessageSenderController>();
-  final _messagesDb = Get.find<MessagesDbService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _chat = Get.find<UserChat>();
 
@@ -43,7 +43,7 @@ class MessageSelectionController extends GetxController {
           "Once you press delete, the messages will be gone forever. You won't be able to undo this action!",
     ));
     if (confirmed ?? false) {
-      await _messagesDb.deleteMessages(selectedMessages);
+      await _chatLogDb.deleteMessages(selectedMessages);
       final photoUrls = selectedMessages
           .where((message) => message.photo != null)
           .map((message) => message.photo!.url!)

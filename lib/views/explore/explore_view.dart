@@ -49,10 +49,9 @@ class ExploreView extends StatelessWidget {
                 if (controller.searchResults.isNotEmpty) SizedBox(height: 22),
                 if (controller.searchResults.isNotEmpty)
                   Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemCount: controller.searchResults.length,
-                      separatorBuilder: (context, i) => SizedBox(height: 20),
                       itemBuilder: (context, i) {
                         final user = controller.searchResults[i];
                         return _buildUserTile(controller, user);

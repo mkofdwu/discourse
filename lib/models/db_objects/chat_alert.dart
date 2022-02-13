@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/chat_log_object.dart';
 
 enum ChatAction {
-  editTitle,
+  editName,
   editDescription,
   editPhoto,
   addMember,
@@ -13,35 +14,47 @@ enum ChatAction {
   transferOwnership,
 }
 
-class ChatAlert {
+class ChatAlert extends ChatLogObject {
   final String id;
-  ChatAction type; // used to chose icon
+  String chatId;
+  ChatAction action; // used to chose icon
   String content;
+  DateTime sentTimestamp;
 
   ChatAlert({
     required this.id,
-    required this.type,
+    required this.chatId,
+    required this.action,
     required this.content,
+    required this.sentTimestamp,
   });
+
+  @override
+  bool get isMessage => false;
 
   factory ChatAlert.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return ChatAlert(
       id: doc.id,
-      type: ChatAction.values[data['type']],
+      chatId: doc.reference.parent.parent!.id,
+      action: ChatAction.values[data['type']],
       content: data['content'],
+      sentTimestamp: data['sentTimestamp'].toDate(),
     );
   }
 
   Map<String, dynamic> toData() {
     return {
-      'type': ChatAction.values.indexOf(type),
+      'senderId': null, // to signify that this is an alert not a message
+      'type': ChatAction.values.indexOf(action),
       'content': content,
+      'sentTimestamp': sentTimestamp,
     };
   }
 
   @override
-  String toString() => 'ChatAlert(id: $id, type: $type, content: $content)';
+  String toString() =>
+      'ChatAlert(id: $id, type: $action, content: $content, sentTimestamp: $sentTimestamp)';
 
   @override
   bool operator ==(Object other) {
@@ -49,10 +62,12 @@ class ChatAlert {
 
     return other is ChatAlert &&
         other.id == id &&
-        other.type == type &&
-        other.content == content;
+        other.action == action &&
+        other.content == content &&
+        sentTimestamp == sentTimestamp;
   }
 
   @override
-  int get hashCode => id.hashCode ^ type.hashCode ^ content.hashCode;
+  int get hashCode =>
+      id.hashCode ^ action.hashCode ^ content.hashCode ^ sentTimestamp.hashCode;
 }

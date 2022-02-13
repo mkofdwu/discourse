@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user.dart';
@@ -11,21 +12,25 @@ import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
 abstract class BaseMessagesDbService {
-  Stream<List<Message>> streamMessages(String chatId, int numMessages);
-  Stream<Message> lastMessageStream(String chatId);
-  Future<Message> sendMessage(UnsentMessage unsentMessage);
+  Future<ChatLogObject> getMessage(String chatId, String id);
+  Stream<List<ChatLogObject>> streamChatLog(String chatId, int numMessages);
+  Stream<ChatLogObject> streamLastChatObject(String chatId);
+  Future<ChatLogObject> sendMessage(UnsentMessage unsentMessage);
   Future<void> deleteMessages(List<Message> messages);
 }
 
-class MessagesDbService extends GetxService implements BaseMessagesDbService {
+class ChatLogDbService extends GetxService implements BaseMessagesDbService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
 
   final _messagesRef = FirebaseFirestore.instance.collection('messages');
 
-  Future<Message> _messageFromDoc(
+  Future<ChatLogObject> _chatObjectFromDoc(
       DocumentSnapshot<Map<String, dynamic>> doc) async {
     final data = doc.data()!;
+    if (data['senderId'] == null) {
+      return ChatAlert.fromDoc(doc);
+    }
     final chatId = doc.reference.parent.parent!.id;
     final repliedMessage = data['repliedMessageId'] == null
         ? null
@@ -43,10 +48,11 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
     );
   }
 
-  Future<Message> getMessage(String chatId, String id) async {
+  @override
+  Future<ChatLogObject> getMessage(String chatId, String id) async {
     final doc =
         await _messagesRef.doc(chatId).collection('messages').doc(id).get();
-    return _messageFromDoc(doc);
+    return _chatObjectFromDoc(doc);
   }
 
   Future<RepliedMessage> _getRepliedMessage(
@@ -66,7 +72,7 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
   }
 
   @override
-  Stream<List<Message>> streamMessages(
+  Stream<List<ChatLogObject>> streamChatLog(
     String chatId,
     int numMessages,
   ) {
@@ -78,12 +84,16 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         .snapshots()
         .asyncMap(
           (snapshot) => Future.wait(snapshot.docs.map(
-            (doc) => _messageFromDoc(doc),
+            (doc) => _chatObjectFromDoc(doc),
           )),
         );
   }
 
-  Future<List<Message>> fetchMoreMessages(
+  @override
+  Stream<ChatLogObject> streamLastChatObject(String chatId) =>
+      streamChatLog(chatId, 1).asyncMap((list) => list.single);
+
+  Future<List<ChatLogObject>> fetchMoreMessages(
     String chatId,
     DateTime timestamp,
     int numMessages,
@@ -101,12 +111,8 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         .limit(numMessages)
         .get();
     return Future.wait((fetchOlder ? snapshot.docs.reversed : snapshot.docs)
-        .map((doc) => _messageFromDoc(doc)));
+        .map((doc) => _chatObjectFromDoc(doc)));
   }
-
-  @override
-  Stream<Message> lastMessageStream(String chatId) =>
-      streamMessages(chatId, 1).asyncMap((list) => list.single);
 
   Stream<int> numUnreadMessagesStream(String chatId, DateTime? lastReadAt) =>
       _messagesRef
@@ -203,10 +209,13 @@ class MessagesDbService extends GetxService implements BaseMessagesDbService {
         .toList();
   }
 
-  Future<void> newAlert(String chatId, ChatAction type, String content) async {
-    await _messagesRef
-        .doc(chatId)
-        .collection('messages')
-        .add({'type': type.index, 'content': content});
+  Future<void> newAlert(
+      String chatId, ChatAction action, String content) async {
+    await _messagesRef.doc(chatId).collection('messages').add({
+      'senderId': null,
+      'type': action.index,
+      'content': content,
+      'sentTimestamp': Timestamp.now(),
+    });
   }
 }

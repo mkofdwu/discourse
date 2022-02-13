@@ -1,8 +1,9 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
-import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,9 +11,10 @@ import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/storage.dart';
 
 class MessageSenderController extends GetxController {
-  final _messagesDb = Get.find<MessagesDbService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
+  final _commonChatDb = Get.find<CommonChatDbService>();
   final _storage = Get.find<StorageService>();
 
   final textController = TextEditingController();
@@ -43,7 +45,7 @@ class MessageSenderController extends GetxController {
     } else {
       // send the message
       await _uploadMessagePhoto(unsentMessage, chat);
-      await _messagesDb.sendMessage(unsentMessage);
+      await _chatLogDb.sendMessage(unsentMessage);
       unsentMessages.remove(unsentMessage);
       update();
     }
@@ -54,7 +56,7 @@ class MessageSenderController extends GetxController {
     for (UnsentMessage unsent in List.from(unsentMessages)) {
       unsent.chatId = privateChat.id;
       await _uploadMessagePhoto(unsent, privateChat);
-      await _messagesDb.sendMessage(unsent);
+      await _chatLogDb.sendMessage(unsent);
       unsentMessages.remove(unsent);
     }
     Get.put<UserChat>(privateChat);
@@ -66,13 +68,9 @@ class MessageSenderController extends GetxController {
       await _storage.uploadPhoto(message.photo!, 'messagephoto');
     }
     if (message.photo != null) {
-      // FIXME: there might be a better way to do this
+      await _commonChatDb.addMediaUrl(chat, message.photo!.url!);
       chat.data.mediaUrls.add(message.photo!.url!);
-      if (chat is UserPrivateChat) {
-        await _privateChatDb.updateChatData(chat.id, chat.privateData);
-      } else if (chat is UserGroupChat) {
-        await _groupChatDb.updateChatData(chat.id, chat.groupData);
-      }
+      update();
     }
   }
 }

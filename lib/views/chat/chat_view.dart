@@ -1,4 +1,6 @@
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/db_objects/chat_alert.dart';
+import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/utils/format_date_time.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -75,73 +77,122 @@ class ChatView extends StatelessWidget {
   Widget _buildMessagesList(ChatController controller,
           MessageListController messageListController) =>
       ReverseThomasScroll(
-        list: messageListController.messages,
+        list: messageListController.chatLog,
         scrollController: messageListController.scrollController,
         itemBuilder: (context, i) {
-          final message = messageListController.messages[i];
-          final messageWidget = message.isDeleted
-              ? DeletedMessageView(message: message)
-              : MessageView(
-                  key: messageListController.messageKey(message.id),
-                  message: message,
-                  isHighlighted: message.id == controller.highlightedMessageId,
-                );
-          if (i - 1 < 0) {
-            return messageWidget;
-          }
+          final chatObject = messageListController.chatLog[i];
 
-          final prevMessage = messageListController.messages[i - 1];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!isSameDay(
-                prevMessage.sentTimestamp,
-                message.sentTimestamp,
-              )) ...[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
-                  child: OpacityFeedback(
-                    onPressed: controller.toSelectDate,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatDate(message.sentTimestamp),
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          _dayOfWeek(message.sentTimestamp),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 1,
-                  width: double.infinity,
-                  color: Colors.white.withOpacity(0.1),
-                  margin: const EdgeInsets.symmetric(horizontal: 30),
-                ),
-                SizedBox(height: 32),
-              ],
-              if (!controller.isPrivateChat &&
-                  prevMessage.sender != message.sender &&
-                  !message.fromMe)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
-                  child: _buildSenderDetails(controller.member(message.sender)),
-                ),
-              messageWidget,
-            ],
-          );
+          return chatObject is Message
+              ? _buildMessage(controller, messageListController, i, chatObject)
+              : _buildChatAlert(chatObject.asChatAlert);
         },
       );
+
+  Widget _buildMessage(ChatController controller,
+      MessageListController messageListController, int i, Message message) {
+    final messageWidget = message.isDeleted
+        ? DeletedMessageView(message: message)
+        : MessageView(
+            key: messageListController.messageKey(message.id),
+            message: message,
+            isHighlighted: message.id == controller.highlightedMessageId,
+          );
+    if (i - 1 < 0) {
+      return messageWidget;
+    }
+
+    final prevMessage = messageListController.chatLog[i - 1];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!isSameDay(
+          prevMessage.sentTimestamp,
+          message.sentTimestamp,
+        )) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
+            child: OpacityFeedback(
+              onPressed: controller.toSelectDate,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _formatDate(message.sentTimestamp),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    _dayOfWeek(message.sentTimestamp),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: 1,
+            width: double.infinity,
+            color: Colors.white.withOpacity(0.1),
+            margin: const EdgeInsets.symmetric(horizontal: 30),
+          ),
+          SizedBox(height: 32),
+        ],
+        if (!controller.isPrivateChat &&
+            (prevMessage is! Message || prevMessage.sender != message.sender) &&
+            !message.fromMe)
+          Padding(
+            padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
+            child: _buildSenderDetails(controller.member(message.sender)),
+          ),
+        messageWidget,
+      ],
+    );
+  }
+
+  Widget _buildChatAlert(ChatAlert alert) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        margin: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: Palette.black3,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Opacity(
+          opacity: 0.6,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_chatActionIcon(alert.action), size: 20),
+              SizedBox(width: 8),
+              Text(alert.content),
+            ],
+          ),
+        ),
+      );
+
+  IconData _chatActionIcon(ChatAction action) {
+    switch (action) {
+      case ChatAction.editName:
+      case ChatAction.editDescription:
+        return FluentIcons.edit_20_regular;
+      case ChatAction.editPhoto:
+        return FluentIcons.image_edit_20_regular;
+      case ChatAction.addMember:
+      case ChatAction.memberJoin:
+        return FluentIcons.person_add_20_regular;
+      case ChatAction.removeMember:
+      case ChatAction.memberLeave:
+        return FluentIcons.person_delete_20_regular;
+      case ChatAction.addAdmin:
+        return FluentIcons.arrow_up_20_regular;
+      case ChatAction.removeAdmin:
+        return FluentIcons.arrow_down_20_regular;
+      case ChatAction.transferOwnership:
+        return FluentIcons.arrow_swap_20_regular;
+    }
+  }
 
   Widget _buildMessagesListBottom(
     ChatController controller,

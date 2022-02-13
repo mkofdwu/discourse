@@ -52,23 +52,20 @@ class MyStoryView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
               child: Column(
                 children: snapshot.data!
-                    .map((story) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: MyListTile(
-                            title: '${story.viewedAt.length} views',
-                            subtitle: formatTime(story.sentTimestamp),
-                            photoUrl: story.type == StoryType.photo
-                                ? story.content
-                                : null,
-                            iconData: FluentIcons.text_description_20_regular,
-                            suffixIcons: {
-                              FluentIcons.edit_20_regular: () =>
-                                  controller.editStory(story),
-                              FluentIcons.delete_20_regular: () =>
-                                  controller.deleteStory(story),
-                            },
-                            onPressed: () => controller.viewSingleStory(story),
-                          ),
+                    .map((story) => MyListTile(
+                          title: '${story.viewedAt.length} views',
+                          subtitle: formatTime(story.sentTimestamp),
+                          photoUrl: story.type == StoryType.photo
+                              ? story.content
+                              : null,
+                          iconData: FluentIcons.text_description_20_regular,
+                          suffixIcons: {
+                            FluentIcons.edit_20_regular: () =>
+                                controller.editStory(story),
+                            FluentIcons.delete_20_regular: () =>
+                                controller.deleteStory(story),
+                          },
+                          onPressed: () => controller.viewSingleStory(story),
                         ))
                     .toList(),
               ),

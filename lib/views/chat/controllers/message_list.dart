@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -10,14 +11,14 @@ import 'package:get/get.dart';
 const CHUNK_SIZE = 20; // load 50 messages at a time
 
 class MessageListController extends GetxController {
-  final _messagesDb = Get.find<MessagesDbService>();
+  final _chatLogDb = Get.find<ChatLogDbService>();
   final _chat = Get.find<UserChat>();
 
   final scrollController = ScrollController(
       initialScrollOffset: -80); // specific to customscrollview with center
 
   // first element is the oldest, last element is most recent message.
-  final messages = TopBottomList<Message>([]);
+  final chatLog = TopBottomList<ChatLogObject>([]);
   final _messageKeys = <String, GlobalKey>{};
   bool _reachedTop = false;
   bool _reachedBottom = false;
@@ -61,21 +62,21 @@ class MessageListController extends GetxController {
     // this function is not responsible for checking _reachedTop or
     // _reachedBottom
     // topOrBottom: fetch from top if true
-    final moreMessages = await _messagesDb.fetchMoreMessages(
+    final moreMessages = await _chatLogDb.fetchMoreMessages(
       _chat.id,
       // timestamp is only used when loading messages for the first time
       // or when jumping to section in chat log
       timestamp ??
           (fetchOlder
-              ? messages.first.sentTimestamp
-              : messages.last.sentTimestamp),
+              ? chatLog.first.sentTimestamp
+              : chatLog.last.sentTimestamp),
       CHUNK_SIZE,
       fetchOlder,
     );
     if (fetchOlder) {
-      messages.addAllTop(moreMessages.reversed); // adds them the correct dir
+      chatLog.addAllTop(moreMessages.reversed); // adds them the correct dir
     } else {
-      messages.addAll(moreMessages);
+      chatLog.addAll(moreMessages);
     }
     if (fetchOlder) {
       _reachedTop = moreMessages.length < CHUNK_SIZE;
@@ -88,17 +89,16 @@ class MessageListController extends GetxController {
   void _watchLastMessage() {
     if (_chat is NonExistentChat) return;
     _lastMessageSubscription =
-        _messagesDb.streamMessages(_chat.id, 1).listen((msgs) {
-      final lastMessage = msgs.single;
-      if (messages.last.id != lastMessage.id) {
+        _chatLogDb.streamLastChatObject(_chat.id).listen((chatObject) {
+      if (chatLog.isEmpty || chatObject.id != chatLog.last.id) {
         if (_reachedBottom) {
-          messages.add(lastMessage);
+          chatLog.add(chatObject);
         }
         if (showGoToBottomArrow) {
           numNewMessages += 1;
         }
         update();
-        if (lastMessage.fromMe) {
+        if (chatObject is Message && chatObject.fromMe) {
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             scrollToBottom();
           });
@@ -133,9 +133,9 @@ class MessageListController extends GetxController {
   Future<void> jumpToMessage(String messageId) async {
     // this method may also be called when scrolling to specific image/video/link
     // in the chat or a starred message
-    messages.clear();
+    chatLog.clear();
     _messageKeys.clear();
-    messages.add(await _messagesDb.getMessage(_chat.id, messageId));
+    chatLog.add(await _chatLogDb.getMessage(_chat.id, messageId));
     // then fetch messages on either side
     await _fetchMoreMessages(true);
     await _fetchMoreMessages(false);
@@ -145,12 +145,12 @@ class MessageListController extends GetxController {
 
   void jumpToTimestamp(DateTime timestamp) async {
     // fetch messages on either side
-    messages.clear();
+    chatLog.clear();
     _messageKeys.clear();
     await _fetchMoreMessages(true, timestamp: timestamp);
     await _fetchMoreMessages(false, timestamp: timestamp);
     // scroll to center
-    final messageId = messages[messages.length ~/ 2].id;
+    final messageId = chatLog[chatLog.length ~/ 2].id;
     Scrollable.ensureVisible(
       _messageKeys[messageId]!.currentContext!,
       alignment: 0.8,
@@ -195,7 +195,7 @@ class MessageListController extends GetxController {
   }
 
   Future<bool> showSeenIndicator() async {
-    if (!messages.last.fromMe) return false;
-    return _messagesDb.isViewedByAll(_chat, messages.last.sentTimestamp);
+    if (chatLog.last.isMessage && !chatLog.last.asMessage.fromMe) return false;
+    return _chatLogDb.isViewedByAll(_chat, chatLog.last.sentTimestamp);
   }
 }

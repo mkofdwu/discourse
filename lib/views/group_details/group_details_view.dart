@@ -97,22 +97,19 @@ class GroupDetailsView extends StatelessWidget {
                         .where(
                             (member) => member.user != controller.currentUser)
                         .map(
-                          (member) => Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: MyListTile(
-                              title: member.user.username,
-                              subtitle: member.user.aboutMe,
-                              tag: _memberRoleToString(member.role),
-                              iconData: FluentIcons.person_16_regular,
-                              suffixIcons: {
-                                if (controller.hasAdminPrivileges)
-                                  FluentIcons.more_vertical_20_regular: () =>
-                                      controller.showMemberOptions(member),
-                              },
-                              onPressed: () {
-                                Get.to(UserProfileView(user: member.user));
-                              },
-                            ),
+                          (member) => MyListTile(
+                            title: member.user.username,
+                            subtitle: member.user.aboutMe,
+                            tag: _memberRoleToString(member.role),
+                            iconData: FluentIcons.person_16_regular,
+                            suffixIcons: {
+                              if (controller.hasAdminPrivileges)
+                                FluentIcons.more_vertical_20_regular: () =>
+                                    controller.showMemberOptions(member),
+                            },
+                            onPressed: () {
+                              Get.to(UserProfileView(user: member.user));
+                            },
                           ),
                         ),
                     if (controller.hasAdminPrivileges) SizedBox(height: 24),

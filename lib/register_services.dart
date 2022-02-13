@@ -1,7 +1,7 @@
 import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
-import 'package:discourse/services/chat/messages_db.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/services/media.dart';
@@ -22,7 +22,7 @@ void registerServices() {
   Get.put(RequestsService());
   Get.put(RelationshipsService());
   // chats
-  Get.put(MessagesDbService());
+  Get.put(ChatLogDbService());
   Get.put(PrivateChatDbService());
   Get.put(GroupChatDbService());
   Get.put(CommonChatDbService());

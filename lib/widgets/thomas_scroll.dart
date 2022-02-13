@@ -18,6 +18,7 @@ class TopBottomList<T> {
   int get length => _top.length + _bottom.length;
   T get first => get(0);
   T get last => _bottom.isEmpty ? _top.first : _bottom.last;
+  bool get isEmpty => _top.isEmpty && _bottom.isEmpty;
 
   void clear() {
     _top.clear();

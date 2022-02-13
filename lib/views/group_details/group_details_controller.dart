@@ -3,6 +3,7 @@ import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/auth.dart';
+import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/storage.dart';
@@ -67,8 +68,8 @@ class GroupDetailsController extends GetxController {
     final newPhoto = await _media.selectPhoto();
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
+      await _groupChatDb.updatePhoto(_chat.id, newPhoto.url);
       _chat.groupData.photoUrl = newPhoto.url;
-      await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
       update();
     }
   }
@@ -79,8 +80,8 @@ class GroupDetailsController extends GetxController {
       subtitle: 'Are you sure you want to remove the group photo?',
     ));
     if (confirmed ?? false) {
+      await _groupChatDb.updatePhoto(_chat.id, null);
       _chat.groupData.photoUrl = null;
-      await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
       Get.back();
       update();
     }
@@ -112,9 +113,21 @@ class GroupDetailsController extends GetxController {
             setErrors({'name': 'Your group needs to have a name'});
             return;
           }
-          _chat.groupData.name = inputs['name'];
-          _chat.groupData.description = inputs['description'];
-          await _groupChatDb.updateChatData(_chat.id, _chat.groupData);
+          if (inputs['name'] != _chat.groupData.name) {
+            await _groupChatDb.updateName(
+              _chat.id,
+              inputs['name'],
+              oldName: _chat.groupData.name,
+            );
+            _chat.groupData.name = inputs['name'];
+          }
+          if (inputs['description'] != _chat.groupData.description) {
+            await _groupChatDb.updateDescription(
+              _chat.id,
+              inputs['description'],
+            );
+            _chat.groupData.description = inputs['description'];
+          }
           Get.back();
           update();
         },
@@ -141,11 +154,7 @@ class GroupDetailsController extends GetxController {
           subtitle: 'Grant admin permissions to ${member.user.username}?',
         ));
         if (confirmed ?? false) {
-          await _groupChatDb.updateMemberRole(
-            _chat.id,
-            member.user.id,
-            MemberRole.admin,
-          );
+          await _groupChatDb.makeAdmin(_chat.id, member.user);
           member.role = MemberRole.admin;
           update();
         }
@@ -156,11 +165,7 @@ class GroupDetailsController extends GetxController {
           subtitle: "Revoke ${member.user.username}'s admin premissions?",
         ));
         if (confirmed ?? false) {
-          await _groupChatDb.updateMemberRole(
-            _chat.id,
-            member.user.id,
-            MemberRole.member,
-          );
+          await _groupChatDb.revokeAdmin(_chat.id, member.user);
           member.role = MemberRole.member;
           update();
         }
@@ -172,16 +177,7 @@ class GroupDetailsController extends GetxController {
               "Make ${member.user.username} the owner of this group? You'll lose your ownership status",
         ));
         if (confirmed ?? false) {
-          await _groupChatDb.updateMemberRole(
-            _chat.id,
-            member.user.id,
-            MemberRole.owner,
-          );
-          await _groupChatDb.updateMemberRole(
-            _chat.id,
-            currentUser.id,
-            MemberRole.admin,
-          );
+          await _groupChatDb.transferOwnership(_chat.id, member.user);
           member.role = MemberRole.member;
           final currentUserMember = _chat.groupData.members
               .singleWhere((member) => member.user == currentUser);
@@ -195,7 +191,7 @@ class GroupDetailsController extends GetxController {
           subtitle: "Remove ${member.user.username} from this group?",
         ));
         if (confirmed ?? false) {
-          await _groupChatDb.removeMember(_chat.id, member.user.id);
+          await _groupChatDb.removeMember(_chat.id, member.user);
           _chat.groupData.members.remove(member);
           update();
         }

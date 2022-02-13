@@ -96,4 +96,13 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
       await _storage.deletePhoto(photoUrl);
     }
   }
+
+  Future<void> addMediaUrl(UserChat chat, String mediaUrl) async {
+    await FirebaseFirestore.instance
+        .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
+        .doc(chat.id)
+        .update({
+      'mediaUrls': FieldValue.arrayUnion([mediaUrl])
+    });
+  }
 }
