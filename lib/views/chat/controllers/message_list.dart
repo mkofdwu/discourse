@@ -4,6 +4,7 @@ import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
+import 'package:discourse/views/date_selector/date_selector_view.dart';
 import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -149,12 +150,7 @@ class MessageListController extends GetxController {
     _messageKeys.clear();
     await _fetchMoreMessages(true, timestamp: timestamp);
     await _fetchMoreMessages(false, timestamp: timestamp);
-    // scroll to center
-    final messageId = chatLog[chatLog.length ~/ 2].id;
-    Scrollable.ensureVisible(
-      _messageKeys[messageId]!.currentContext!,
-      alignment: 0.8,
-    );
+    // TODO: scroll to correct message
     update();
   }
 
@@ -197,5 +193,12 @@ class MessageListController extends GetxController {
   Future<bool> showSeenIndicator() async {
     if (chatLog.last.isMessage && !chatLog.last.asMessage.fromMe) return false;
     return _chatLogDb.isViewedByAll(_chat, chatLog.last.sentTimestamp);
+  }
+
+  void toSelectDate() async {
+    final date = await Get.to(DateSelectorView(title: 'Go to date'));
+    if (date != null) {
+      jumpToTimestamp(date);
+    }
   }
 }

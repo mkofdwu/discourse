@@ -100,7 +100,7 @@ class ChatView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
                   child: OpacityFeedback(
-                    onPressed: controller.toSelectDate,
+                    onPressed: messageListController.toSelectDate,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

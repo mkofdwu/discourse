@@ -123,10 +123,6 @@ class ChatController extends GetxController {
     }
   }
 
-  void toSelectDate() async {
-    final date = await Get.to(DateSelectorView(title: 'Go to date'));
-  }
-
   void exportChat() {
     _chatExport.exportChat(_chat);
   }

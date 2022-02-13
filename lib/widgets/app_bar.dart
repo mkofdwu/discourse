@@ -1,5 +1,4 @@
 import 'package:discourse/widgets/icon_button.dart';
-import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,7 +21,7 @@ PreferredSize myAppBar({
               FluentIcons.chevron_left_20_regular,
               onPressed: onBack ?? () => Get.back(),
             ),
-            SizedBox(width: 20),
+            SizedBox(width: 12),
             Text(
               title,
               style: TextStyle(
