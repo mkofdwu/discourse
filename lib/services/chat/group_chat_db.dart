@@ -63,7 +63,7 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     await _chatLogDb.newAlert(
       chatId,
       ChatAction.editName,
-      '${_auth.currentUser.username} changed the group name from $oldName to $newName',
+      '${_auth.currentUser.username} changed the group name from "$oldName" to "$newName"',
     );
   }
 

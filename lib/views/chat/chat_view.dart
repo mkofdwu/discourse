@@ -1,4 +1,5 @@
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/utils/format_date_time.dart';
@@ -81,15 +82,69 @@ class ChatView extends StatelessWidget {
         scrollController: messageListController.scrollController,
         itemBuilder: (context, i) {
           final chatObject = messageListController.chatLog[i];
+          final prevObject =
+              i - 1 < 0 ? null : messageListController.chatLog[i - 1];
+          final nextObject = i + 1 >= messageListController.chatLog.length
+              ? null
+              : messageListController.chatLog[i + 1];
+          final showDate = prevObject == null ||
+              !isSameDay(
+                prevObject.sentTimestamp,
+                chatObject.sentTimestamp,
+              );
 
-          return chatObject is Message
-              ? _buildMessage(controller, messageListController, i, chatObject)
-              : _buildChatAlert(chatObject.asChatAlert);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showDate) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
+                  child: OpacityFeedback(
+                    onPressed: controller.toSelectDate,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatDate(chatObject.sentTimestamp),
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          _dayOfWeek(chatObject.sentTimestamp),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  width: double.infinity,
+                  color: Colors.white.withOpacity(0.1),
+                  margin: const EdgeInsets.symmetric(horizontal: 30),
+                ),
+                SizedBox(height: 32),
+              ],
+              chatObject is Message
+                  ? _buildMessage(
+                      controller, messageListController, chatObject, prevObject)
+                  : _buildChatAlert(
+                      chatObject.asChatAlert, prevObject, nextObject, showDate),
+            ],
+          );
         },
       );
 
-  Widget _buildMessage(ChatController controller,
-      MessageListController messageListController, int i, Message message) {
+  Widget _buildMessage(
+    ChatController controller,
+    MessageListController messageListController,
+    Message message,
+    ChatLogObject? prevObject,
+  ) {
     final messageWidget = message.isDeleted
         ? DeletedMessageView(message: message)
         : MessageView(
@@ -97,51 +152,12 @@ class ChatView extends StatelessWidget {
             message: message,
             isHighlighted: message.id == controller.highlightedMessageId,
           );
-    if (i - 1 < 0) {
-      return messageWidget;
-    }
-
-    final prevMessage = messageListController.chatLog[i - 1];
+    if (prevObject == null) return messageWidget;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!isSameDay(
-          prevMessage.sentTimestamp,
-          message.sentTimestamp,
-        )) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
-            child: OpacityFeedback(
-              onPressed: controller.toSelectDate,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatDate(message.sentTimestamp),
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    _dayOfWeek(message.sentTimestamp),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            height: 1,
-            width: double.infinity,
-            color: Colors.white.withOpacity(0.1),
-            margin: const EdgeInsets.symmetric(horizontal: 30),
-          ),
-          SizedBox(height: 32),
-        ],
         if (!controller.isPrivateChat &&
-            (prevMessage is! Message || prevMessage.sender != message.sender) &&
+            (prevObject is! Message || prevObject.sender != message.sender) &&
             !message.fromMe)
           Padding(
             padding: const EdgeInsets.only(top: 20, left: 30, bottom: 8),
@@ -152,45 +168,72 @@ class ChatView extends StatelessWidget {
     );
   }
 
-  Widget _buildChatAlert(ChatAlert alert) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        margin: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: Palette.black3,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Opacity(
-          opacity: 0.6,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(_chatActionIcon(alert.action), size: 20),
-              SizedBox(width: 8),
-              Text(alert.content),
-            ],
+  Widget _buildChatAlert(
+    ChatAlert alert,
+    ChatLogObject? prevObject,
+    ChatLogObject? nextObject,
+    bool showDate,
+  ) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: prevObject is ChatAlert || showDate ? 0 : 24,
+        bottom: nextObject is ChatAlert ? 12 : 24,
+      ),
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 300),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+          decoration: BoxDecoration(
+            color: Palette.black3,
+            borderRadius: BorderRadius.circular(10),
+            // border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: TextStyle(
+                fontFamily: 'Avenir',
+                color: Colors.white.withOpacity(0.6),
+              ),
+              children: [
+                WidgetSpan(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Icon(
+                      _chatActionIcon(alert.action),
+                      color: Colors.white.withOpacity(0.6),
+                      size: 16,
+                    ),
+                  ),
+                ),
+                TextSpan(text: alert.content),
+              ],
+            ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   IconData _chatActionIcon(ChatAction action) {
     switch (action) {
       case ChatAction.editName:
       case ChatAction.editDescription:
-        return FluentIcons.edit_20_regular;
+        return FluentIcons.edit_16_filled;
       case ChatAction.editPhoto:
-        return FluentIcons.image_edit_20_regular;
+        return FluentIcons.image_edit_16_filled;
       case ChatAction.addMember:
       case ChatAction.memberJoin:
-        return FluentIcons.person_add_20_regular;
+        return FluentIcons.person_add_16_filled;
       case ChatAction.removeMember:
       case ChatAction.memberLeave:
-        return FluentIcons.person_delete_20_regular;
+        return FluentIcons.person_delete_16_filled;
       case ChatAction.addAdmin:
-        return FluentIcons.arrow_up_20_regular;
+        return FluentIcons.arrow_up_16_filled;
       case ChatAction.removeAdmin:
-        return FluentIcons.arrow_down_20_regular;
+        return FluentIcons.arrow_down_16_filled;
       case ChatAction.transferOwnership:
-        return FluentIcons.arrow_swap_20_regular;
+        return FluentIcons.arrow_swap_20_filled;
     }
   }
 
