@@ -32,6 +32,7 @@ class ChatController extends GetxController {
   final UserChat _chat;
 
   String? highlightedMessageId;
+  bool showSearchBar = false;
 
   // bool get isSelectingMessages => _messageSelection.isSelecting;
   // int get numMessagesSelected => _messageSelection.selectedMessages.length;
@@ -99,6 +100,8 @@ class ChatController extends GetxController {
     if (choice == null) return;
     switch (choice) {
       case 'Find in chat':
+        showSearchBar = true;
+        update();
         break;
       case 'Go to date':
         break;

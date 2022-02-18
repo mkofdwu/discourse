@@ -22,8 +22,11 @@ class _PressedBuilderState extends State<PressedBuilder> {
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
-        setState(() => _pressed = false);
-        Future.delayed(const Duration(milliseconds: 200), widget.onPressed);
+        // setState(() => _pressed = false);
+        Future.delayed(const Duration(milliseconds: 200), () {
+          widget.onPressed();
+          setState(() => _pressed = false);
+        });
       },
       onTapCancel: () => setState(() => _pressed = false),
       child: widget.builder(_pressed),

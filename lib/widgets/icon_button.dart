@@ -1,4 +1,4 @@
-import 'package:discourse/widgets/pressed_builder.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:flutter/material.dart';
 
 class MyIconButton extends StatelessWidget {
@@ -15,16 +15,26 @@ class MyIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PressedBuilder(
+    // return PressedBuilder(
+    //   onPressed: onPressed,
+    //   builder: (pressed) => AnimatedContainer(
+    //     width: 36,
+    //     height: 36,
+    //     duration: const Duration(milliseconds: 160),
+    //     decoration: BoxDecoration(
+    //       color: Colors.white.withOpacity(pressed ? 0.1 : 0),
+    //       borderRadius: BorderRadius.circular(18),
+    //     ),
+    //     child: Center(
+    //       child: child ?? Icon(iconData, size: 24),
+    //     ),
+    //   ),
+    // );
+    return OpacityFeedback(
       onPressed: onPressed,
-      builder: (pressed) => AnimatedContainer(
+      child: SizedBox(
         width: 36,
         height: 36,
-        duration: const Duration(milliseconds: 160),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(pressed ? 0.1 : 0),
-          borderRadius: BorderRadius.circular(18),
-        ),
         child: Center(
           child: child ?? Icon(iconData, size: 24),
         ),

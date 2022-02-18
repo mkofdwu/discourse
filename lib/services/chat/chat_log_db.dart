@@ -218,4 +218,23 @@ class ChatLogDbService extends GetxService implements BaseMessagesDbService {
       'sentTimestamp': Timestamp.now(),
     });
   }
+
+  Future<Message> findNextMessage(
+      String chatId, String query, DateTime beforeTimestamp) async {
+    final snapshot = await _messagesRef
+        .doc(chatId)
+        .collection('messages')
+        .where('senderId', isNull: false)
+        .where(
+          'text',
+          isGreaterThanOrEqualTo: query,
+          isLessThan: query.substring(0, query.length - 1) +
+              String.fromCharCode(query.codeUnitAt(query.length - 1) + 1),
+        )
+        .orderBy('sentTimestamp', descending: true)
+        .startAfter([beforeTimestamp])
+        .limit(1)
+        .get();
+    return _chatObjectFromDoc(snapshot.docs.single) as Message;
+  }
 }

@@ -45,7 +45,9 @@ class ChatView extends StatelessWidget {
           child: Scaffold(
             appBar: controller.messageSelection.isSelecting
                 ? _buildMessageSelectionAppBar(controller)
-                : _buildAppBar(controller),
+                : controller.showSearchBar
+                    ? _buildSearchAppBar(controller)
+                    : _buildAppBar(controller),
             body: Column(
               children: [
                 Expanded(
@@ -412,6 +414,41 @@ class ChatView extends StatelessWidget {
           if (controller.messageSelection.canGoToViewedBy)
             FluentIcons.eye_show_20_regular: controller.toMessageViewedBy,
         },
+      );
+
+  PreferredSizeWidget _buildSearchAppBar(ChatController controller) =>
+      PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: SafeArea(
+          child: Container(
+            height: 100,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            margin: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Palette.black3,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                MyIconButton(
+                  FluentIcons.chevron_left_24_regular,
+                  onPressed: () => Get.back(),
+                ),
+                SizedBox(width: 12),
+                Spacer(),
+                MyIconButton(
+                  FluentIcons.arrow_sort_up_24_regular,
+                  onPressed: controller.showChatOptions,
+                ),
+                SizedBox(width: 0),
+                MyIconButton(
+                  FluentIcons.arrow_sort_down_24_regular,
+                  onPressed: controller.showChatOptions,
+                ),
+              ],
+            ),
+          ),
+        ),
       );
 
   Widget _buildTypingIndicator(ChatController controller) =>

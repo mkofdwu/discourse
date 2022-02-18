@@ -8,6 +8,7 @@ import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/friends/friends_view.dart';
 import 'package:discourse/views/settings/settings_view.dart';
 import 'package:discourse/widgets/bottom_sheets/input_bottom_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class MyProfileController extends GetxController {
@@ -78,11 +79,20 @@ class MyProfileController extends GetxController {
   }
 
   void verifyEmail() async {
-    await _auth.verifyEmail();
-    Get.snackbar(
-      'Email sent',
-      'Click the link sent to ${user.email} to validate your email',
-    );
+    try {
+      await _auth.verifyEmail();
+      Get.snackbar(
+        'Email sent',
+        'Click the link sent to ${user.email} to validate your email',
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'too-many-requests') {
+        Get.snackbar(
+          'Failed to send email',
+          'There have been too many email verification requests from this device. Try again in a while',
+        );
+      }
+    }
   }
 
   void toSettings() => Get.to(SettingsView());
