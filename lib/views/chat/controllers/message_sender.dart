@@ -1,8 +1,8 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/services/chat/chat_log_str.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
-import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +12,8 @@ import 'package:discourse/services/storage.dart';
 
 class MessageSenderController extends GetxController {
   final _chatLogDb = Get.find<ChatLogDbService>();
+  final _chatLogStr = Get.find<ChatLogStrService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
-  final _groupChatDb = Get.find<GroupChatDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _storage = Get.find<StorageService>();
 
@@ -43,21 +43,24 @@ class MessageSenderController extends GetxController {
         // do nothing, wait for chat to be created
       }
     } else {
-      // send the message
-      await _uploadMessagePhoto(unsentMessage, chat);
-      await _chatLogDb.sendMessage(unsentMessage);
-      unsentMessages.remove(unsentMessage);
+      _actuallySendMessage(unsentMessage, chat);
       update();
     }
+  }
+
+  Future<void> _actuallySendMessage(
+      UnsentMessage unsentMessage, UserChat chat) async {
+    await _uploadMessagePhoto(unsentMessage, chat);
+    final message = await _chatLogDb.sendMessage(unsentMessage);
+    await _chatLogStr.appendToLog(message);
+    unsentMessages.remove(unsentMessage);
   }
 
   Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
     final privateChat = await _privateChatDb.createChatWith(chat.otherUser);
     for (UnsentMessage unsent in List.from(unsentMessages)) {
       unsent.chatId = privateChat.id;
-      await _uploadMessagePhoto(unsent, privateChat);
-      await _chatLogDb.sendMessage(unsent);
-      unsentMessages.remove(unsent);
+      _actuallySendMessage(unsent, privateChat);
     }
     Get.put<UserChat>(privateChat);
     update();

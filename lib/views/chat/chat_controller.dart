@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/services/chat/chat_log_str.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/utils/ask_block_friend.dart';
 import 'package:discourse/utils/ask_leave_group.dart';
 import 'package:discourse/utils/ask_remove_friend.dart';
 import 'package:discourse/utils/request_friend.dart';
+import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/services/chat/chat_export.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
@@ -24,7 +25,7 @@ class ChatController extends GetxController {
   final _chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
-  final _chatExport = Get.find<ChatExportService>();
+  final _chatLogStr = Get.find<ChatLogStrService>();
   final _miscCache = Get.find<MiscCache>();
 
   final messageSelection = Get.find<MessageSelectionController>();
@@ -104,9 +105,12 @@ class ChatController extends GetxController {
         update();
         break;
       case 'Go to date':
+        Get.find<MessageListController>().toSelectDate();
         break;
       case 'Export history':
-        _chatExport.exportChat(_chat);
+        // TODO
+        final chatStr = await _chatLogStr.chatLogAsStr(_chat.id);
+        print(chatStr);
         break;
       case 'Clear chat':
         // only for admin?
@@ -125,12 +129,6 @@ class ChatController extends GetxController {
         break;
     }
   }
-
-  void exportChat() {
-    _chatExport.exportChat(_chat);
-  }
-
-  Future<void> leaveChat() async {}
 
   void toMessageViewedBy() async {
     if (_chat is! UserGroupChat) return;

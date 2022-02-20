@@ -1,4 +1,4 @@
-import 'package:discourse/services/chat/chat_export.dart';
+import 'package:discourse/services/chat/chat_log_str.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
@@ -27,7 +27,7 @@ void registerServices() {
   Get.put(GroupChatDbService());
   Get.put(CommonChatDbService());
   Get.put(WhosTypingService());
-  Get.put(ChatExportService());
+  Get.put(ChatLogStrService());
   // story
   Get.put(StoryDbService());
   Get.put(MiscCache());

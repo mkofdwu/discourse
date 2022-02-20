@@ -18,9 +18,8 @@ dependencies:
   firebase_storage: ^10.2.3
   cloud_firestore: ^3.1.4
 
-  # export chat to google drive
-  googleapis: ^7.0.0
-  google_sign_in: ^5.0.1
+  # for interfacing with other apis
+  http: ^0.13.4
 
   # miscellaneous
   image_picker: ^0.8.4+4
