@@ -28,7 +28,7 @@ dependencies:
   flutter_image_compress: ^1.0.0
   photo_view: ^0.13.0
   fluentui_system_icons: ^1.1.153
-  scrollable_positioned_list: ^0.2.3
+  carousel_slider: ^4.0.0
 
 dev_dependencies:
   flutter_lints: ^1.0.0

@@ -17,8 +17,8 @@ class MyFloatingActionButton extends StatelessWidget {
     return OpacityFeedback(
       onPressed: onPressed,
       child: Container(
-        width: 60,
-        height: 60,
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
           color: Palette.orange,
           borderRadius: BorderRadius.circular(30),

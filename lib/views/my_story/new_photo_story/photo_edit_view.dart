@@ -48,7 +48,6 @@ class PhotoEditView extends StatelessWidget {
                 ),
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   MyIconButton(
                     FluentIcons.chevron_left_24_regular,

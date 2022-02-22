@@ -58,7 +58,7 @@ class SignInView extends StatelessWidget {
                     height: 1,
                     color: Get.theme.colorScheme.onBackground,
                   ),
-                  SizedBox(height: 120),
+                  Spacer(),
                   MyTextField(
                     controller: controller.emailController,
                     label: 'Email',
@@ -81,7 +81,6 @@ class SignInView extends StatelessWidget {
                       error: controller.inputErrors['confirmPassword'],
                       onSubmit: controller.submit,
                     ),
-                  SizedBox(height: 18),
                   Spacer(),
                   MyButton(
                     text: controller.signingUp ? 'Continue' : 'Submit',

@@ -29,9 +29,20 @@ class ChatsController extends GetxController {
   final _storyDb = Get.find<StoryDbService>();
   final _miscCache = Get.find<MiscCache>();
 
-  Future<bool> hasNewRequests() => _requests.hasNewRequests();
+  bool hasNewRequests = false;
+  Map<DiscourseUser, List<StoryPage>> friendsStories = {};
+  int numMyStories = 0;
+  List<UserChat> chats = [];
+  bool hasNoContent = false;
 
-  Future<List<UserChat>> getChats() => _commonChatDb.myChats();
+  Future<void> fetchData() async {
+    hasNewRequests = await _requests.hasNewRequests();
+    friendsStories = await _storyDb.friendsStories();
+    numMyStories = (await _storyDb.myStory()).length;
+    chats = await _commonChatDb.myChats();
+    hasNoContent = friendsStories.isEmpty && chats.isEmpty;
+    update();
+  }
 
   void toActivity() async {
     await Get.to(ActivityView());
@@ -54,11 +65,6 @@ class ChatsController extends GetxController {
     await Get.to(MyStoryView());
     update();
   }
-
-  Future<int> numMyStories() async => (await _storyDb.myStory()).length;
-
-  Future<Map<DiscourseUser, List<StoryPage>>> getFriendsStories() =>
-      _storyDb.friendsStories();
 
   int seenNum(List<StoryPage> story) {
     return story.fold(0, (total, story) => total + (story.viewedByMe ? 1 : 0));
