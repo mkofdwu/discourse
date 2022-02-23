@@ -1,27 +1,38 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/views/home/home_controller.dart';
+import 'package:discourse/views/settings/settings_view.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-final items = [
+final items = <List<dynamic>>[
   [
     'assets/images/undraw_chatting.png',
     'Welcome!',
     'You don\'t have any chats yet. Find people to talk to in the explore tab',
     'Suggestions',
+    () {
+      Get.find<HomeController>().onSelectTab(1);
+    }
   ],
   [
     'assets/images/undraw_personal_info.png',
     'Complete setup',
     'Finish setting up your profile by adding a profile pic or writing an about',
     'Continue',
+    () {
+      Get.find<HomeController>().onSelectTab(2);
+    }
   ],
   [
     'assets/images/undraw_palette.png',
     'Choose a theme',
     'The app offers a selection of 6 different accent colors. There is currently no light theme.',
     'Choose one',
+    () {
+      Get.to(SettingsView());
+    }
   ],
 ];
 
@@ -80,30 +91,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                           ),
                         ),
                         SizedBox(height: 24),
-                        OpacityFeedback(
-                          onPressed: () {},
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 9, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF707E52),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  item[3],
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildButton(item[3], item[4]),
                         SizedBox(height: 44),
                       ],
                     ),
@@ -125,13 +113,32 @@ class _OnboardingViewState extends State<OnboardingView> {
     );
   }
 
+  Widget _buildButton(String text, Function() onPressed) => OpacityFeedback(
+        onPressed: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Palette.orange,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      );
+
   Widget _buildDot(int i) => AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 6,
         height: 6,
         decoration: BoxDecoration(
           color: i == _index
-              ? Color(0xFF707E52)
+              ? Palette.orange
               : Get.theme.primaryColor.withOpacity(0.2),
           borderRadius: BorderRadius.circular(4),
         ),

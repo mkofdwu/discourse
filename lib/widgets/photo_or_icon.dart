@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 class PhotoOrIcon extends StatelessWidget {
   final double size;
   final double iconSize;
+  final double iconOpacity;
   final double? radius; // if is not a circle
   final Color backgroundColor;
   final String? photoUrl;
@@ -17,6 +18,7 @@ class PhotoOrIcon extends StatelessWidget {
     Key? key,
     this.size = 40,
     this.iconSize = 16,
+    this.iconOpacity = 1,
     this.radius,
     this.backgroundColor = Palette.black3,
     required this.photoUrl,
@@ -35,7 +37,11 @@ class PhotoOrIcon extends StatelessWidget {
               color: backgroundColor,
             ),
             child: Center(
-              child: Icon(placeholderIcon, size: iconSize),
+              child: Icon(
+                placeholderIcon,
+                size: iconSize,
+                color: Colors.white.withOpacity(iconOpacity),
+              ),
             ),
           )
         : SizedBox(

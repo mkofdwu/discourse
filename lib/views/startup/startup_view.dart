@@ -14,7 +14,7 @@ class StartupView extends StatelessWidget {
       builder: (StartupController controller) {
         return Scaffold(
           body: Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
         );
       },

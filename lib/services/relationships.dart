@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';

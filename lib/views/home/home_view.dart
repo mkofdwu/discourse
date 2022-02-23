@@ -14,7 +14,6 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
-      global: false,
       init: HomeController(),
       builder: _builder,
     );
