@@ -26,7 +26,6 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
 
   @override
   Future<List<UserChat>> myChats() async {
-    // TODO: sort by has unread messages
     final chatsSnapshot = await _usersRef
         .doc(_auth.id)
         .collection('chats')
@@ -36,6 +35,7 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
     for (final doc in chatsSnapshot.docs) {
       final data = doc.data();
       final type = ChatType.values[doc['type']];
+      // TODO: store lastUpdated field in chatdata to show newer messages at top
       if (type == ChatType.private) {
         userChats.add(UserPrivateChat(
           id: doc.id,

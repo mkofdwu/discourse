@@ -37,7 +37,7 @@ class ChatView extends StatelessWidget {
     Get.put<MessageListController>(MessageListController());
     return GetBuilder<ChatController>(
       // global: false, <- should not be here
-      init: ChatController(chat),
+      init: ChatController(),
       builder: (controller) => Obx(
         () => AppStateHandler(
           onStart: controller.onStartReading,
@@ -51,18 +51,16 @@ class ChatView extends StatelessWidget {
             body: Column(
               children: [
                 Expanded(
-                  child: chat is NonExistentChat
-                      ? SizedBox()
-                      : GetBuilder<MessageListController>(
-                          builder: (messageListController) => Stack(
-                                children: [
-                                  _buildMessagesList(
-                                      controller, messageListController),
-                                  if (!controller.messageSelection.isSelecting)
-                                    _buildMessagesListBottom(
-                                        controller, messageListController),
-                                ],
-                              )),
+                  child: GetBuilder<MessageListController>(
+                    builder: (messageListController) => Stack(
+                      children: [
+                        _buildMessagesList(controller, messageListController),
+                        if (!controller.messageSelection.isSelecting)
+                          _buildMessagesListBottom(
+                              controller, messageListController),
+                      ],
+                    ),
+                  ),
                 ),
                 if (!controller.messageSelection.isSelecting)
                   Padding(
@@ -365,7 +363,7 @@ class ChatView extends StatelessWidget {
           children: [
             PhotoOrIcon(
               photoUrl: chat.photoUrl,
-              placeholderIcon: chat is UserPrivateChat
+              placeholderIcon: controller.isPrivateChat
                   ? FluentIcons.person_16_regular
                   : FluentIcons.people_community_16_regular,
             ),

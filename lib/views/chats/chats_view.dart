@@ -23,37 +23,36 @@ class ChatsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ChatsController>(
       init: ChatsController(),
-      builder: (controller) {
-        controller.fetchData(); // called every time after update
-        return Scaffold(
-          floatingActionButton: controller.hasNoContent
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.only(bottom: 12, right: 10),
-                  child: MyFloatingActionButton(
-                    iconData: FluentIcons.people_community_add_20_regular,
-                    onPressed: controller.newGroup,
-                  ),
+      builder: (controller) => Scaffold(
+        floatingActionButton: controller.hasNoContent
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 12, right: 10),
+                child: MyFloatingActionButton(
+                  iconData: FluentIcons.people_community_add_20_regular,
+                  onPressed: controller.newGroup,
                 ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 44),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: _buildTop(),
-                ),
-                SizedBox(height: 40),
-                if (controller.hasNoContent)
-                  OnboardingView()
-                else
-                  ..._buildContent(),
-              ],
-            ),
+              ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 44),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: _buildTop(),
+              ),
+              SizedBox(height: 40),
+              if (controller.isLoading)
+                Center(child: CircularProgressIndicator(strokeWidth: 2))
+              else if (controller.hasNoContent)
+                OnboardingView()
+              else
+                ..._buildContent(),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

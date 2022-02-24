@@ -30,20 +30,20 @@ class ChatController extends GetxController {
 
   final messageSelection = Get.find<MessageSelectionController>();
 
-  final UserChat _chat;
+  UserChat get _chat => Get.find<UserChat>();
 
   String? highlightedMessageId;
   bool showSearchBar = false;
 
   // bool get isSelectingMessages => _messageSelection.isSelecting;
   // int get numMessagesSelected => _messageSelection.selectedMessages.length;
-  bool get isPrivateChat => _chat is UserPrivateChat; // temporary function
+  bool get isPrivateChat =>
+      _chat is UserPrivateChat ||
+      _chat is NonExistentChat; // temporary function
   Member member(DiscourseUser user) => _chat.groupData.members.firstWhere(
         (m) => m.user == user,
         orElse: () => Member.removed(user),
       );
-
-  ChatController(this._chat);
 
   @override
   void onReady() async {
@@ -70,8 +70,9 @@ class ChatController extends GetxController {
   Stream<String?> typingTextStream() => _whosTyping.typingTextStream(_chat.id);
 
   void toChatDetails() async {
+    if (_chat is NonExistentChat) return;
     onStopReading();
-    if (isPrivateChat) {
+    if (_chat is UserPrivateChat) {
       await Get.to(UserProfileView(
         user: (_chat as UserPrivateChat).otherUser,
       ));

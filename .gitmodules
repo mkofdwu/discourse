@@ -1,0 +1,3 @@
+[submodule "discourse-server"]
+	path = discourse-server
+	url = https://github.com/mkofdwu/discourse-server

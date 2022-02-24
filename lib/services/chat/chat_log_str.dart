@@ -12,7 +12,8 @@ abstract class BaseChatLogStrService {
 class ChatLogStrService extends GetxService implements BaseChatLogStrService {
   @override
   Future<void> appendToLog(Message message) async {
-    final url = Uri.parse('http://10.0.2.2:8000/chat/${message.chatId}/log');
+    final url =
+        Uri.parse('http://159.223.58.1:8000/chat/${message.chatId}/log');
     await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -28,7 +29,7 @@ class ChatLogStrService extends GetxService implements BaseChatLogStrService {
 
   @override
   Future<String> chatLogAsStr(String chatId) async {
-    final url = Uri.parse('http://10.0.2.2:8000/chat/$chatId/log');
+    final url = Uri.parse('http://159.223.58.1:8000/chat/$chatId/log');
     final resp = await http.get(url);
     return resp.body;
   }
