@@ -31,13 +31,12 @@ class ChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put<UserChat>(chat); // current chat
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     Get.put<MessageListController>(MessageListController());
     return GetBuilder<ChatController>(
       // global: false, <- should not be here
-      init: ChatController(),
+      init: ChatController(chat),
       builder: (controller) => Obx(
         () => AppStateHandler(
           onStart: controller.onStartReading,

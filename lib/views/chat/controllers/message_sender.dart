@@ -5,6 +5,7 @@ import 'package:discourse/services/chat/chat_log_str.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
+import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -63,9 +64,9 @@ class MessageSenderController extends GetxController {
       unsent.chatId = privateChat.id;
       _actuallySendMessage(unsent, privateChat);
     }
-    Get.put<UserChat>(privateChat);
+    Get.find<ChatController>().chat = privateChat;
     Get.find<MessageListController>().watchLastMessage();
-    update();
+    Get.find<ChatController>().update();
   }
 
   Future<void> _uploadMessagePhoto(UnsentMessage message, UserChat chat) async {

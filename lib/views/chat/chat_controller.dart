@@ -22,7 +22,7 @@ import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {
-  final _chatLogDb = Get.find<ChatLogDbService>();
+  final chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _whosTyping = Get.find<WhosTypingService>();
   final _chatLogStr = Get.find<ChatLogStrService>();
@@ -30,7 +30,7 @@ class ChatController extends GetxController {
 
   final messageSelection = Get.find<MessageSelectionController>();
 
-  UserChat get _chat => Get.find<UserChat>();
+  UserChat chat; // current chat
 
   String? highlightedMessageId;
   bool showSearchBar = false;
@@ -38,12 +38,13 @@ class ChatController extends GetxController {
   // bool get isSelectingMessages => _messageSelection.isSelecting;
   // int get numMessagesSelected => _messageSelection.selectedMessages.length;
   bool get isPrivateChat =>
-      _chat is UserPrivateChat ||
-      _chat is NonExistentChat; // temporary function
-  Member member(DiscourseUser user) => _chat.groupData.members.firstWhere(
+      chat is UserPrivateChat || chat is NonExistentChat; // temporary function
+  Member member(DiscourseUser user) => chat.groupData.members.firstWhere(
         (m) => m.user == user,
         orElse: () => Member.removed(user),
       );
+
+  ChatController(this.chat);
 
   @override
   void onReady() async {
@@ -56,28 +57,28 @@ class ChatController extends GetxController {
   }
 
   void onStartReading() {
-    if (_chat is NonExistentChat) return;
-    _commonChatDb.startReadingChat(_chat.id);
+    if (chat is NonExistentChat) return;
+    _commonChatDb.startReadingChat(chat.id);
   }
 
   // TODO: check if turning off phone or other stuff calls this
   void onStopReading() {
     // when the user is no longer looking at the chat log
-    if (_chat is NonExistentChat) return;
-    _commonChatDb.stopReadingChat(_chat.id);
+    if (chat is NonExistentChat) return;
+    _commonChatDb.stopReadingChat(chat.id);
   }
 
-  Stream<String?> typingTextStream() => _whosTyping.typingTextStream(_chat.id);
+  Stream<String?> typingTextStream() => _whosTyping.typingTextStream(chat.id);
 
   void toChatDetails() async {
-    if (_chat is NonExistentChat) return;
+    if (chat is NonExistentChat) return;
     onStopReading();
-    if (_chat is UserPrivateChat) {
+    if (chat is UserPrivateChat) {
       await Get.to(UserProfileView(
-        user: (_chat as UserPrivateChat).otherUser,
+        user: (chat as UserPrivateChat).otherUser,
       ));
     } else {
-      await Get.to(GroupDetailsView(chat: _chat as UserGroupChat));
+      await Get.to(GroupDetailsView(chat: chat as UserGroupChat));
     }
     onStartReading();
   }
@@ -90,13 +91,13 @@ class ChatController extends GetxController {
         'Go to date',
         'Export history',
         'Clear chat',
-        (_chat is UserGroupChat)
+        (chat is UserGroupChat)
             ? 'Leave group'
             : (_miscCache.myFriends
-                    .contains((_chat as UserPrivateChat).otherUser)
+                    .contains((chat as UserPrivateChat).otherUser)
                 ? 'Remove friend'
                 : 'Request friend'),
-        if (_chat is UserPrivateChat) 'Block',
+        if (chat is UserPrivateChat) 'Block',
       ],
     ));
     if (choice == null) return;
@@ -110,33 +111,33 @@ class ChatController extends GetxController {
         break;
       case 'Export history':
         // TODO
-        final chatStr = await _chatLogStr.chatLogAsStr(_chat.id);
+        final chatStr = await _chatLogStr.chatLogAsStr(chat.id);
         print(chatStr);
         break;
       case 'Clear chat':
         // only for admin?
         break;
       case 'Leave group':
-        askLeaveGroup(_chat.id);
+        askLeaveGroup(chat.id);
         break;
       case 'Request friend':
-        requestFriend((_chat as UserPrivateChat).otherUser.id);
+        requestFriend((chat as UserPrivateChat).otherUser.id);
         break;
       case 'Remove friend':
-        askRemoveFriend((_chat as UserPrivateChat).otherUser, update);
+        askRemoveFriend((chat as UserPrivateChat).otherUser, update);
         break;
       case 'Block':
-        askBlockFriend((_chat as UserPrivateChat).otherUser, update);
+        askBlockFriend((chat as UserPrivateChat).otherUser, update);
         break;
     }
   }
 
   void toMessageViewedBy() async {
-    if (_chat is! UserGroupChat) return;
+    if (chat is! UserGroupChat) return;
     onStopReading();
     final message = messageSelection.selectedMessages.single;
-    final viewedBy = await _chatLogDb.getViewedBy(
-      _chat as UserGroupChat,
+    final viewedBy = await chatLogDb.getViewedBy(
+      chat as UserGroupChat,
       message.sentTimestamp,
     );
     await Get.to(ViewedByView(viewedBy: viewedBy));
