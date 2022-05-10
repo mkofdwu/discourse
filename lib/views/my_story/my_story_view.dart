@@ -49,7 +49,7 @@ class MyStoryView extends StatelessWidget {
               return _buildPlaceholder(controller);
             }
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
               child: Column(
                 children: snapshot.data!
                     .map((story) => MyListTile(
