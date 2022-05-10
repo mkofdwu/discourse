@@ -16,7 +16,7 @@ class FriendsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Friends'),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
           child: Column(
             children: controller.myFriends
                 .map((user) => Padding(

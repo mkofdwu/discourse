@@ -3,7 +3,6 @@ import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/widgets/button.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
-import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -155,10 +154,9 @@ class UserSelectorView extends StatelessWidget {
     UserSelectorController controller,
     List<DiscourseUser> results,
   ) =>
-      ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 50),
+      ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         itemCount: results.length,
-        separatorBuilder: (context, i) => SizedBox(height: 20),
         itemBuilder: (context, i) {
           final user = results[i];
           return MyListTile(

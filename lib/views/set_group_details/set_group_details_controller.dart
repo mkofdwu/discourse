@@ -99,17 +99,23 @@ class SetGroupDetailsController extends GetxController {
     if (photo != null) {
       await _storage.uploadPhoto(photo!, 'groupphoto');
     }
-    final chat = await _groupChatDb.newGroup(GroupChatData(
-      name: nameController.text,
-      description: '',
-      photoUrl: photo?.url,
-      // service will add member or send request accordingly
-      // and add the current user as owner
-      members: (sendInvitesTo + addMembers)
-          .map((user) => Member.create(user))
-          .toList(),
-      mediaUrls: [],
-    ));
+    final chat = await _groupChatDb.newGroup(
+      GroupChatData(
+        name: nameController.text,
+        description: '',
+        photoUrl: photo?.url,
+        // service will add member or send request accordingly
+        // and add the current user as owner
+        members: [],
+        mediaUrls: [],
+      ),
+      sendInvitesTo,
+      addMembers,
+    );
     Get.off(ChatView(chat: chat));
+    Get.snackbar(
+      'Invites sent',
+      'Group invites were sent to ${sendInvitesTo.length} people',
+    );
   }
 }

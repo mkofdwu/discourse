@@ -17,7 +17,7 @@ class MyProfileView extends StatelessWidget {
       init: MyProfileController(),
       builder: (controller) => SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

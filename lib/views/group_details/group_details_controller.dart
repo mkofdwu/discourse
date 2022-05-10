@@ -210,8 +210,8 @@ class GroupDetailsController extends GetxController {
         );
         Get.back();
         Get.snackbar(
-          'Added members',
-          'Successfully added or sent invites to ${selectedUsers.length} users',
+          'Success',
+          'Added or sent invites to ${selectedUsers.length} users',
         );
       },
     ));
@@ -234,9 +234,9 @@ class GroupDetailsController extends GetxController {
     if (confirmed ?? false) {
       // TODO: fixme startreading / stop reading chat is triggered after this
       // causing an error and update() is not called in home page
+      Get.back();
+      Get.back();
       await _groupChatDb.leaveGroup(_chat.id);
-      Get.back();
-      Get.back();
     }
   }
 
