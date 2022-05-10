@@ -52,7 +52,7 @@ class ActivityView extends StatelessWidget {
                   children: controller.requestControllers
                       .map(
                         (rq) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.only(bottom: 4),
                           child: Row(
                             children: [
                               Expanded(

@@ -44,7 +44,7 @@ class GroupDetailsView extends StatelessWidget {
           slivers: [
             _buildAppBar(controller),
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 42),
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 36),
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
                   [

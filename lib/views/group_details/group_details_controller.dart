@@ -65,6 +65,13 @@ class GroupDetailsController extends GetxController {
   }
 
   void selectPhoto() async {
+    if (!hasAdminPrivileges) {
+      Get.snackbar(
+        "You can't do that",
+        "Sadly, you don't have permissions to change the group photo",
+      );
+      return;
+    }
     final newPhoto = await _media.selectPhoto();
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
@@ -88,7 +95,13 @@ class GroupDetailsController extends GetxController {
   }
 
   void editNameAndDescription() {
-    if (!hasAdminPrivileges) return;
+    if (!hasAdminPrivileges) {
+      Get.snackbar(
+        "You can't do that",
+        "Sadly, you don't have permissions to edit the group details",
+      );
+      return;
+    }
     Get.to(CustomFormView(
       form: CustomForm(
         title: 'Group details',
