@@ -2,7 +2,7 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/message.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/chat/widgets/deleted_message_view.dart';

@@ -5,7 +5,7 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chat/widgets/reply_gesture.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';

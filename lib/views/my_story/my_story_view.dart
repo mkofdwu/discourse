@@ -1,6 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';

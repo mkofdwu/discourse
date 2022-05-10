@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
@@ -60,7 +61,7 @@ class ChatsView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Good evening',
+            'Good ${timeOfDay()}',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
           MyIconButton(
