@@ -49,7 +49,7 @@ class MessageController extends GetxController {
   }
 
   Color getRepliedMessageColor() {
-    final currentChat = Get.find<UserChat>();
+    final currentChat = Get.find<ChatController>().chat;
     if (currentChat is UserPrivateChat) return Palette.orange;
     currentChat as UserGroupChat;
     final repliedMessageSender = currentChat.groupData.members

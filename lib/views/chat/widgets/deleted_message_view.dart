@@ -1,6 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

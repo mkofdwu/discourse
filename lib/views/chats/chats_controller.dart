@@ -29,24 +29,33 @@ class ChatsController extends GetxController {
   final _storyDb = Get.find<StoryDbService>();
   final _miscCache = Get.find<MiscCache>();
 
+  bool isLoading = false;
   bool hasNewRequests = false;
   Map<DiscourseUser, List<StoryPage>> friendsStories = {};
   int numMyStories = 0;
   List<UserChat> chats = [];
   bool hasNoContent = false;
 
+  @override
+  void onReady() {
+    fetchData();
+  }
+
   Future<void> fetchData() async {
+    isLoading = true;
+    update();
     hasNewRequests = await _requests.hasNewRequests();
     friendsStories = await _storyDb.friendsStories();
     numMyStories = (await _storyDb.myStory()).length;
     chats = await _commonChatDb.myChats();
     hasNoContent = friendsStories.isEmpty && chats.isEmpty;
+    isLoading = false;
     update();
   }
 
   void toActivity() async {
     await Get.to(ActivityView());
-    update(); // if all requests have been cleared
+    fetchData(); // if all requests have been cleared
   }
 
   void newGroup() {
@@ -63,7 +72,7 @@ class ChatsController extends GetxController {
 
   void toMyStory() async {
     await Get.to(MyStoryView());
-    update();
+    fetchData(); // FIXME: this seems like an inefficient way to solve the problem
   }
 
   int seenNum(List<StoryPage> story) {

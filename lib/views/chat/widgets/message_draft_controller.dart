@@ -1,3 +1,5 @@
+import 'package:discourse/models/db_objects/user.dart';
+import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
@@ -7,10 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MessageDraftController extends GetxController {
-  final _currentChat = Get.find<UserChat>();
   final _messageSender = Get.find<MessageSenderController>();
   final _media = Get.find<MediaService>();
 
+  UserChat get _chat => Get.find<ChatController>().chat;
   TextEditingController get textController => _messageSender.textController;
   Photo? get photo => _messageSender.photo.value;
   RepliedMessage? get repliedMessage => _messageSender.repliedMessage.value;
@@ -51,5 +53,5 @@ class MessageDraftController extends GetxController {
     update();
   }
 
-  sendMessage() => _messageSender.send(_currentChat);
+  Future<void> sendMessage() => _messageSender.send(_chat);
 }

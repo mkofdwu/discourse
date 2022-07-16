@@ -65,6 +65,13 @@ class GroupDetailsController extends GetxController {
   }
 
   void selectPhoto() async {
+    if (!hasAdminPrivileges) {
+      Get.snackbar(
+        "You can't do that",
+        "Sadly, you don't have permissions to change the group photo",
+      );
+      return;
+    }
     final newPhoto = await _media.selectPhoto();
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
@@ -88,7 +95,13 @@ class GroupDetailsController extends GetxController {
   }
 
   void editNameAndDescription() {
-    if (!hasAdminPrivileges) return;
+    if (!hasAdminPrivileges) {
+      Get.snackbar(
+        "You can't do that",
+        "Sadly, you don't have permissions to edit the group details",
+      );
+      return;
+    }
     Get.to(CustomFormView(
       form: CustomForm(
         title: 'Group details',
@@ -210,8 +223,8 @@ class GroupDetailsController extends GetxController {
         );
         Get.back();
         Get.snackbar(
-          'Added members',
-          'Successfully added or sent invites to ${selectedUsers.length} users',
+          'Success',
+          'Added or sent invites to ${selectedUsers.length} users',
         );
       },
     ));
@@ -234,9 +247,9 @@ class GroupDetailsController extends GetxController {
     if (confirmed ?? false) {
       // TODO: fixme startreading / stop reading chat is triggered after this
       // causing an error and update() is not called in home page
+      Get.back();
+      Get.back();
       await _groupChatDb.leaveGroup(_chat.id);
-      Get.back();
-      Get.back();
     }
   }
 

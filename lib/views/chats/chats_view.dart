@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
@@ -23,37 +24,36 @@ class ChatsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ChatsController>(
       init: ChatsController(),
-      builder: (controller) {
-        controller.fetchData(); // called every time after update
-        return Scaffold(
-          floatingActionButton: controller.hasNoContent
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.only(bottom: 12, right: 10),
-                  child: MyFloatingActionButton(
-                    iconData: FluentIcons.people_community_add_20_regular,
-                    onPressed: controller.newGroup,
-                  ),
+      builder: (controller) => Scaffold(
+        floatingActionButton: controller.hasNoContent
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 12, right: 10),
+                child: MyFloatingActionButton(
+                  iconData: FluentIcons.people_community_add_20_regular,
+                  onPressed: controller.newGroup,
                 ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 44),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: _buildTop(),
-                ),
-                SizedBox(height: 40),
-                if (controller.hasNoContent)
-                  OnboardingView()
-                else
-                  ..._buildContent(),
-              ],
-            ),
+              ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 44),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: _buildTop(),
+              ),
+              SizedBox(height: 40),
+              if (controller.isLoading)
+                Center(child: CircularProgressIndicator(strokeWidth: 2))
+              else if (controller.hasNoContent)
+                OnboardingView()
+              else
+                ..._buildContent(),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -61,7 +61,7 @@ class ChatsView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Good evening',
+            'Good ${timeOfDay()}',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
           MyIconButton(

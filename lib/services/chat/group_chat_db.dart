@@ -16,7 +16,11 @@ import 'package:get/get.dart';
 
 abstract class BaseGroupChatDbService {
   Future<GroupChatData> getChatData(String chatId);
-  Future<UserGroupChat> newGroup(GroupChatData data);
+  Future<UserGroupChat> newGroup(
+    GroupChatData data,
+    List<DiscourseUser> sendInvitesTo,
+    List<DiscourseUser> addMembers,
+  );
   Future<void> addOrSendInvites(String chatId, List<Member> members);
   Future<void> removeMember(String chatId, DiscourseUser user);
   Future<void> makeAdmin(String chatId, DiscourseUser user);
@@ -86,19 +90,33 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
   }
 
   @override
-  Future<UserGroupChat> newGroup(GroupChatData data) async {
+  Future<UserGroupChat> newGroup(
+    GroupChatData data,
+    List<DiscourseUser> sendInvitesTo,
+    List<DiscourseUser> addMembers,
+  ) async {
     final chatDoc = await _groupChatsRef.add(data.toData());
     await _messagesRef.doc(chatDoc.id).set({});
-    await _addMember(
-      chatDoc.id,
-      Member.create(_auth.currentUser, role: MemberRole.owner),
-    );
+
+    final owner = Member.create(_auth.currentUser, role: MemberRole.owner);
+    await _addMember(chatDoc.id, owner, sendAlert: false);
+    data.members.add(owner);
+
     await _chatLogDb.newAlert(
       chatDoc.id,
       ChatAction.memberJoin,
       '${_auth.currentUser.username} created this group',
     );
-    await addOrSendInvites(chatDoc.id, data.members);
+
+    for (DiscourseUser user in addMembers) {
+      final member = Member.create(user);
+      _addMember(chatDoc.id, member);
+      data.members.add(member);
+    }
+    for (DiscourseUser user in sendInvitesTo) {
+      _sendGroupInvite(chatDoc.id, user.id);
+    }
+
     return UserGroupChat(
       id: chatDoc.id,
       lastReadAt: null,
@@ -107,7 +125,8 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
     );
   }
 
-  Future<void> _addMember(String chatId, Member member) async {
+  Future<void> _addMember(String chatId, Member member,
+      {bool sendAlert = true}) async {
     // as of now there is no security on the backend to enforce permissions
     // assert(!(await _relationships.needToAsk(
     //     member.user.id, RequestType.groupInvite)));
@@ -121,6 +140,13 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         .collection('members')
         .doc(member.user.id)
         .set(member.toData());
+    if (sendAlert) {
+      await _chatLogDb.newAlert(
+        chatId,
+        ChatAction.addMember,
+        '${_auth.currentUser.username} added ${member.user.username} to this group',
+      );
+    }
   }
 
   Future<void> _sendGroupInvite(String chatId, String userId) async {
@@ -141,11 +167,6 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         await _sendGroupInvite(chatId, member.user.id);
       } else {
         await _addMember(chatId, member);
-        await _chatLogDb.newAlert(
-          chatId,
-          ChatAction.addMember,
-          '${_auth.currentUser.username} added ${member.user.username} to this group',
-        );
       }
     }
   }

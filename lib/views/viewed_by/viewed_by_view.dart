@@ -14,7 +14,7 @@ class ViewedByView extends StatelessWidget {
     return Scaffold(
       appBar: myAppBar(title: 'Viewed by'),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
         child: Column(
           children: viewedBy
               .map((user) => Padding(

@@ -4,6 +4,7 @@ import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
+import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/date_selector/date_selector_view.dart';
 import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
@@ -13,7 +14,8 @@ const CHUNK_SIZE = 20; // load 50 messages at a time
 
 class MessageListController extends GetxController {
   final _chatLogDb = Get.find<ChatLogDbService>();
-  final _chat = Get.find<UserChat>();
+
+  UserChat get _chat => Get.find<ChatController>().chat;
 
   final scrollController = ScrollController(
       initialScrollOffset: -80); // specific to customscrollview with center
@@ -41,7 +43,7 @@ class MessageListController extends GetxController {
         timestamp: DateTime.now().add(Duration(hours: 1)));
     _reachedBottom = true;
     update();
-    _watchLastMessage();
+    watchLastMessage();
   }
 
   @override
@@ -87,7 +89,7 @@ class MessageListController extends GetxController {
     update();
   }
 
-  void _watchLastMessage() {
+  void watchLastMessage() {
     if (_chat is NonExistentChat) return;
     _lastMessageSubscription =
         _chatLogDb.streamLastChatObject(_chat.id).listen((chatObject) {

@@ -2,6 +2,7 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
+import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:get/get.dart';
@@ -10,10 +11,10 @@ class MessageSelectionController extends GetxController {
   final _messageSender = Get.find<MessageSenderController>();
   final _chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
-  final _chat = Get.find<UserChat>();
 
   final selectedMessages = <Message>[].obs;
 
+  UserChat get _chat => Get.find<ChatController>().chat;
   bool get isSelecting => selectedMessages.isNotEmpty;
   int get numSelected => selectedMessages.length;
   bool get canDeleteSelectedMessages =>

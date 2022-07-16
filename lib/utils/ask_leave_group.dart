@@ -9,6 +9,6 @@ void askLeaveGroup(String chatId) async {
         'Are you sure you want to leave this chat? You will need someone to add you back in afterwards.',
   ));
   if (confirmed ?? false) {
-    Get.find<GroupChatDbService>().leaveGroup(chatId);
+    await Get.find<GroupChatDbService>().leaveGroup(chatId);
   }
 }

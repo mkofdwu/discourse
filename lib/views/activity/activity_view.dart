@@ -47,12 +47,12 @@ class ActivityView extends StatelessWidget {
               )
             : SingleChildScrollView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: Column(
                   children: controller.requestControllers
                       .map(
                         (rq) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.only(bottom: 4),
                           child: Row(
                             children: [
                               Expanded(

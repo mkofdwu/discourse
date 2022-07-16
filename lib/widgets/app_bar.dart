@@ -13,7 +13,7 @@ PreferredSize myAppBar({
     child: SafeArea(
       child: Container(
         height: 76,
-        padding: const EdgeInsets.symmetric(horizontal: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         color: Get.theme.primaryColorLight,
         child: Row(
           children: [

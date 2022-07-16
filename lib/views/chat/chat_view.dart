@@ -2,7 +2,7 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/message.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
@@ -31,7 +31,6 @@ class ChatView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put<UserChat>(chat); // current chat
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     Get.put<MessageListController>(MessageListController());
@@ -51,18 +50,16 @@ class ChatView extends StatelessWidget {
             body: Column(
               children: [
                 Expanded(
-                  child: chat is NonExistentChat
-                      ? SizedBox()
-                      : GetBuilder<MessageListController>(
-                          builder: (messageListController) => Stack(
-                                children: [
-                                  _buildMessagesList(
-                                      controller, messageListController),
-                                  if (!controller.messageSelection.isSelecting)
-                                    _buildMessagesListBottom(
-                                        controller, messageListController),
-                                ],
-                              )),
+                  child: GetBuilder<MessageListController>(
+                    builder: (messageListController) => Stack(
+                      children: [
+                        _buildMessagesList(controller, messageListController),
+                        if (!controller.messageSelection.isSelecting)
+                          _buildMessagesListBottom(
+                              controller, messageListController),
+                      ],
+                    ),
+                  ),
                 ),
                 if (!controller.messageSelection.isSelecting)
                   Padding(
@@ -365,7 +362,7 @@ class ChatView extends StatelessWidget {
           children: [
             PhotoOrIcon(
               photoUrl: chat.photoUrl,
-              placeholderIcon: chat is UserPrivateChat
+              placeholderIcon: controller.isPrivateChat
                   ? FluentIcons.person_16_regular
                   : FluentIcons.people_community_16_regular,
             ),

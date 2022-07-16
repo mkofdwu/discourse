@@ -99,6 +99,7 @@ class ChatLogDbService extends GetxService implements BaseMessagesDbService {
     int numMessages,
     bool fetchOlder,
   ) async {
+    if (chatId == '') return [];
     // beforeTimestamp is the timestamp of the earliest message fetched (at the top of the chat log)
     final snapshot = await _messagesRef
         .doc(chatId)

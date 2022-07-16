@@ -10,6 +10,7 @@ class WhosTypingService extends GetxService {
   final _userDb = Get.find<UserDbService>();
 
   Stream<String?> typingTextStream(String chatId) {
+    if (chatId == '') return Stream.empty();
     return _messagesRef.doc(chatId).snapshots().asyncMap((doc) async {
       final userIds = List<String>.from(doc.data()!['typing']);
       userIds.remove(_auth.id);

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/misc_cache.dart';
@@ -73,7 +75,7 @@ class ExploreController extends GetxController {
     list.sort((a, b) => a.value.compareTo(b.value));
     return Future.wait(
       list
-          .sublist(0, numSuggestions)
+          .sublist(0, min(numSuggestions, list.length))
           .map((entry) => _userDb.getUser(entry.key)),
     );
   }

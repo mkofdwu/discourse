@@ -1,6 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
-import 'package:discourse/utils/format_date_time.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
@@ -49,7 +49,7 @@ class MyStoryView extends StatelessWidget {
               return _buildPlaceholder(controller);
             }
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
               child: Column(
                 children: snapshot.data!
                     .map((story) => MyListTile(

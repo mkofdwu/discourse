@@ -34,7 +34,7 @@ class FriendListView extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         appBar: myAppBar(title: title, actions: actions),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
