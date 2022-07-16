@@ -39,16 +39,7 @@ class UserProfileController extends GetxController {
     ));
     switch (choice) {
       case 'Send message':
-        final chat = await _privateChatDb.getChatWith(_user);
-        if (Get.isRegistered<ChatController>()) {
-          // profile page probably accessed from group details page
-          // or private chat page
-          // hacky solution
-          while (Get.isRegistered<ChatController>()) {
-            Get.back();
-          }
-        }
-        Get.to(ChatView(chat: chat));
+        sendMessage();
         break;
       case 'Request friend':
         requestFriend(_user.id);
@@ -60,5 +51,18 @@ class UserProfileController extends GetxController {
         askBlockFriend(_user, update);
         break;
     }
+  }
+
+  void sendMessage() async {
+    final chat = await _privateChatDb.getChatWith(_user);
+    if (Get.isRegistered<ChatController>()) {
+      // profile page probably accessed from group details page
+      // or private chat page
+      // hacky solution
+      while (Get.isRegistered<ChatController>()) {
+        Get.back();
+      }
+    }
+    Get.to(ChatView(chat: chat));
   }
 }

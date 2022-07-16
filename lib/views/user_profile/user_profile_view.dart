@@ -22,60 +22,63 @@ class UserProfileView extends StatelessWidget {
         appBar: myAppBar(
           title: 'User profile',
           actions: {
+            FluentIcons.chat_24_regular: controller.sendMessage,
             FluentIcons.more_vertical_20_regular: controller.showProfileOptions,
           },
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 50),
-          child: Center(
-            child: Column(
-              children: [
-                PhotoOrIcon(
-                  size: 160,
-                  iconSize: 64,
-                  photoUrl: user.photoUrl,
-                  placeholderIcon: FluentIcons.person_48_regular,
-                ),
-                SizedBox(height: 28),
-                Text(
-                  '@' + user.username,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 12),
-                if (controller.relationship == RelationshipStatus.friend)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Palette.orange,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'FRIEND',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.2,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
+          child: Column(
+            children: [
+              PhotoOrIcon(
+                size: 120,
+                iconSize: 48,
+                photoUrl: user.photoUrl,
+                placeholderIcon: FluentIcons.person_48_regular,
+              ),
+              SizedBox(height: 36),
+              Row(
+                children: [
+                  Text(
+                    user.username,
+                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(width: 16),
+                  if (controller.relationship == RelationshipStatus.friend)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'FRIEND',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
-                  ),
-                if (user.aboutMe != null) ...[
-                  SizedBox(height: 40),
-                  Text(
-                    'About me',
+                ],
+              ),
+              if (user.aboutMe != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text(
+                    user.aboutMe!,
                     style: TextStyle(
-                      color: Get.theme.primaryColor.withOpacity(0.6),
-                      fontWeight: FontWeight.w700,
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Text(user.aboutMe!),
-                ],
-                SizedBox(height: 64),
-              ],
-            ),
+                ),
+              SizedBox(height: 60),
+            ],
           ),
         ),
       ),
