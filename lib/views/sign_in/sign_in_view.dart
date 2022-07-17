@@ -20,77 +20,69 @@ class SignInView extends StatelessWidget {
       builder: (SignInController controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              width: Get.width,
-              height: Get.height - Get.mediaQuery.padding.top,
-              padding: const EdgeInsets.fromLTRB(60, 70, 60, 70),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.signingUp ? 'Sign up' : 'Sign in',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
+          child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.signingUp ? 'Sign up' : 'Sign in',
+                  style: TextStyle(
+                    color: Palette.orange,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
                   ),
-                  SizedBox(height: 14),
-                  RichText(
-                    text: TextSpan(
-                      text: controller.signingUp
-                          ? 'Enter your email below to begin. Already have an account? '
-                          : "Please enter your email and password. Don't have an account? ",
-                      style: TextStyle(fontFamily: 'Avenir', height: 1.3),
-                      children: [
-                        TextSpan(
-                          text: controller.signingUp ? 'Sign in' : 'Sign up',
-                          style: TextStyle(
-                            color: Palette.orange,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = controller.toggleSigningUp,
+                ),
+                SizedBox(height: 16),
+                RichText(
+                  text: TextSpan(
+                    text: controller.signingUp
+                        ? 'Enter your email below to begin. Already have an account? '
+                        : "Please enter your email and password. Don't have an account? ",
+                    style: TextStyle(fontFamily: 'Avenir', height: 1.3),
+                    children: [
+                      TextSpan(
+                        text: controller.signingUp ? 'Sign in' : 'Sign up',
+                        style: TextStyle(
+                          color: Palette.orange,
+                          decoration: TextDecoration.underline,
                         ),
-                      ],
-                    ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = controller.toggleSigningUp,
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 40),
-                  Container(
-                    width: 70,
-                    height: 1,
-                    color: Get.theme.colorScheme.onBackground,
-                  ),
-                  Spacer(),
+                ),
+                SizedBox(height: 40),
+                MyTextField(
+                  controller: controller.emailController,
+                  label: 'Email',
+                  error: controller.inputErrors['email'],
+                ),
+                SizedBox(height: 20),
+                MyTextField(
+                  controller: controller.passwordController,
+                  label: 'Password',
+                  obscureText: true,
+                  error: controller.inputErrors['password'],
+                  onSubmit: controller.signingUp ? null : controller.submit,
+                ),
+                if (controller.signingUp) SizedBox(height: 20),
+                if (controller.signingUp)
                   MyTextField(
-                    controller: controller.emailController,
-                    label: 'Email',
-                    error: controller.inputErrors['email'],
-                  ),
-                  SizedBox(height: 24),
-                  MyTextField(
-                    controller: controller.passwordController,
-                    label: 'Password',
+                    controller: controller.confirmPasswordController,
+                    label: 'Confirm password',
                     obscureText: true,
-                    error: controller.inputErrors['password'],
-                    onSubmit: controller.signingUp ? null : controller.submit,
+                    error: controller.inputErrors['confirmPassword'],
+                    onSubmit: controller.submit,
                   ),
-                  if (controller.signingUp) SizedBox(height: 24),
-                  if (controller.signingUp)
-                    MyTextField(
-                      controller: controller.confirmPasswordController,
-                      label: 'Confirm password',
-                      obscureText: true,
-                      error: controller.inputErrors['confirmPassword'],
-                      onSubmit: controller.submit,
-                    ),
-                  Spacer(),
-                  MyButton(
-                    text: controller.signingUp ? 'Continue' : 'Submit',
-                    isLoading: controller.isLoading,
-                    onPressed: controller.submit,
-                  ),
-                ],
-              ),
+                Spacer(),
+                MyButton(
+                  text: controller.signingUp ? 'Continue' : 'Submit',
+                  isLoading: controller.isLoading,
+                  onPressed: controller.submit,
+                ),
+              ],
             ),
           ),
         ),

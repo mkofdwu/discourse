@@ -63,6 +63,7 @@ class SignInController extends GetxController {
         },
       ),
     ));
+    if (username == null) return;
     final errors = await _auth.signUp(
       email: emailController.text,
       username: username,
