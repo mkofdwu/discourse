@@ -102,11 +102,11 @@ class MessageListController extends GetxController {
         }
         update();
         if (chatObject is Message && chatObject.fromMe) {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollToBottom();
           });
         } else if (_reachedBottom && !showGoToBottomArrow) {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollController.animateTo(
               scrollController.position.minScrollExtent,
               duration: const Duration(milliseconds: 160),

@@ -60,43 +60,7 @@ class _OnboardingViewState extends State<OnboardingView> {
               setState(() => _index = index);
             },
           ),
-          items: items
-              .map((item) => Container(
-                    decoration: BoxDecoration(
-                      color: Palette.black2,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Expanded(child: Image.asset(item[0])),
-                        Image.asset(item[0], height: 160),
-                        SizedBox(height: 32),
-                        Text(
-                          item[1],
-                          style: TextStyle(
-                            color: Get.theme.primaryColor.withOpacity(0.8),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          item[2],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Get.theme.primaryColor.withOpacity(0.6),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        _buildButton(item[3], item[4]),
-                        SizedBox(height: 44),
-                      ],
-                    ),
-                  ))
-              .toList(),
+          items: items.map(_buildCard).toList(),
         ),
         SizedBox(height: 24),
         Row(
@@ -112,6 +76,42 @@ class _OnboardingViewState extends State<OnboardingView> {
       ],
     );
   }
+
+  Widget _buildCard(dynamic item) => Container(
+        decoration: BoxDecoration(
+          color: Palette.black2,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // Expanded(child: Image.asset(item[0])),
+            Image.asset(item[0], height: 160),
+            SizedBox(height: 32),
+            Text(
+              item[1],
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.8),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              item[2],
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.6),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 24),
+            _buildButton(item[3], item[4]),
+            SizedBox(height: 44),
+          ],
+        ),
+      );
 
   Widget _buildButton(String text, Function() onPressed) => OpacityFeedback(
         onPressed: onPressed,

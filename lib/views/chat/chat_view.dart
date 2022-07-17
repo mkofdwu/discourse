@@ -409,7 +409,7 @@ class ChatView extends StatelessWidget {
             FluentIcons.delete_20_regular:
                 controller.messageSelection.deleteSelectedMessages,
           if (controller.messageSelection.canGoToViewedBy)
-            FluentIcons.eye_show_20_regular: controller.toMessageViewedBy,
+            FluentIcons.eye_20_regular: controller.toMessageViewedBy,
         },
       );
 

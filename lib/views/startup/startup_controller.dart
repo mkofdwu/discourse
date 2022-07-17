@@ -1,6 +1,6 @@
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/views/home/home_view.dart';
-import 'package:discourse/views/sign_in/sign_in_view.dart';
+import 'package:discourse/views/welcome/welcome_view.dart';
 import 'package:get/get.dart';
 
 class StartupController extends GetxController {
@@ -12,7 +12,7 @@ class StartupController extends GetxController {
     if (_auth.isSignedIn) {
       Get.off(HomeView());
     } else {
-      Get.off(SignInView());
+      Get.off(WelcomeView());
     }
   }
 }

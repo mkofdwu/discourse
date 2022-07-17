@@ -8,13 +8,15 @@ import 'package:get/get.dart';
 import 'sign_in_controller.dart';
 
 class SignInView extends StatelessWidget {
-  const SignInView({Key? key}) : super(key: key);
+  final bool signUp;
+
+  const SignInView({Key? key, this.signUp = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SignInController>(
       global: false,
-      init: SignInController(),
+      init: SignInController(signUp),
       builder: (SignInController controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(

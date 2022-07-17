@@ -1,8 +1,9 @@
-import 'package:discourse/constants/palette.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/views/user_profile/user_profile_controller.dart';
 import 'package:discourse/widgets/app_bar.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class UserProfileView extends StatelessWidget {
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PhotoOrIcon(
                 size: 120,
@@ -41,7 +43,11 @@ class UserProfileView extends StatelessWidget {
                 children: [
                   Text(
                     user.username,
-                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
                   ),
                   SizedBox(width: 16),
                   if (controller.relationship == RelationshipStatus.friend)
@@ -52,11 +58,12 @@ class UserProfileView extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         'FRIEND',
                         style: TextStyle(
+                          color: Colors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1.2,
@@ -78,6 +85,39 @@ class UserProfileView extends StatelessWidget {
                   ),
                 ),
               SizedBox(height: 60),
+              if (controller.mediaUrls.isNotEmpty) ...[
+                Text(
+                  'Photos & videos',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 24),
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 5 / 6,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: controller.mediaUrls
+                      .map((photoUrl) => OpacityFeedback(
+                            onPressed: () =>
+                                controller.toExaminePhoto(photoUrl),
+                            child: Hero(
+                              tag: photoUrl,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: CachedNetworkImage(
+                                  imageUrl: photoUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ],
             ],
           ),
         ),

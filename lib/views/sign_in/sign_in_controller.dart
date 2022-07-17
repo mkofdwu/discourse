@@ -15,10 +15,12 @@ class SignInController extends GetxController {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  bool signingUp = false;
+  bool signingUp;
   bool isLoading = false;
 
   Map<String, String> inputErrors = {};
+
+  SignInController(this.signingUp);
 
   void toggleSigningUp() {
     signingUp = !signingUp;

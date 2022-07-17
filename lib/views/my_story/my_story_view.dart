@@ -22,7 +22,7 @@ class MyStoryView extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         appBar: myAppBar(
           title: 'Your story',
-          actions: {FluentIcons.eye_show_20_regular: controller.viewMyStory},
+          actions: {FluentIcons.eye_20_regular: controller.viewMyStory},
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 16, right: 10),

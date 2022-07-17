@@ -1,13 +1,14 @@
-import 'package:discourse/models/unsent_request.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/relationships.dart';
-import 'package:discourse/services/requests.dart';
 import 'package:discourse/utils/ask_block_friend.dart';
 import 'package:discourse/utils/ask_remove_friend.dart';
 import 'package:discourse/utils/request_friend.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/chat_view.dart';
+import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:get/get.dart';
 
@@ -17,12 +18,17 @@ class UserProfileController extends GetxController {
 
   final DiscourseUser _user;
   RelationshipStatus? relationship;
+  UserChat? _chat;
+
+  List<String> get mediaUrls => _chat?.privateData.mediaUrls ?? [];
 
   UserProfileController(this._user);
 
   @override
   Future<void> onReady() async {
     relationship = await _relationships.relationshipWithMe(_user.id);
+    _chat = await _privateChatDb.getChatWith(_user);
+    _chat!.privateData.mediaUrls;
     update();
   }
 
@@ -54,7 +60,7 @@ class UserProfileController extends GetxController {
   }
 
   void sendMessage() async {
-    final chat = await _privateChatDb.getChatWith(_user);
+    if (_chat == null) return;
     if (Get.isRegistered<ChatController>()) {
       // profile page probably accessed from group details page
       // or private chat page
@@ -63,6 +69,10 @@ class UserProfileController extends GetxController {
         Get.back();
       }
     }
-    Get.to(ChatView(chat: chat));
+    Get.to(ChatView(chat: _chat!));
+  }
+
+  void toExaminePhoto(String photoUrl) {
+    Get.to(ExaminePhotoView(photo: Photo.url(photoUrl)));
   }
 }
