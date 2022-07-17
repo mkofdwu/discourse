@@ -3,6 +3,7 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/unsent_request.dart';
+import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/misc_cache.dart';
@@ -35,6 +36,8 @@ class ChatsController extends GetxController {
   int numMyStories = 0;
   List<UserChat> chats = [];
   bool hasNoContent = false;
+
+  DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
 
   @override
   void onReady() {

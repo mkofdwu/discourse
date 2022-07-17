@@ -51,15 +51,15 @@ class MyListTile extends StatelessWidget {
               Stack(
                 children: [
                   PhotoOrIcon(
-                    size: 52,
+                    size: 50,
                     iconSize: 20,
                     photoUrl: photoUrl,
                     placeholderIcon: isSelected ? null : iconData,
                   ),
                   if (isSelected)
                     Container(
-                      width: 52,
-                      height: 52,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.4),
                         border: Border.all(color: Palette.orange, width: 2),
@@ -75,7 +75,7 @@ class MyListTile extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(width: 22),
+              SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

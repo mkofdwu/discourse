@@ -8,6 +8,7 @@ import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
+import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -35,15 +36,15 @@ class ChatsView extends StatelessWidget {
                 ),
               ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 44),
+          padding: const EdgeInsets.symmetric(vertical: 36),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: const EdgeInsets.symmetric(horizontal: 36),
                 child: _buildTop(),
               ),
-              SizedBox(height: 40),
+              SizedBox(height: 36),
               if (controller.isLoading)
                 Center(child: CircularProgressIndicator(strokeWidth: 2))
               else if (controller.hasNoContent)
@@ -66,6 +67,7 @@ class ChatsView extends StatelessWidget {
           ),
           MyIconButton(
             FluentIcons.alert_24_regular,
+            onPressed: controller.toActivity,
             child: Stack(
               children: [
                 Icon(FluentIcons.alert_24_regular),
@@ -85,7 +87,6 @@ class ChatsView extends StatelessWidget {
                       ),
               ],
             ),
-            onPressed: controller.toActivity,
           ),
         ],
       );
@@ -93,39 +94,59 @@ class ChatsView extends StatelessWidget {
   List<Widget> _buildContent() => [
         // announcement
         // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 40),
+        //   padding: const EdgeInsets.symmetric(horizontal: 36),
         //   child: _buildAnnouncement(),
         // ),
         // SizedBox(height: 36),
         //
         Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text(
-            'Stories',
-            style: TextStyle(
-              color: Get.theme.primaryColor.withOpacity(0.4),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Stories',
+                style: TextStyle(
+                  color: Get.theme.primaryColor.withOpacity(0.4),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Icon(
+                FluentIcons.chevron_down_20_filled,
+                size: 20,
+                color: Colors.white.withOpacity(0.4),
+              ),
+            ],
           ),
         ),
         SizedBox(height: 20),
         _buildStories(),
-        SizedBox(height: 48),
+        SizedBox(height: 40),
         Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text(
-            'Chats',
-            style: TextStyle(
-              color: Get.theme.primaryColor.withOpacity(0.4),
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Chats',
+                style: TextStyle(
+                  color: Get.theme.primaryColor.withOpacity(0.4),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Icon(
+                FluentIcons.chevron_down_20_filled,
+                size: 20,
+                color: Colors.white.withOpacity(0.4),
+              ),
+            ],
           ),
         ),
         SizedBox(height: 20),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
           child: _buildChatsList(),
         ),
       ];
@@ -174,32 +195,43 @@ class ChatsView extends StatelessWidget {
           children: [
             SizedBox(width: 40),
             _buildYourStoryButton(),
-            SizedBox(width: 28),
-            if (controller.friendsStories.isEmpty)
-              SizedBox.shrink()
-            else
+            SizedBox(width: 20),
+            if (controller.friendsStories.isNotEmpty)
               Row(
                 children: controller.friendsStories.entries
                     .map((entry) => Padding(
-                          padding: const EdgeInsets.only(right: 28),
+                          padding: const EdgeInsets.only(right: 20),
                           child: OpacityFeedback(
                             onPressed: () =>
                                 controller.viewStory(entry.key, entry.value),
-                            child: CustomPaint(
-                              painter: StoryBorderPainter(
-                                seenNum: controller.seenNum(entry.value),
-                                storyNum: entry.value.length,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: CircleAvatar(
-                                  radius: 40,
-                                  backgroundImage: entry.key.photoUrl != null
-                                      ? CachedNetworkImageProvider(
-                                          entry.key.photoUrl!)
-                                      : null,
+                            child: Column(
+                              children: [
+                                CustomPaint(
+                                  painter: StoryBorderPainter(
+                                    seenNum: controller.seenNum(entry.value),
+                                    storyNum: entry.value.length,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage:
+                                          entry.key.photoUrl != null
+                                              ? CachedNetworkImageProvider(
+                                                  entry.key.photoUrl!)
+                                              : null,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(height: 12),
+                                Text(
+                                  entry.key.username,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ))
@@ -212,58 +244,61 @@ class ChatsView extends StatelessWidget {
 
   Widget _buildYourStoryButton() => PressedBuilder(
         onPressed: controller.toMyStory,
-        builder: (pressed) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Stack(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color:
-                        Get.theme.primaryColor.withOpacity(pressed ? 0.2 : 0.1),
+        builder: (pressed) => Column(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Palette.orange, width: 3),
+                    borderRadius: BorderRadius.circular(50),
                   ),
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(FluentIcons.image_24_regular, size: 24),
-                      SizedBox(height: 8),
-                      Text('Your story', style: TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ),
-              if (controller.numMyStories == 0)
-                SizedBox.shrink()
-              else
-                Positioned(
-                  right: 0,
-                  top: 4,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(12),
+                  child: Center(
+                    child: PhotoOrIcon(
+                      photoUrl: controller.currentUser.photoUrl,
+                      placeholderIcon: FluentIcons.person_28_regular,
+                      size: 80,
+                      iconSize: 28,
                     ),
-                    child: Center(
-                      child: Text(
-                        controller.numMyStories.toString(),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (controller.numMyStories == 0)
+                  SizedBox.shrink()
+                else
+                  Positioned(
+                    right: 0,
+                    top: 4,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Palette.orange,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          controller.numMyStories.toString(),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Your story',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
       );
 

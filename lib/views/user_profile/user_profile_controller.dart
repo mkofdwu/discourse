@@ -28,7 +28,6 @@ class UserProfileController extends GetxController {
   Future<void> onReady() async {
     relationship = await _relationships.relationshipWithMe(_user.id);
     _chat = await _privateChatDb.getChatWith(_user);
-    _chat!.privateData.mediaUrls;
     update();
   }
 
@@ -59,7 +58,7 @@ class UserProfileController extends GetxController {
     }
   }
 
-  void sendMessage() async {
+  void sendMessage() {
     if (_chat == null) return;
     if (Get.isRegistered<ChatController>()) {
       // profile page probably accessed from group details page

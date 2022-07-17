@@ -17,7 +17,7 @@ class StoryBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
       ..isAntiAlias = true
-      ..strokeWidth = 2
+      ..strokeWidth = 3
       ..color = Palette.orange
       ..style = PaintingStyle.stroke;
     if (storyNum == 1) {
@@ -30,7 +30,7 @@ class StoryBorderPainter extends CustomPainter {
         paint,
       );
     } else {
-      double sweepAngle = 360 / storyNum - 6;
+      double sweepAngle = 360 / storyNum - 8;
       for (int i = 0; i < storyNum; i++) {
         if (i >= storyNum - seenNum) {
           paint.color = Get.theme.primaryColor.withOpacity(0.2);
