@@ -5,6 +5,7 @@ import 'package:discourse/views/user_profile/user_profile_controller.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
+import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,11 +33,20 @@ class UserProfileView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PhotoOrIcon(
-                size: 120,
-                iconSize: 48,
-                photoUrl: user.photoUrl,
-                placeholderIcon: FluentIcons.person_48_regular,
+              CustomPaint(
+                painter: StoryBorderPainter(
+                  seenNum: controller.storySeenNum,
+                  storyNum: controller.userStory?.length ?? 1,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: PhotoOrIcon(
+                    size: 100,
+                    iconSize: 48,
+                    photoUrl: user.photoUrl,
+                    placeholderIcon: FluentIcons.person_48_regular,
+                  ),
+                ),
               ),
               SizedBox(height: 36),
               Row(

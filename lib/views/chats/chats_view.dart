@@ -11,6 +11,7 @@ import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:discourse/widgets/story_border_painter.dart';
+import 'package:discourse/widgets/user_story_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -201,38 +202,10 @@ class ChatsView extends StatelessWidget {
                 children: controller.friendsStories.entries
                     .map((entry) => Padding(
                           padding: const EdgeInsets.only(right: 20),
-                          child: OpacityFeedback(
-                            onPressed: () =>
-                                controller.viewStory(entry.key, entry.value),
-                            child: Column(
-                              children: [
-                                CustomPaint(
-                                  painter: StoryBorderPainter(
-                                    seenNum: controller.seenNum(entry.value),
-                                    storyNum: entry.value.length,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10),
-                                    child: CircleAvatar(
-                                      radius: 40,
-                                      backgroundImage:
-                                          entry.key.photoUrl != null
-                                              ? CachedNetworkImageProvider(
-                                                  entry.key.photoUrl!)
-                                              : null,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                Text(
-                                  entry.key.username,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          child: UserStoryTile(
+                            user: entry.key,
+                            story: entry.value,
+                            seenNum: controller.seenNum(entry.value),
                           ),
                         ))
                     .toList(),
@@ -242,9 +215,9 @@ class ChatsView extends StatelessWidget {
         ),
       );
 
-  Widget _buildYourStoryButton() => PressedBuilder(
+  Widget _buildYourStoryButton() => OpacityFeedback(
         onPressed: controller.toMyStory,
-        builder: (pressed) => Column(
+        child: Column(
           children: [
             Stack(
               children: [

@@ -82,15 +82,6 @@ class ChatsController extends GetxController {
     return story.fold(0, (total, story) => total + (story.viewedByMe ? 1 : 0));
   }
 
-  void viewStory(DiscourseUser user, List<StoryPage> story) {
-    Get.to(StoryView(
-      title: "${user.username}'s story",
-      story: story,
-      // TODO
-      onShowOptions: () async {},
-    ));
-  }
-
   Stream<ChatLogObject> streamLastChatObject(UserChat chat) =>
       _chatLogDb.streamLastChatObject(chat.id);
 
