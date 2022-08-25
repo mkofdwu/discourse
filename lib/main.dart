@@ -45,6 +45,7 @@ class DiscourseApp extends StatelessWidget {
         themeMode: ThemeMode.dark,
         theme: kLightTheme,
         darkTheme: kDarkTheme,
+        defaultTransition: Transition.rightToLeft,
         home: StartupView(),
         onReady: () {
           // hacky fix to call after all services have been initialized

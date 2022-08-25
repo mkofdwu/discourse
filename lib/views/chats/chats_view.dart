@@ -304,15 +304,19 @@ class ChatsView extends StatelessWidget {
                               iconData: FluentIcons.person_16_regular,
                               extraWidgets: [
                                 if (snapshot.hasData && snapshot.data! > 0)
-                                  _buildNumUnreadMessages(snapshot.data!)
-                              ],
-                              suffixIcons: {
+                                  _buildNumUnreadMessages(snapshot.data!),
                                 if (chat.pinned)
-                                  FluentIcons.pin_16_filled: () =>
-                                      controller.togglePinChat(chat),
-                                FluentIcons.more_vertical_20_regular: () =>
-                                    controller.showChatOptions(chat),
-                              },
+                                  MyIconButton(
+                                    FluentIcons.pin_20_filled,
+                                    onPressed: () =>
+                                        controller.togglePinChat(chat),
+                                  ),
+                                MyIconButton(
+                                  FluentIcons.more_vertical_20_filled,
+                                  onPressed: () =>
+                                      controller.showChatOptions(chat),
+                                ),
+                              ],
                               onPressed: () => controller.toChat(chat),
                             );
                           });

@@ -3,6 +3,7 @@ import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -59,12 +60,16 @@ class MyStoryView extends StatelessWidget {
                               ? story.content
                               : null,
                           iconData: FluentIcons.text_description_20_regular,
-                          suffixIcons: {
-                            FluentIcons.edit_20_regular: () =>
-                                controller.editStory(story),
-                            FluentIcons.delete_20_regular: () =>
-                                controller.deleteStory(story),
-                          },
+                          extraWidgets: [
+                            MyIconButton(
+                              FluentIcons.edit_20_regular,
+                              onPressed: () => controller.editStory(story),
+                            ),
+                            MyIconButton(
+                              FluentIcons.delete_20_regular,
+                              onPressed: () => controller.deleteStory(story),
+                            ),
+                          ],
                           onPressed: () => controller.viewSingleStory(story),
                         ))
                     .toList(),
