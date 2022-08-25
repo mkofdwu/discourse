@@ -19,30 +19,10 @@ class RejectedRequestsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Rejected requests'),
         body: controller.requestControllers.isEmpty && !controller.loading
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 80),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/undraw_no_data.png',
-                      width: 160,
-                    ),
-                    SizedBox(height: 48),
-                    Text(
-                      'Nothing here yet. Rejected requests will appear here',
-                      style: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.6),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 48),
-                  ],
-                ),
-              )
+            ? _buildPlaceholder()
             : SingleChildScrollView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: Column(
                   children: controller.requestControllers
                       .map(
@@ -77,12 +57,35 @@ class RejectedRequestsView extends StatelessWidget {
     );
   }
 
+  Padding _buildPlaceholder() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 80),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/undraw_no_data.png',
+              width: 160,
+            ),
+            SizedBox(height: 48),
+            Text(
+              'Nothing here yet. Rejected requests will appear here',
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 48),
+          ],
+        ),
+      );
+
   Widget _buildCircleButton(
     IconData iconData,
     Color color,
     Function() onPressed,
   ) =>
       OpacityFeedback(
+        onPressed: onPressed,
         child: Container(
           width: 36,
           height: 36,
@@ -92,6 +95,5 @@ class RejectedRequestsView extends StatelessWidget {
           ),
           child: Center(child: Icon(iconData, size: 16)),
         ),
-        onPressed: onPressed,
       );
 }

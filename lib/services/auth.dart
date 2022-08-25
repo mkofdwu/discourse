@@ -106,11 +106,7 @@ class AuthService extends GetxService implements BaseAuthService {
         photoUrl: null,
         aboutMe: null,
         lastSeen: null,
-        settings: UserSettings(
-          enableNotifications: true,
-          showStoryTo: null,
-          publicAccount: true, // for now to let everyone find each other
-        ),
+        settings: UserSettings.defaultSettings(),
         relationships: {},
       ));
       await refreshCurrentUser();

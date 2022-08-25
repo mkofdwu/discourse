@@ -47,6 +47,10 @@ class HomeView extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 6),
                     child: Icon(FluentIcons.chat_multiple_24_regular),
                   ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(FluentIcons.chat_multiple_24_filled),
+                  ),
                   label: 'Chats',
                 ),
                 BottomNavigationBarItem(
@@ -54,12 +58,20 @@ class HomeView extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: 6),
                     child: Icon(FluentIcons.search_24_regular),
                   ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(FluentIcons.search_24_filled),
+                  ),
                   label: 'Explore',
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(bottom: 6),
                     child: Icon(FluentIcons.person_24_regular),
+                  ),
+                  activeIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: Icon(FluentIcons.person_24_filled),
                   ),
                   label: 'Profile',
                 )

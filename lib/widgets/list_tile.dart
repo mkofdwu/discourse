@@ -14,6 +14,7 @@ class MyListTile extends StatelessWidget {
   final List<Widget> extraWidgets;
   final bool isSelected;
   final Function()? onPressed;
+  final bool increaseWidthFactor;
 
   const MyListTile({
     Key? key,
@@ -25,6 +26,7 @@ class MyListTile extends StatelessWidget {
     this.extraWidgets = const [],
     this.isSelected = false,
     this.onPressed,
+    this.increaseWidthFactor = true,
   }) : super(key: key);
 
   @override
@@ -38,7 +40,7 @@ class MyListTile extends StatelessWidget {
   }
 
   Widget _buildPressed(bool pressed) => FractionallySizedBox(
-        widthFactor: 1.16,
+        widthFactor: increaseWidthFactor ? 1.16 : 1,
         child: AnimatedContainer(
           duration: Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
@@ -55,6 +57,7 @@ class MyListTile extends StatelessWidget {
                     iconSize: 20,
                     photoUrl: photoUrl,
                     placeholderIcon: isSelected ? null : iconData,
+                    backgroundColor: Color(0xFF606060),
                   ),
                   if (isSelected)
                     Container(

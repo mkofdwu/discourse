@@ -1,7 +1,9 @@
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/models/request_controller.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +11,85 @@ import 'package:get/get.dart';
 
 import 'activity_controller.dart';
 
-class ActivityView extends StatelessWidget {
+class ActivityListTile extends AnimatedWidget {
+  final ActivityController controller;
+  final RequestController rq;
+  final Function() animateRemove;
+
+  const ActivityListTile({
+    Key? key,
+    required this.controller,
+    required this.rq,
+    required Animation<double> animation,
+    required this.animateRemove,
+  }) : super(key: key, listenable: animation);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizeTransition(
+      sizeFactor: (listenable as Animation<double>),
+      child: FadeTransition(
+        opacity: (listenable as Animation<double>),
+        child: MyListTile(
+          increaseWidthFactor: false,
+          iconData: rq.request.type == RequestType.groupInvite
+              ? FluentIcons.people_community_16_regular
+              : FluentIcons.person_16_regular,
+          title: rq.title,
+          subtitle: rq.subtitle,
+          photoUrl: rq.photoUrl,
+          extraWidgets: [
+            _buildCircleButton(
+              FluentIcons.checkmark_16_regular,
+              Palette.orange,
+              () {
+                controller.respondToRequest(rq, true);
+                animateRemove();
+              },
+            ),
+            SizedBox(width: 12),
+            _buildCircleButton(
+              FluentIcons.dismiss_16_regular,
+              Palette.black3,
+              () {
+                controller.respondToRequest(rq, false);
+                animateRemove();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircleButton(
+    IconData iconData,
+    Color color,
+    Function() onPressed,
+  ) =>
+      OpacityFeedback(
+        onPressed: onPressed,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Center(child: Icon(iconData, size: 16)),
+        ),
+      );
+}
+
+class ActivityView extends StatefulWidget {
   const ActivityView({Key? key}) : super(key: key);
+
+  @override
+  State<ActivityView> createState() => _ActivityViewState();
+}
+
+class _ActivityViewState extends State<ActivityView> {
+  final _listKey = GlobalKey<AnimatedListState>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,87 +102,56 @@ class ActivityView extends StatelessWidget {
             FluentIcons.more_vertical_20_regular: controller.showOptions,
           },
         ),
-        body: controller.requestControllers.isEmpty && !controller.loading
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 80),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/undraw_no_data.png',
-                      width: 160,
-                    ),
-                    SizedBox(height: 48),
-                    Text(
-                      'Nothing here yet. Friend requests or group invites will appear here',
-                      style: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.6),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 48),
-                  ],
-                ),
-              )
-            : SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                child: Column(
-                  children: controller.requestControllers
-                      .map(
-                        (rq) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: MyListTile(
-                                  iconData: rq.request.type ==
-                                          RequestType.groupInvite
-                                      ? FluentIcons.people_community_16_regular
-                                      : FluentIcons.person_16_regular,
-                                  title: rq.title,
-                                  subtitle: rq.subtitle,
-                                  photoUrl: rq.photoUrl,
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              _buildCircleButton(
-                                FluentIcons.checkmark_16_regular,
-                                Palette.orange,
-                                () => controller.respondToRequest(rq, true),
-                              ),
-                              SizedBox(width: 12),
-                              _buildCircleButton(
-                                FluentIcons.dismiss_16_regular,
-                                Palette.black3,
-                                () => controller.respondToRequest(rq, false),
-                              ),
-                            ],
+        body: controller.loading
+            ? Center(child: Loading())
+            : controller.requestControllers.isEmpty
+                ? _buildPlaceholder()
+                : AnimatedList(
+                    key: _listKey,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                    initialItemCount: controller.requestControllers.length,
+                    itemBuilder: (context, i, animation) {
+                      final rq = controller.requestControllers[i];
+                      return ActivityListTile(
+                        controller: controller,
+                        rq: rq,
+                        animation: animation,
+                        animateRemove: () => _listKey.currentState!.removeItem(
+                          i,
+                          (context, animation) => ActivityListTile(
+                            controller: controller,
+                            rq: rq,
+                            animation: animation,
+                            animateRemove: () {},
                           ),
                         ),
-                      )
-                      .toList(),
-                ),
-              ),
+                      );
+                    },
+                  ),
       ),
     );
   }
 
-  Widget _buildCircleButton(
-    IconData iconData,
-    Color color,
-    Function() onPressed,
-  ) =>
-      OpacityFeedback(
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Center(child: Icon(iconData, size: 16)),
+  Padding _buildPlaceholder() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 80),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/undraw_no_data.png',
+              width: 160,
+            ),
+            SizedBox(height: 48),
+            Text(
+              'Nothing here yet. Friend requests or group invites will appear here',
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 48),
+          ],
         ),
-        onPressed: onPressed,
       );
 }

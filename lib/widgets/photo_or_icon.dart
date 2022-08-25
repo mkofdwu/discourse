@@ -20,7 +20,7 @@ class PhotoOrIcon extends StatelessWidget {
     this.iconSize = 16,
     this.iconOpacity = 1,
     this.radius,
-    this.backgroundColor = const Color(0xFF606060),
+    this.backgroundColor = Palette.black3,
     required this.photoUrl,
     this.photoFile,
     required this.placeholderIcon,
