@@ -41,9 +41,9 @@ class MyListTile extends StatelessWidget {
         widthFactor: 1.16,
         child: AnimatedContainer(
           duration: Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
           decoration: BoxDecoration(
-            color: Palette.black2.withOpacity(pressed ? 1 : 0),
+            color: Colors.white.withOpacity(pressed ? 0.08 : 0),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(

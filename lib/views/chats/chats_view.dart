@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
@@ -7,15 +6,15 @@ import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
-import 'package:discourse/widgets/pressed_builder.dart';
-import 'package:discourse/widgets/story_border_painter.dart';
 import 'package:discourse/widgets/user_story_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/views/chats/chats_controller.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class ChatsView extends StatelessWidget {
   const ChatsView({Key? key}) : super(key: key);
@@ -42,12 +41,12 @@ class ChatsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: _buildTop(),
               ),
               SizedBox(height: 36),
               if (controller.isLoading)
-                Center(child: CircularProgressIndicator(strokeWidth: 2))
+                Center(child: Loading())
               else if (controller.hasNoContent)
                 OnboardingView()
               else
@@ -101,7 +100,7 @@ class ChatsView extends StatelessWidget {
         // SizedBox(height: 36),
         //
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 36),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -125,7 +124,7 @@ class ChatsView extends StatelessWidget {
         _buildStories(),
         SizedBox(height: 40),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 36),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -147,7 +146,7 @@ class ChatsView extends StatelessWidget {
         ),
         SizedBox(height: 20),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 36),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: _buildChatsList(),
         ),
       ];

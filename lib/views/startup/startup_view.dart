@@ -1,3 +1,4 @@
+import 'package:discourse/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,7 +15,7 @@ class StartupView extends StatelessWidget {
       builder: (StartupController controller) {
         return Scaffold(
           body: Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: Loading(),
           ),
         );
       },
