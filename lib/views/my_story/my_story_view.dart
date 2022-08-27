@@ -51,7 +51,7 @@ class MyStoryView extends StatelessWidget {
                 ? _buildPlaceholder(controller)
                 : MyAnimatedList(
                     controller: controller.listAnimationController,
-                    initialList: controller.myStory,
+                    list: controller.myStory,
                     listTileBuilder: (i, story) {
                       story as StoryPage;
                       return MyListTile(

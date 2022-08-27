@@ -14,7 +14,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:discourse/views/chats/chats_controller.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class ChatsView extends StatelessWidget {
   const ChatsView({Key? key}) : super(key: key);

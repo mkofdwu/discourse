@@ -7,32 +7,34 @@ class ListAnimationController {
   Widget Function(int, dynamic)? listTileBuilder;
 
   void animateInsert(int index) {
-    key.currentState!.insertItem(index);
+    // key.currentState!.insertItem(index);
   }
 
   void animateRemove(int index, dynamic item) {
-    key.currentState!.removeItem(
-      index,
-      (context, animation) => SizeTransition(
-        sizeFactor: animation,
-        child: FadeTransition(
-          opacity: animation,
-          child: listTileBuilder!(index, item),
-        ),
-      ),
-    );
+    // key.currentState!.removeItem(
+    //   index,
+    //   (context, animation) => SizeTransition(
+    //     sizeFactor: animation,
+    //     child: FadeTransition(
+    //       opacity: animation,
+    //       child: listTileBuilder!(index, item),
+    //     ),
+    //   ),
+    // );
   }
 }
 
 class MyAnimatedList extends StatefulWidget {
+  final bool isAttachmentList;
   final ListAnimationController controller;
-  final List initialList;
+  final List list;
   final Widget Function(int, dynamic) listTileBuilder;
 
   const MyAnimatedList({
     Key? key,
+    this.isAttachmentList = false,
     required this.controller,
-    required this.initialList,
+    required this.list,
     required this.listTileBuilder,
   }) : super(key: key);
 
@@ -51,14 +53,18 @@ class _MyAnimatedListState<T> extends State<MyAnimatedList> {
   Widget build(BuildContext context) {
     return AnimatedList(
       key: widget.controller.key,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-      initialItemCount: widget.initialList.length,
+      physics: widget.isAttachmentList ? NeverScrollableScrollPhysics() : null,
+      shrinkWrap: widget.isAttachmentList,
+      padding: widget.isAttachmentList
+          ? null
+          : const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      initialItemCount: widget.list.length,
       itemBuilder: (context, i, animation) {
         return SizeTransition(
           sizeFactor: animation,
           child: FadeTransition(
             opacity: animation,
-            child: widget.listTileBuilder(i, widget.initialList[i]),
+            child: widget.listTileBuilder(i, widget.list[i]),
           ),
         );
       },

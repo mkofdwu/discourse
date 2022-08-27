@@ -102,7 +102,7 @@ class _ActivityViewState extends State<ActivityView> {
                 ? _buildPlaceholder()
                 : MyAnimatedList(
                     controller: _listAnimationController,
-                    initialList: controller.requestControllers,
+                    list: controller.requestControllers,
                     listTileBuilder: (i, rq) {
                       return ActivityListTile(
                         activityController: controller,

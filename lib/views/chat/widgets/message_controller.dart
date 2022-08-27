@@ -12,18 +12,17 @@ import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:get/get.dart';
 
 class MessageController extends GetxController {
-  final _messageSenderService = Get.find<MessageSenderController>();
-  final _messageSelectionService = Get.find<MessageSelectionController>();
+  final _messageSender = Get.find<MessageSenderController>();
+  final _messageSelection = Get.find<MessageSelectionController>();
 
   final Message _message;
 
   MessageController(this._message);
 
-  bool isSelected() =>
-      _messageSelectionService.selectedMessages.contains(_message);
+  bool isSelected() => _messageSelection.selectedMessages.contains(_message);
 
   void onTap() {
-    if (_messageSelectionService.isSelecting) {
+    if (_messageSelection.isSelecting) {
       toggleSelectMessage();
     }
   }
@@ -40,11 +39,11 @@ class MessageController extends GetxController {
   }
 
   void replyToThis() {
-    _messageSenderService.repliedMessage.value = _message.asRepliedMessage();
+    _messageSender.repliedMessage.value = _message.asRepliedMessage();
   }
 
   void toggleSelectMessage() {
-    _messageSelectionService.toggleSelectMessage(_message);
+    _messageSelection.toggleSelectMessage(_message);
     update();
   }
 

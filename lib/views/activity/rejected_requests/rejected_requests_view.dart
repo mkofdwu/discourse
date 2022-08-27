@@ -85,7 +85,7 @@ class _RejectedRequestsViewState extends State<RejectedRequestsView> {
             ? _buildPlaceholder()
             : MyAnimatedList(
                 controller: _listAnimationController,
-                initialList: controller.requestControllers,
+                list: controller.requestControllers,
                 listTileBuilder: (i, rq) {
                   return RejectedRequestListTile(
                     controller: controller,

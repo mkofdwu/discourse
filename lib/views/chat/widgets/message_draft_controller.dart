@@ -1,4 +1,3 @@
-import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -14,12 +13,11 @@ class MessageDraftController extends GetxController {
 
   UserChat get _chat => Get.find<ChatController>().chat;
   TextEditingController get textController => _messageSender.textController;
-  Photo? get photo => _messageSender.photo.value;
-  RepliedMessage? get repliedMessage => _messageSender.repliedMessage.value;
+  Rx<Photo?> get photoObs => _messageSender.photo;
+  Rx<RepliedMessage?> get repliedMessageObs => _messageSender.repliedMessage;
 
   bool get hasText => !textController.text.isBlank!;
-  bool get hasPhoto => photo != null;
-  bool get hasRepliedMessage => repliedMessage != null;
+  bool get hasPhoto => _messageSender.photo.value != null;
 
   bool showAttachOptions = false;
 
@@ -34,11 +32,11 @@ class MessageDraftController extends GetxController {
   }
 
   Future<void> selectPhoto(bool fromCamera) async {
-    final photo = await (fromCamera
+    final newPhoto = await (fromCamera
         ? _media.takePhotoFromCamera()
         : _media.selectPhoto());
-    if (photo != null) {
-      _messageSender.photo.value = photo;
+    if (newPhoto != null) {
+      _messageSender.photo.value = newPhoto;
       update();
     }
   }
@@ -53,5 +51,7 @@ class MessageDraftController extends GetxController {
     update();
   }
 
-  Future<void> sendMessage() => _messageSender.send(_chat);
+  void sendMessage() {
+    _messageSender.send(_chat);
+  }
 }

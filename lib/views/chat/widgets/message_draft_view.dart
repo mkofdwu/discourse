@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/views/chat/controllers/is_typing_controller.dart';
+import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -10,83 +13,175 @@ import 'package:get/get.dart';
 
 import 'message_draft_controller.dart';
 
-class MessageDraftView extends StatelessWidget {
+class MessageDraftView extends StatefulWidget {
   const MessageDraftView({Key? key}) : super(key: key);
+
+  @override
+  State<MessageDraftView> createState() => _MessageDraftViewState();
+}
+
+class _MessageDraftViewState extends State<MessageDraftView> {
+  Widget _replyPreview = SizedBox();
+  Widget _photoPreview = SizedBox();
+
+  MessageDraftController get controller => Get.find<MessageDraftController>();
+  StreamSubscription? _repliedMessageSubscription;
+  StreamSubscription? _photoSubscription;
+
+  void _repliedMessageListener(RepliedMessage? replyTo) {
+    if (replyTo == null) {
+      setState(() {
+        _replyPreview = SizedBox();
+      });
+    } else {
+      setState(() {
+        _replyPreview = Column(
+          key: UniqueKey(),
+          children: [
+            Dismissible(
+              key: ValueKey(replyTo.id),
+              // resizing will be done when switched out to sizedbox
+              // allowing dismissible to resize means there will be
+              // undesirable resize twice (once for the preview and once
+              // for the divider)
+              resizeDuration: Duration(hours: 1),
+              confirmDismiss: (direction) async {
+                controller.removeReply();
+                return true;
+              },
+              child: _buildReplyPreview(
+                replyTo,
+                controller.removeReply,
+              ),
+            ),
+            _buildDivider(),
+          ],
+        );
+      });
+    }
+  }
+
+  void _photoListener(Photo? photo) {
+    if (photo == null) {
+      setState(() {
+        _photoPreview = SizedBox();
+      });
+    } else {
+      setState(() {
+        _photoPreview = Column(
+          key: UniqueKey(),
+          children: [
+            Dismissible(
+              key: UniqueKey(),
+              resizeDuration: Duration(hours: 1),
+              confirmDismiss: (direction) async {
+                controller.removePhoto();
+                return true;
+              },
+              child: _buildPhotoPreview(
+                photo,
+                controller.removePhoto,
+              ),
+            ),
+            _buildDivider(),
+          ],
+        );
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _repliedMessageSubscription = Get.find<MessageSenderController>()
+        .repliedMessage
+        .listen(_repliedMessageListener);
+    _photoSubscription =
+        Get.find<MessageSenderController>().photo.listen(_photoListener);
+  }
+
+  @override
+  void dispose() {
+    _repliedMessageSubscription?.cancel();
+    _photoSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MessageDraftController>(
-      global: false,
       init: MessageDraftController(),
-      builder: (controller) => Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: _buildMain(controller),
-          ),
-          SizedBox(width: 12),
-          Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: controller.showAttachOptions
-                  ? Palette.black3
-                  : Palette.black2,
-              borderRadius: BorderRadius.circular(8),
+      builder: (controller) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: _buildMain(),
             ),
-            child: Row(
-              children: controller.showAttachOptions && !controller.hasPhoto
-                  ? [
-                      SizedBox(width: 4),
-                      OpacityFeedback(
-                        child: Icon(FluentIcons.image_20_regular, size: 20),
-                        onPressed: () => controller.selectPhoto(false),
-                      ),
-                      SizedBox(width: 14),
-                      OpacityFeedback(
-                        child: Icon(FluentIcons.camera_20_regular, size: 20),
-                        onPressed: () => controller.selectPhoto(true),
-                      ),
-                      SizedBox(width: 12),
-                      Container(
-                        width: 1,
-                        height: 28,
-                        color: Get.theme.primaryColor.withOpacity(0.1),
-                      ),
-                      SizedBox(width: 14),
-                      OpacityFeedback(
-                        child: Icon(
-                          FluentIcons.dismiss_20_regular,
-                          size: 20,
+            SizedBox(width: 12),
+            Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: controller.showAttachOptions
+                    ? Palette.black3
+                    : Palette.black2,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: controller.showAttachOptions && !controller.hasPhoto
+                    ? [
+                        SizedBox(width: 4),
+                        OpacityFeedback(
+                          child: Icon(FluentIcons.image_20_regular, size: 20),
+                          onPressed: () => controller.selectPhoto(false),
                         ),
-                        onPressed: controller.toggleShowAttachOptions,
-                      ),
-                    ]
-                  : [
-                      controller.hasText || controller.hasPhoto
-                          ? OpacityFeedback(
-                              child: Icon(
-                                FluentIcons.send_20_regular,
-                                size: 20,
+                        SizedBox(width: 14),
+                        OpacityFeedback(
+                          child: Icon(FluentIcons.camera_20_regular, size: 20),
+                          onPressed: () => controller.selectPhoto(true),
+                        ),
+                        SizedBox(width: 12),
+                        Container(
+                          width: 1,
+                          height: 28,
+                          color: Get.theme.primaryColor.withOpacity(0.1),
+                        ),
+                        SizedBox(width: 14),
+                        OpacityFeedback(
+                          child: Icon(
+                            FluentIcons.dismiss_20_regular,
+                            size: 20,
+                          ),
+                          onPressed: controller.toggleShowAttachOptions,
+                        ),
+                      ]
+                    : [
+                        controller.hasText || controller.hasPhoto
+                            ? OpacityFeedback(
+                                child: Icon(
+                                  FluentIcons.send_20_regular,
+                                  size: 20,
+                                ),
+                                onPressed: controller.sendMessage,
+                              )
+                            : OpacityFeedback(
+                                child: Icon(
+                                  FluentIcons.attach_20_regular,
+                                  size: 20,
+                                ),
+                                onPressed: controller.toggleShowAttachOptions,
                               ),
-                              onPressed: controller.sendMessage,
-                            )
-                          : OpacityFeedback(
-                              child: Icon(
-                                FluentIcons.attach_20_regular,
-                                size: 20,
-                              ),
-                              onPressed: controller.toggleShowAttachOptions,
-                            ),
-                    ],
+                      ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildMain(MessageDraftController controller) => Container(
+  Widget _buildMain() => Container(
         decoration: BoxDecoration(
           color: Palette.black2,
           borderRadius: BorderRadius.circular(8),
@@ -95,36 +190,50 @@ class MessageDraftView extends StatelessWidget {
           horizontal: 22,
           vertical: 16,
         ),
-        child: Obx(() => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (controller.hasRepliedMessage)
-                  _buildReplyPreview(
-                      controller.repliedMessage!, controller.removeReply),
-                if (controller.hasRepliedMessage) _buildDivider(),
-                if (controller.hasPhoto)
-                  _buildPhotoPreview(controller.photo!, controller.removePhoto),
-                if (controller.hasPhoto) _buildDivider(),
-                GetBuilder<IsTypingController>(
-                  global: false,
-                  init: IsTypingController(),
-                  builder: (isTypingController) => TextField(
-                    controller: controller.textController,
-                    onChanged: (_) => isTypingController.onTyping(),
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
-                      hintText: 'Send a message...',
-                      hintStyle: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.4),
-                      ),
-                    ),
+        clipBehavior: Clip.hardEdge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedSize(
+              duration: Duration(milliseconds: 300),
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: _replyPreview,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              ),
+            ),
+            AnimatedSize(
+              duration: Duration(milliseconds: 300),
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: _photoPreview,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              ),
+            ),
+            GetBuilder<IsTypingController>(
+              global: false,
+              init: IsTypingController(),
+              builder: (isTypingController) => TextField(
+                controller: controller.textController,
+                onChanged: (_) => isTypingController.onTyping(),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none,
+                  hintText: 'Send a message...',
+                  hintStyle: TextStyle(
+                    color: Get.theme.primaryColor.withOpacity(0.4),
                   ),
                 ),
-              ],
-            )),
+              ),
+            ),
+          ],
+        ),
       );
 
   Widget _buildDivider() => Container(
