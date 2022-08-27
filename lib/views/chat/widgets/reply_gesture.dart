@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +19,8 @@ class ReplyGesture extends StatefulWidget {
   ReplyGestureState createState() => ReplyGestureState();
 }
 
-class ReplyGestureState extends State<ReplyGesture> {
+class ReplyGestureState extends State<ReplyGesture>
+    with TickerProviderStateMixin {
   static const double _climax = 60;
   late double _horizontalDragStart;
   double _horizontalDragDist = 0;
@@ -29,42 +32,63 @@ class ReplyGestureState extends State<ReplyGesture> {
         _horizontalDragStart = details.globalPosition.dx;
       },
       onHorizontalDragUpdate: (details) {
-        setState(() {
-          _horizontalDragDist =
-              details.globalPosition.dx - _horizontalDragStart;
-        });
+        double dist = details.globalPosition.dx - _horizontalDragStart;
+        if (dist <= 0) return;
+        if (dist > _climax) {
+          dist = _climax + pow(dist - _climax, 0.7);
+        }
+        setState(() => _horizontalDragDist = dist);
       },
       onHorizontalDragEnd: (details) {
         if (_horizontalDragDist > _climax) widget.onReply();
-        setState(() {
-          _horizontalDragDist = 0;
+        // animate back to original position
+        final controller = AnimationController(
+          vsync: this,
+          duration: Duration(milliseconds: 200),
+        );
+        final animation = Tween(begin: _horizontalDragDist, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOut))
+            .animate(controller);
+        animation.addListener(() {
+          setState(() {
+            _horizontalDragDist = animation.value;
+          });
         });
+        controller.forward();
       },
       child: Container(
         color: Colors.transparent,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_horizontalDragDist > _climax)
-              Container(
-                width: 24,
-                height: 24,
-                margin: const EdgeInsets.only(left: 30, top: 10),
-                decoration: BoxDecoration(
-                  color: Color(0xFF484848),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  FluentIcons.arrow_reply_16_regular,
-                  color: Colors.white,
-                  size: 12,
+            AnimatedScale(
+              duration: Duration(milliseconds: 200),
+              scale: _horizontalDragDist > _climax ? 1 : 0,
+              alignment: Alignment.center,
+              child: AnimatedOpacity(
+                duration: Duration(milliseconds: 200),
+                opacity: _horizontalDragDist > _climax ? 1 : 0,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  margin: const EdgeInsets.only(left: 30, top: 10),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF484848),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    FluentIcons.arrow_reply_16_regular,
+                    color: Colors.white,
+                    size: 12,
+                  ),
                 ),
               ),
+            ),
             Expanded(
               child: Transform.translate(
                 offset: Offset(
-                  _horizontalDragDist > _climax && widget.accountForWidth
+                  widget.accountForWidth
                       ? _horizontalDragDist - 54
                       : _horizontalDragDist,
                   0,

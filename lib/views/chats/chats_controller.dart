@@ -128,5 +128,5 @@ class ChatsController extends GetxController {
     update();
   }
 
-  void toChat(UserChat chat) => Get.to(() => () => ChatView(chat: chat));
+  void toChat(UserChat chat) => Get.to(() => ChatView(chat: chat));
 }
