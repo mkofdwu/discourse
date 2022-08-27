@@ -59,7 +59,7 @@ class TextStoryController extends GetxController {
 
   void submit() async {
     if (_defaultStory == null) {
-      await _storyDb.postStory(UnsentStory(
+      final story = await _storyDb.postStory(UnsentStory(
         type: StoryType.text,
         content: textController.text,
         sendToIds: (selectedFriendList == null
@@ -68,9 +68,10 @@ class TextStoryController extends GetxController {
             .map((user) => user.id)
             .toList(),
       ));
+      Get.back(result: story);
     } else {
       await _storyDb.updateStory(_defaultStory!.id, textController.text);
+      Get.back();
     }
-    Get.back();
   }
 }

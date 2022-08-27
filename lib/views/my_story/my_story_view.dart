@@ -1,10 +1,12 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/utils/date_time.dart';
+import 'package:discourse/widgets/animated_list.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -37,46 +39,43 @@ class MyStoryView extends StatelessWidget {
               SizedBox(height: 20),
               MyFloatingActionButton(
                 iconData: FluentIcons.camera_20_regular,
+                isPrimary: false,
                 onPressed: controller.newPhotoPost,
               ),
             ],
           ),
         ),
-        body: FutureBuilder<List<StoryPage>>(
-          future: controller.getMyStory(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return SizedBox();
-            if (snapshot.data!.isEmpty) {
-              return _buildPlaceholder(controller);
-            }
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-              child: Column(
-                children: snapshot.data!
-                    .map((story) => MyListTile(
-                          title: '${story.viewedAt.length} views',
-                          subtitle: formatTime(story.sentTimestamp),
-                          photoUrl: story.type == StoryType.photo
-                              ? story.content
-                              : null,
-                          iconData: FluentIcons.text_description_20_regular,
-                          extraWidgets: [
-                            MyIconButton(
-                              FluentIcons.edit_20_regular,
-                              onPressed: () => controller.editStory(story),
-                            ),
-                            MyIconButton(
-                              FluentIcons.delete_20_regular,
-                              onPressed: () => controller.deleteStory(story),
-                            ),
-                          ],
-                          onPressed: () => controller.viewSingleStory(story),
-                        ))
-                    .toList(),
-              ),
-            );
-          },
-        ),
+        body: controller.isLoading
+            ? Center(child: Loading())
+            : controller.myStory.isEmpty
+                ? _buildPlaceholder(controller)
+                : MyAnimatedList(
+                    controller: controller.listAnimationController,
+                    initialList: controller.myStory,
+                    listTileBuilder: (i, story) {
+                      story as StoryPage;
+                      return MyListTile(
+                        increaseWidthFactor: false,
+                        title: '${story.viewedAt.length} views',
+                        subtitle: formatTime(story.sentTimestamp),
+                        photoUrl: story.type == StoryType.photo
+                            ? story.content
+                            : null,
+                        iconData: FluentIcons.text_description_20_regular,
+                        extraWidgets: [
+                          MyIconButton(
+                            FluentIcons.edit_20_regular,
+                            onPressed: () => controller.editStory(story),
+                          ),
+                          MyIconButton(
+                            FluentIcons.delete_20_regular,
+                            onPressed: () => controller.deleteStory(i),
+                          ),
+                        ],
+                        onPressed: () => controller.viewSingleStory(story),
+                      );
+                    },
+                  ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/request_controller.dart';
 import 'package:discourse/models/unsent_request.dart';
+import 'package:discourse/widgets/animated_list.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -10,7 +11,7 @@ import 'package:get/get.dart';
 
 import 'rejected_requests_controller.dart';
 
-class RejectedRequestListTile extends AnimatedWidget {
+class RejectedRequestListTile extends StatelessWidget {
   final RejectedRequestsController controller;
   final RequestController rq;
   final Function() animateRemove;
@@ -19,36 +20,29 @@ class RejectedRequestListTile extends AnimatedWidget {
     Key? key,
     required this.controller,
     required this.rq,
-    required Animation<double> animation,
     required this.animateRemove,
-  }) : super(key: key, listenable: animation);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizeTransition(
-      sizeFactor: (listenable as Animation<double>),
-      child: FadeTransition(
-        opacity: (listenable as Animation<double>),
-        child: MyListTile(
-          increaseWidthFactor: false,
-          iconData: rq.request.type == RequestType.groupInvite
-              ? FluentIcons.people_community_16_regular
-              : FluentIcons.person_16_regular,
-          title: rq.title,
-          subtitle: rq.subtitle,
-          photoUrl: rq.photoUrl,
-          extraWidgets: [
-            _buildCircleButton(
-              FluentIcons.arrow_undo_16_regular,
-              Palette.black3,
-              () {
-                controller.undoRejection(rq);
-                animateRemove();
-              },
-            ),
-          ],
+    return MyListTile(
+      increaseWidthFactor: false,
+      iconData: rq.request.type == RequestType.groupInvite
+          ? FluentIcons.people_community_16_regular
+          : FluentIcons.person_16_regular,
+      title: rq.title,
+      subtitle: rq.subtitle,
+      photoUrl: rq.photoUrl,
+      extraWidgets: [
+        _buildCircleButton(
+          FluentIcons.arrow_undo_16_regular,
+          Palette.black3,
+          () {
+            controller.undoRejection(rq);
+            animateRemove();
+          },
         ),
-      ),
+      ],
     );
   }
 
@@ -71,8 +65,15 @@ class RejectedRequestListTile extends AnimatedWidget {
       );
 }
 
-class RejectedRequestsView extends StatelessWidget {
+class RejectedRequestsView extends StatefulWidget {
   const RejectedRequestsView({Key? key}) : super(key: key);
+
+  @override
+  State<RejectedRequestsView> createState() => _RejectedRequestsViewState();
+}
+
+class _RejectedRequestsViewState extends State<RejectedRequestsView> {
+  final _listAnimationController = ListAnimationController();
 
   @override
   Widget build(BuildContext context) {
@@ -82,27 +83,15 @@ class RejectedRequestsView extends StatelessWidget {
         appBar: myAppBar(title: 'Rejected requests'),
         body: controller.requestControllers.isEmpty && !controller.loading
             ? _buildPlaceholder()
-            : AnimatedList(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-                initialItemCount: controller.requestControllers.length,
-                itemBuilder: (context, index, animation) {
-                  final rq = controller.requestControllers[index];
+            : MyAnimatedList(
+                controller: _listAnimationController,
+                initialList: controller.requestControllers,
+                listTileBuilder: (i, rq) {
                   return RejectedRequestListTile(
                     controller: controller,
                     rq: rq,
-                    animation: animation,
-                    animateRemove: () {
-                      AnimatedList.of(context).removeItem(
-                        index,
-                        (context, animation) => RejectedRequestListTile(
-                          controller: controller,
-                          rq: rq,
-                          animation: animation,
-                          animateRemove: () {},
-                        ),
-                      );
-                    },
+                    animateRemove: () =>
+                        _listAnimationController.animateRemove(i, rq),
                   );
                 },
               ),

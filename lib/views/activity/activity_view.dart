@@ -1,6 +1,7 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/request_controller.dart';
 import 'package:discourse/models/unsent_request.dart';
+import 'package:discourse/widgets/animated_list.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/loading.dart';
@@ -11,54 +12,47 @@ import 'package:get/get.dart';
 
 import 'activity_controller.dart';
 
-class ActivityListTile extends AnimatedWidget {
-  final ActivityController controller;
+class ActivityListTile extends StatelessWidget {
+  final ActivityController activityController;
   final RequestController rq;
   final Function() animateRemove;
 
   const ActivityListTile({
     Key? key,
-    required this.controller,
+    required this.activityController,
     required this.rq,
-    required Animation<double> animation,
     required this.animateRemove,
-  }) : super(key: key, listenable: animation);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizeTransition(
-      sizeFactor: (listenable as Animation<double>),
-      child: FadeTransition(
-        opacity: (listenable as Animation<double>),
-        child: MyListTile(
-          increaseWidthFactor: false,
-          iconData: rq.request.type == RequestType.groupInvite
-              ? FluentIcons.people_community_16_regular
-              : FluentIcons.person_16_regular,
-          title: rq.title,
-          subtitle: rq.subtitle,
-          photoUrl: rq.photoUrl,
-          extraWidgets: [
-            _buildCircleButton(
-              FluentIcons.checkmark_16_regular,
-              Palette.orange,
-              () {
-                controller.respondToRequest(rq, true);
-                animateRemove();
-              },
-            ),
-            SizedBox(width: 12),
-            _buildCircleButton(
-              FluentIcons.dismiss_16_regular,
-              Palette.black3,
-              () {
-                controller.respondToRequest(rq, false);
-                animateRemove();
-              },
-            ),
-          ],
+    return MyListTile(
+      increaseWidthFactor: false,
+      iconData: rq.request.type == RequestType.groupInvite
+          ? FluentIcons.people_community_16_regular
+          : FluentIcons.person_16_regular,
+      title: rq.title,
+      subtitle: rq.subtitle,
+      photoUrl: rq.photoUrl,
+      extraWidgets: [
+        _buildCircleButton(
+          FluentIcons.checkmark_16_regular,
+          Palette.orange,
+          () {
+            activityController.respondToRequest(rq, true);
+            animateRemove();
+          },
         ),
-      ),
+        SizedBox(width: 12),
+        _buildCircleButton(
+          FluentIcons.dismiss_16_regular,
+          Palette.black3,
+          () {
+            activityController.respondToRequest(rq, false);
+            animateRemove();
+          },
+        ),
+      ],
     );
   }
 
@@ -89,7 +83,7 @@ class ActivityView extends StatefulWidget {
 }
 
 class _ActivityViewState extends State<ActivityView> {
-  final _listKey = GlobalKey<AnimatedListState>();
+  final _listAnimationController = ListAnimationController();
 
   @override
   Widget build(BuildContext context) {
@@ -106,26 +100,15 @@ class _ActivityViewState extends State<ActivityView> {
             ? Center(child: Loading())
             : controller.requestControllers.isEmpty
                 ? _buildPlaceholder()
-                : AnimatedList(
-                    key: _listKey,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-                    initialItemCount: controller.requestControllers.length,
-                    itemBuilder: (context, i, animation) {
-                      final rq = controller.requestControllers[i];
+                : MyAnimatedList(
+                    controller: _listAnimationController,
+                    initialList: controller.requestControllers,
+                    listTileBuilder: (i, rq) {
                       return ActivityListTile(
-                        controller: controller,
+                        activityController: controller,
                         rq: rq,
-                        animation: animation,
-                        animateRemove: () => _listKey.currentState!.removeItem(
-                          i,
-                          (context, animation) => ActivityListTile(
-                            controller: controller,
-                            rq: rq,
-                            animation: animation,
-                            animateRemove: () {},
-                          ),
-                        ),
+                        animateRemove: () =>
+                            _listAnimationController.animateRemove(i, rq),
                       );
                     },
                   ),

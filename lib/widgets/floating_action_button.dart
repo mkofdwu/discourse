@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 
 class MyFloatingActionButton extends StatelessWidget {
   final IconData iconData;
+  final bool isPrimary;
   final Function() onPressed;
 
   const MyFloatingActionButton({
     Key? key,
     required this.iconData,
+    this.isPrimary = true,
     required this.onPressed,
   }) : super(key: key);
 
@@ -20,7 +22,7 @@ class MyFloatingActionButton extends StatelessWidget {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: Palette.orange,
+          color: isPrimary ? Palette.orange : Palette.black3,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
@@ -31,7 +33,11 @@ class MyFloatingActionButton extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Icon(iconData, color: Colors.black, size: 24),
+          child: Icon(
+            iconData,
+            color: isPrimary ? Colors.black : Colors.white,
+            size: 24,
+          ),
         ),
       ),
     );

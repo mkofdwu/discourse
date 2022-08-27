@@ -62,8 +62,8 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
   }
 
   @override
-  Future<void> postStory(UnsentStory story) async {
-    await _usersRef.doc(_auth.id).collection('story').add({
+  Future<StoryPage> postStory(UnsentStory story) async {
+    final doc = await _usersRef.doc(_auth.id).collection('story').add({
       'type': story.type.index,
       'content': story.content,
       'sentTimestamp': DateTime.now(),
@@ -71,6 +71,7 @@ class StoryDbService extends GetxService implements BaseStoryDbService {
       'sentToIds': story.sendToIds,
       'viewedAt': {},
     });
+    return StoryPage.fromDoc(await doc.get());
   }
 
   @override

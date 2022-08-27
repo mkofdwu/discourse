@@ -5,6 +5,7 @@ import 'package:discourse/services/story_db.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
 import 'package:discourse/views/my_story/new_text_story/text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
+import 'package:discourse/widgets/animated_list.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:discourse/services/relationships.dart';
@@ -18,11 +19,20 @@ class MyStoryController extends GetxController {
   final _storage = Get.find<StorageService>();
   final _relationships = Get.find<RelationshipsService>();
 
-  Future<List<StoryPage>> getMyStory() => _storyDb.myStory();
+  final listAnimationController = ListAnimationController();
+  bool isLoading = false;
+  List<StoryPage> myStory = [];
+
+  @override
+  void onReady() async {
+    isLoading = true;
+    update();
+    myStory = await _storyDb.myStory();
+    isLoading = false;
+    update();
+  }
 
   void viewMyStory() async {
-    // TODO: store mystory in memory/in a getxservice?
-    final myStory = await getMyStory();
     if (myStory.isEmpty) {
       Get.snackbar(
         'Nothing to show',
@@ -74,7 +84,8 @@ class MyStoryController extends GetxController {
     update();
   }
 
-  void deleteStory(StoryPage story) async {
+  void deleteStory(int i) async {
+    final story = myStory.removeAt(i);
     final confirm = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Delete story?',
       subtitle:
@@ -82,12 +93,20 @@ class MyStoryController extends GetxController {
     ));
     if (confirm ?? false) {
       await _storyDb.deleteStory(story.id);
+      listAnimationController.animateRemove(i, story);
       update();
     }
   }
 
   void newTextPost() async {
-    await Get.to(TextStoryView());
+    final result = await Get.to(TextStoryView());
+    if (result != null) {
+      myStory.add(result as StoryPage);
+      if (myStory.length > 1) {
+        // if story was empty at first, list hasn't been created yet
+        listAnimationController.animateInsert(myStory.length - 1);
+      }
+    }
     update();
   }
 
@@ -97,12 +116,14 @@ class MyStoryController extends GetxController {
       final editedPhoto = await Get.to<Photo>(PhotoEditView(photo: photo));
       if (editedPhoto == null) return;
       await _storage.uploadPhoto(editedPhoto, 'storyphoto');
-      await _storyDb.postStory(UnsentStory(
+      final story = await _storyDb.postStory(UnsentStory(
         type: StoryType.photo,
         content: editedPhoto.url!,
         sendToIds: await _relationships
             .getFriends(), // future: select friend list before posting photo
       ));
+      myStory.add(story);
+      listAnimationController.animateInsert(myStory.length - 1);
       update();
     }
   }
