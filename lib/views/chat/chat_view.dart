@@ -181,11 +181,10 @@ class ChatView extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 300),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
           decoration: BoxDecoration(
             color: Palette.black3,
-            borderRadius: BorderRadius.circular(10),
-            // border: Border.all(color: Colors.white.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: RichText(
             textAlign: TextAlign.center,
@@ -197,15 +196,15 @@ class ChatView extends StatelessWidget {
               children: [
                 WidgetSpan(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsets.only(right: 8),
                     child: Icon(
                       _chatActionIcon(alert.action),
                       color: Colors.white.withOpacity(0.6),
-                      size: 16,
+                      size: 14,
                     ),
                   ),
                 ),
-                TextSpan(text: alert.content),
+                TextSpan(text: alert.content, style: TextStyle(fontSize: 12)),
               ],
             ),
           ),

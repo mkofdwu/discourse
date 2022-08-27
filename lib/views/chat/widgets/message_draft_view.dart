@@ -38,6 +38,7 @@ class _MessageDraftViewState extends State<MessageDraftView> {
         _replyPreview = Column(
           key: UniqueKey(),
           children: [
+            SizedBox(height: 4),
             Dismissible(
               key: ValueKey(replyTo.id),
               // resizing will be done when switched out to sizedbox
@@ -71,6 +72,7 @@ class _MessageDraftViewState extends State<MessageDraftView> {
         _photoPreview = Column(
           key: UniqueKey(),
           children: [
+            SizedBox(height: 4),
             Dismissible(
               key: UniqueKey(),
               resizeDuration: Duration(hours: 1),
@@ -123,57 +125,32 @@ class _MessageDraftViewState extends State<MessageDraftView> {
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: controller.showAttachOptions
-                    ? Palette.black3
-                    : Palette.black2,
+                color: Palette.black2,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
-                children: controller.showAttachOptions && !controller.hasPhoto
-                    ? [
-                        SizedBox(width: 4),
-                        OpacityFeedback(
-                          child: Icon(FluentIcons.image_20_regular, size: 20),
-                          onPressed: () => controller.selectPhoto(false),
-                        ),
-                        SizedBox(width: 14),
-                        OpacityFeedback(
-                          child: Icon(FluentIcons.camera_20_regular, size: 20),
-                          onPressed: () => controller.selectPhoto(true),
-                        ),
-                        SizedBox(width: 12),
-                        Container(
-                          width: 1,
-                          height: 28,
-                          color: Get.theme.primaryColor.withOpacity(0.1),
-                        ),
-                        SizedBox(width: 14),
-                        OpacityFeedback(
+              child: controller.showAttachOptions
+                  ? OpacityFeedback(
+                      onPressed: controller.toggleShowAttachOptions,
+                      child: Icon(
+                        FluentIcons.dismiss_20_regular,
+                        size: 20,
+                      ),
+                    )
+                  : controller.hasText || controller.hasPhoto
+                      ? OpacityFeedback(
+                          onPressed: controller.sendMessage,
+                          child: Icon(
+                            FluentIcons.send_20_regular,
+                            size: 20,
+                          ),
+                        )
+                      : OpacityFeedback(
                           onPressed: controller.toggleShowAttachOptions,
                           child: Icon(
-                            FluentIcons.dismiss_20_regular,
+                            FluentIcons.attach_20_regular,
                             size: 20,
                           ),
                         ),
-                      ]
-                    : [
-                        controller.hasText || controller.hasPhoto
-                            ? OpacityFeedback(
-                                onPressed: controller.sendMessage,
-                                child: Icon(
-                                  FluentIcons.send_20_regular,
-                                  size: 20,
-                                ),
-                              )
-                            : OpacityFeedback(
-                                onPressed: controller.toggleShowAttachOptions,
-                                child: Icon(
-                                  FluentIcons.attach_20_regular,
-                                  size: 20,
-                                ),
-                              ),
-                      ],
-              ),
             ),
           ],
         );
@@ -186,10 +163,7 @@ class _MessageDraftViewState extends State<MessageDraftView> {
           color: Palette.black2,
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 22,
-          vertical: 16,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         clipBehavior: Clip.hardEdge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,23 +188,41 @@ class _MessageDraftViewState extends State<MessageDraftView> {
                 },
               ),
             ),
-            GetBuilder<IsTypingController>(
-              global: false,
-              init: IsTypingController(),
-              builder: (isTypingController) => TextField(
-                controller: controller.textController,
-                onChanged: (_) => isTypingController.onTyping(),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                  border: InputBorder.none,
-                  hintText: 'Send a message...',
-                  hintStyle: TextStyle(
-                    color: Get.theme.primaryColor.withOpacity(0.4),
+            AnimatedSwitcher(
+              duration: Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: child is Row ? Offset(0, 1) : Offset(0, -1),
+                      end: child is Row ? Offset(0, 0) : Offset(0, 0),
+                    ).animate(animation),
+                    child: child,
                   ),
-                ),
-              ),
+                );
+              },
+              child: controller.showAttachOptions
+                  ? _buildAttachOptions()
+                  : GetBuilder<IsTypingController>(
+                      global: false,
+                      init: IsTypingController(),
+                      builder: (isTypingController) => TextField(
+                        controller: controller.textController,
+                        onChanged: (_) => isTypingController.onTyping(),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 4),
+                          border: InputBorder.none,
+                          hintText: 'Send a message...',
+                          hintStyle: TextStyle(
+                            color: Get.theme.primaryColor.withOpacity(0.4),
+                          ),
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -239,8 +231,8 @@ class _MessageDraftViewState extends State<MessageDraftView> {
   Widget _buildDivider() => Container(
         width: double.infinity,
         height: 1,
-        color: Get.theme.primaryColor.withOpacity(0.04),
-        margin: const EdgeInsets.symmetric(vertical: 16),
+        color: Get.theme.primaryColor.withOpacity(0.06),
+        margin: const EdgeInsets.only(top: 14, bottom: 10),
       );
 
   Widget _buildReplyPreview(RepliedMessage replyTo, Function() removeReply) =>
@@ -248,17 +240,17 @@ class _MessageDraftViewState extends State<MessageDraftView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: Color(0xFF363636),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
-              child: Icon(FluentIcons.arrow_reply_16_regular, size: 12),
+              child: Icon(FluentIcons.arrow_reply_16_regular, size: 16),
             ),
           ),
-          SizedBox(width: 18),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,12 +265,12 @@ class _MessageDraftViewState extends State<MessageDraftView> {
               ],
             ),
           ),
-          SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: OpacityFeedback(
-              onPressed: removeReply,
-              child: Icon(FluentIcons.dismiss_12_regular, size: 12),
+          OpacityFeedback(
+            onPressed: removeReply,
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: Icon(FluentIcons.dismiss_16_regular, size: 16),
             ),
           ),
         ],
@@ -287,7 +279,7 @@ class _MessageDraftViewState extends State<MessageDraftView> {
   Widget _buildPhotoPreview(Photo photo, Function() removePhoto) => Row(
         children: [
           CircleAvatar(
-            radius: 14,
+            radius: 16,
             backgroundImage: photo.isLocal
                 ? FileImage(photo.file!)
                 : CachedNetworkImageProvider(photo.url!) as ImageProvider,
@@ -297,8 +289,69 @@ class _MessageDraftViewState extends State<MessageDraftView> {
           Spacer(),
           OpacityFeedback(
             onPressed: removePhoto,
-            child: Icon(FluentIcons.dismiss_12_regular, size: 12),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: Icon(FluentIcons.dismiss_16_regular, size: 16),
+            ),
           ),
         ],
+      );
+
+  Widget _buildAttachOptions() => Row(
+        children: [
+          _buildAttachmentOption(
+            FluentIcons.image_20_regular,
+            'Gallery',
+            () => controller.selectPhoto(false),
+          ),
+          Spacer(),
+          Container(
+            width: 1,
+            height: 25,
+            color: Colors.white.withOpacity(0.1),
+          ),
+          Spacer(),
+          _buildAttachmentOption(
+            FluentIcons.camera_20_regular,
+            'Camera',
+            () => controller.selectPhoto(true),
+          ),
+          Spacer(),
+          Container(
+            width: 1,
+            height: 25,
+            color: Colors.white.withOpacity(0.1),
+          ),
+          Spacer(),
+          _buildAttachmentOption(
+            FluentIcons.link_20_regular,
+            'Link',
+            () {}, // TODO
+          ),
+        ],
+      );
+
+  Widget _buildAttachmentOption(
+          IconData iconData, String name, Function() onPressed) =>
+      OpacityFeedback(
+        onPressed: onPressed,
+        child: Row(
+          children: [
+            Icon(
+              iconData,
+              size: 16,
+            ),
+            SizedBox(width: 8),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 2,
+              ),
+            ),
+          ],
+        ),
       );
 }

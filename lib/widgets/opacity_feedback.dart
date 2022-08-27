@@ -2,15 +2,15 @@ import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:flutter/material.dart';
 
 class OpacityFeedback extends StatelessWidget {
-  final Widget child;
   final double pressedOpacity;
   final Function() onPressed;
+  final Widget child;
 
   const OpacityFeedback({
     Key? key,
-    required this.child,
     this.pressedOpacity = 0.4,
     required this.onPressed,
+    required this.child,
   }) : super(key: key);
 
   @override

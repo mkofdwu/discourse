@@ -18,6 +18,7 @@ class MessageDraftController extends GetxController {
 
   bool get hasText => !textController.text.isBlank!;
   bool get hasPhoto => _messageSender.photo.value != null;
+  bool get hasRepliedMessage => _messageSender.repliedMessage.value != null;
 
   bool showAttachOptions = false;
 
@@ -37,6 +38,7 @@ class MessageDraftController extends GetxController {
         : _media.selectPhoto());
     if (newPhoto != null) {
       _messageSender.photo.value = newPhoto;
+      showAttachOptions = false;
       update();
     }
   }
