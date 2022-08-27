@@ -1,5 +1,4 @@
 import 'package:discourse/models/db_objects/chat_data.dart';
-import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/photo.dart';
@@ -54,30 +53,30 @@ class SetGroupDetailsController extends GetxController {
     final unselectedFriends = _miscCache.myFriends
         .where((user) => !addMembers.any((selected) => selected.id == user.id))
         .toList();
-    Get.to(UserSelectorView(
-      title: 'Add friends',
-      canSelectMultiple: true,
-      onlyUsers: unselectedFriends,
-      onSubmit: (selectedUsers) {
-        addMembers.addAll(selectedUsers);
-        Get.back();
-        update();
-      },
-    ));
+    Get.to(() => UserSelectorView(
+          title: 'Add friends',
+          canSelectMultiple: true,
+          onlyUsers: unselectedFriends,
+          onSubmit: (selectedUsers) {
+            addMembers.addAll(selectedUsers);
+            Get.back();
+            update();
+          },
+        ));
   }
 
   void inviteMore() {
     // copied from friendlistview
-    Get.to(UserSelectorView(
-      title: 'Add members',
-      canSelectMultiple: true,
-      excludeUsers: _miscCache.myFriends + sendInvitesTo,
-      onSubmit: (selectedUsers) {
-        sendInvitesTo.addAll(selectedUsers);
-        Get.back();
-        update();
-      },
-    ));
+    Get.to(() => UserSelectorView(
+          title: 'Add members',
+          canSelectMultiple: true,
+          excludeUsers: _miscCache.myFriends + sendInvitesTo,
+          onSubmit: (selectedUsers) {
+            sendInvitesTo.addAll(selectedUsers);
+            Get.back();
+            update();
+          },
+        ));
   }
 
   void removeAddMember(DiscourseUser friend) {

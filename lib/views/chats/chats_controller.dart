@@ -1,8 +1,6 @@
 import 'package:discourse/models/chat_log_object.dart';
-import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
-import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
@@ -16,7 +14,6 @@ import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
 import 'package:discourse/views/my_story/my_story_view.dart';
 import 'package:discourse/views/set_group_details/set_group_details_view.dart';
-import 'package:discourse/views/story/story_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
@@ -57,24 +54,24 @@ class ChatsController extends GetxController {
   }
 
   void toActivity() async {
-    await Get.to(ActivityView());
+    await Get.to(() => ActivityView());
     fetchData(); // if all requests have been cleared
   }
 
   void newGroup() {
-    Get.to(UserSelectorView(
-      title: 'Select members',
-      prompt:
-          "Find members to add to this group. If you aren't friends with a person an invite will be sent to them",
-      canSelectMultiple: true,
-      onSubmit: (selectedUsers) async {
-        Get.off(SetGroupDetailsView(members: selectedUsers));
-      },
-    ));
+    Get.to(() => UserSelectorView(
+          title: 'Select members',
+          prompt:
+              "Find members to add to this group. If you aren't friends with a person an invite will be sent to them",
+          canSelectMultiple: true,
+          onSubmit: (selectedUsers) async {
+            Get.off(SetGroupDetailsView(members: selectedUsers));
+          },
+        ));
   }
 
   void toMyStory() async {
-    await Get.to(MyStoryView());
+    await Get.to(() => MyStoryView());
     fetchData(); // FIXME: this seems like an inefficient way to solve the problem
   }
 
@@ -104,10 +101,11 @@ class ChatsController extends GetxController {
     if (choice == null) return;
     switch (choice) {
       case 'View profile':
-        Get.to(UserProfileView(user: (chat as UserPrivateChat).otherUser));
+        Get.to(
+            () => UserProfileView(user: (chat as UserPrivateChat).otherUser));
         break;
       case 'View group details':
-        Get.to(GroupDetailsView(chat: chat as UserGroupChat));
+        Get.to(() => GroupDetailsView(chat: chat as UserGroupChat));
         break;
       case 'Pin chat':
       case 'Unpin chat':
@@ -130,5 +128,5 @@ class ChatsController extends GetxController {
     update();
   }
 
-  void toChat(UserChat chat) => Get.to(() => ChatView(chat: chat));
+  void toChat(UserChat chat) => Get.to(() => () => ChatView(chat: chat));
 }

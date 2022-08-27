@@ -416,7 +416,7 @@ packages:
     source: hosted
     version: "1.11.1"
   photo_view:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
       ref: master

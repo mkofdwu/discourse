@@ -41,28 +41,28 @@ class SignInController extends GetxController {
   }
 
   Future<void> _signUp() async {
-    final username = await Get.to(CustomFormView(
-      form: CustomForm(
-        title: 'Account details',
-        fields: [
-          Field(
-            'username',
-            '',
-            textFieldBuilder(label: 'Username', isLast: true),
+    final username = await Get.to(() => CustomFormView(
+          form: CustomForm(
+            title: 'Account details',
+            fields: [
+              Field(
+                'username',
+                '',
+                textFieldBuilder(label: 'Username', isLast: true),
+              ),
+            ],
+            onSubmit: (inputs, setErrors) async {
+              final username = inputs['username'] as String;
+              if (username.isEmpty) {
+                setErrors({'username': 'Please enter a username'});
+              } else if (await _userDb.getUserByUsername(username) != null) {
+                setErrors({'username': 'This username is already taken'});
+              } else {
+                Get.back(result: username);
+              }
+            },
           ),
-        ],
-        onSubmit: (inputs, setErrors) async {
-          final username = inputs['username'] as String;
-          if (username.isEmpty) {
-            setErrors({'username': 'Please enter a username'});
-          } else if (await _userDb.getUserByUsername(username) != null) {
-            setErrors({'username': 'This username is already taken'});
-          } else {
-            Get.back(result: username);
-          }
-        },
-      ),
-    ));
+        ));
     if (username == null) return;
     final errors = await _auth.signUp(
       email: emailController.text,

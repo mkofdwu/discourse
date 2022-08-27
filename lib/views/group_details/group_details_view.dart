@@ -57,6 +57,7 @@ class GroupDetailsView extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     OpacityFeedback(
+                      onPressed: controller.editNameAndDescription,
                       child: chat.groupData.description.isEmpty
                           ? Row(
                               children: const [
@@ -76,7 +77,6 @@ class GroupDetailsView extends StatelessWidget {
                               ],
                             )
                           : Text(chat.groupData.description),
-                      onPressed: controller.editNameAndDescription,
                     ),
                     SizedBox(height: 40),
                     Text(
@@ -111,7 +111,7 @@ class GroupDetailsView extends StatelessWidget {
                                 ),
                             ],
                             onPressed: () {
-                              Get.to(UserProfileView(user: member.user));
+                              Get.to(() => UserProfileView(user: member.user));
                             },
                           ),
                         ),

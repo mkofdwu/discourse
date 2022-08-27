@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 
 class WelcomeController extends GetxController {
   void toSignIn() {
-    Get.to(SignInView());
+    Get.to(() => SignInView());
   }
 
   void toSignUp() {
-    Get.to(SignInView(signUp: true));
+    Get.to(() => SignInView(signUp: true));
   }
 }

@@ -16,10 +16,10 @@ class AppStateHandler extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AppStateHandlerState createState() => _AppStateHandlerState();
+  AppStateHandlerState createState() => AppStateHandlerState();
 }
 
-class _AppStateHandlerState extends State<AppStateHandler>
+class AppStateHandlerState extends State<AppStateHandler>
     with WidgetsBindingObserver {
   @override
   void initState() {

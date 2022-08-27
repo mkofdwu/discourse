@@ -21,11 +21,8 @@ class WhosTypingService extends GetxService {
           await Future.wait<String>(userIds.map<Future<String>>((userId) async {
         return (await _userDb.getUser(userId)).username;
       }));
-      if (usernames.length == 1) return usernames.single + ' is typing...';
-      return usernames.sublist(0, usernames.length - 1).join(', ') +
-          ' and ' +
-          usernames.last +
-          ' are typing...';
+      if (usernames.length == 1) return '${usernames.single} is typing...';
+      return '${usernames.sublist(0, usernames.length - 1).join(', ')} and ${usernames.last} are typing...';
     });
   }
 

@@ -29,7 +29,10 @@ class MessageController extends GetxController {
 
   void viewPhoto() {
     if (_message.photo != null) {
-      Get.to(ExaminePhotoView(photo: _message.photo!, caption: _message.text));
+      Get.to(
+        () => ExaminePhotoView(photo: _message.photo!, caption: _message.text),
+        transition: Transition.fadeIn,
+      );
     }
   }
 

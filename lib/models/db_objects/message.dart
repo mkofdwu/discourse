@@ -7,12 +7,14 @@ import 'package:discourse/services/auth.dart';
 import 'package:get/get.dart';
 
 class Message extends ChatLogObject {
+  @override
   final String id;
   String chatId;
   DiscourseUser sender;
   RepliedMessage? repliedMessage;
   Photo? photo;
   String? text;
+  @override
   DateTime sentTimestamp;
 
   // attributes not stored in db

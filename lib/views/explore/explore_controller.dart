@@ -43,7 +43,7 @@ class ExploreController extends GetxController {
   }
 
   void toUserProfile(DiscourseUser user) {
-    Get.to(UserProfileView(user: user));
+    Get.to(() => UserProfileView(user: user));
   }
 
   // random testing / experimentation

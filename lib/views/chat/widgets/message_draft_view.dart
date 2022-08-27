@@ -149,28 +149,28 @@ class _MessageDraftViewState extends State<MessageDraftView> {
                         ),
                         SizedBox(width: 14),
                         OpacityFeedback(
+                          onPressed: controller.toggleShowAttachOptions,
                           child: Icon(
                             FluentIcons.dismiss_20_regular,
                             size: 20,
                           ),
-                          onPressed: controller.toggleShowAttachOptions,
                         ),
                       ]
                     : [
                         controller.hasText || controller.hasPhoto
                             ? OpacityFeedback(
+                                onPressed: controller.sendMessage,
                                 child: Icon(
                                   FluentIcons.send_20_regular,
                                   size: 20,
                                 ),
-                                onPressed: controller.sendMessage,
                               )
                             : OpacityFeedback(
+                                onPressed: controller.toggleShowAttachOptions,
                                 child: Icon(
                                   FluentIcons.attach_20_regular,
                                   size: 20,
                                 ),
-                                onPressed: controller.toggleShowAttachOptions,
                               ),
                       ],
               ),
@@ -277,8 +277,8 @@ class _MessageDraftViewState extends State<MessageDraftView> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: OpacityFeedback(
-              child: Icon(FluentIcons.dismiss_12_regular, size: 12),
               onPressed: removeReply,
+              child: Icon(FluentIcons.dismiss_12_regular, size: 12),
             ),
           ),
         ],
@@ -296,8 +296,8 @@ class _MessageDraftViewState extends State<MessageDraftView> {
           Text('Attached a photo'),
           Spacer(),
           OpacityFeedback(
-            child: Icon(FluentIcons.dismiss_12_regular, size: 12),
             onPressed: removePhoto,
+            child: Icon(FluentIcons.dismiss_12_regular, size: 12),
           ),
         ],
       );

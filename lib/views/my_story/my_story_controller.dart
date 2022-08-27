@@ -39,39 +39,39 @@ class MyStoryController extends GetxController {
         'You dont have anything added to your story. Try writing something or adding a photo first',
       );
     } else {
-      Get.to(StoryView(
-        title: 'Your story',
-        story: myStory,
-        // TODO
-        onShowOptions: () async {
-          final choice = await Get.bottomSheet(ChoiceBottomSheet(
-            title: 'Story options',
-            choices: const ['Reply', 'Show viewed by'],
+      Get.to(() => StoryView(
+            title: 'Your story',
+            story: myStory,
+            // TODO
+            onShowOptions: () async {
+              final choice = await Get.bottomSheet(ChoiceBottomSheet(
+                title: 'Story options',
+                choices: const ['Reply', 'Show viewed by'],
+              ));
+              if (choice == null) return;
+            },
           ));
-          if (choice == null) return;
-        },
-      ));
     }
   }
 
   void viewSingleStory(StoryPage story) {
-    Get.to(StoryView(
-      title: 'Your story',
-      story: [story],
-      // TODO
-      onShowOptions: () async {
-        final choice = await Get.bottomSheet(ChoiceBottomSheet(
-          title: 'Story options',
-          choices: const ['Reply', 'Show viewed by'],
+    Get.to(() => StoryView(
+          title: 'Your story',
+          story: [story],
+          // TODO
+          onShowOptions: () async {
+            final choice = await Get.bottomSheet(ChoiceBottomSheet(
+              title: 'Story options',
+              choices: const ['Reply', 'Show viewed by'],
+            ));
+            if (choice == null) return;
+          },
         ));
-        if (choice == null) return;
-      },
-    ));
   }
 
   void editStory(StoryPage story) async {
     if (story.type == StoryType.text) {
-      await Get.to(TextStoryView(defaultStory: story));
+      await Get.to(() => TextStoryView(defaultStory: story));
     } else {
       final editedPhoto = await Get.to<Photo>(PhotoEditView(
         photo: Photo.url(story.content),
@@ -99,7 +99,7 @@ class MyStoryController extends GetxController {
   }
 
   void newTextPost() async {
-    final result = await Get.to(TextStoryView());
+    final result = await Get.to(() => TextStoryView());
     if (result != null) {
       myStory.add(result as StoryPage);
       if (myStory.length > 1) {

@@ -31,7 +31,7 @@ final items = <List<dynamic>>[
     'The app offers a selection of 6 different accent colors. There is currently no light theme.',
     'Choose one',
     () {
-      Get.to(SettingsView());
+      Get.to(() => SettingsView());
     }
   ],
 ];

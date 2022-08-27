@@ -6,10 +6,10 @@ class TypingIndicator extends StatefulWidget {
   const TypingIndicator({Key? key, required this.text}) : super(key: key);
 
   @override
-  _TypingIndicatorState createState() => _TypingIndicatorState();
+  TypingIndicatorState createState() => TypingIndicatorState();
 }
 
-class _TypingIndicatorState extends State<TypingIndicator>
+class TypingIndicatorState extends State<TypingIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _waveController;
   late Animation _waveAnimation;

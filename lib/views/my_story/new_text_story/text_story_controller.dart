@@ -41,11 +41,11 @@ class TextStoryController extends GetxController {
   }
 
   Future<void> _newFriendList() async {
-    final result = await Get.to(FriendListView(
-      title: 'New friend list',
-      listName: '',
-      friends: const [],
-    ));
+    final result = await Get.to(() => FriendListView(
+          title: 'New friend list',
+          listName: '',
+          friends: const [],
+        ));
     if (result != null) {
       final newList = await _storyDb.newFriendList(
         result['name'],

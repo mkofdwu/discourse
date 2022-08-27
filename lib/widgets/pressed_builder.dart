@@ -11,10 +11,10 @@ class PressedBuilder extends StatefulWidget {
       : super(key: key);
 
   @override
-  _PressedBuilderState createState() => _PressedBuilderState();
+  PressedBuilderState createState() => PressedBuilderState();
 }
 
-class _PressedBuilderState extends State<PressedBuilder> {
+class PressedBuilderState extends State<PressedBuilder> {
   bool _pressed = false;
 
   @override

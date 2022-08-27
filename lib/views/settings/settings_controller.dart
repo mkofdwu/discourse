@@ -10,57 +10,58 @@ import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 class SettingsController extends GetxController {
   final _auth = Get.find<AuthService>();
 
-  void toNotifs() => Get.to(() => NotificationSettingsView());
+  void toNotifs() => Get.to(() => () => NotificationSettingsView());
 
-  void toPrivacy() => Get.to(() => PrivacySettingsView());
+  void toPrivacy() => Get.to(() => () => PrivacySettingsView());
 
   void toChangePassword() {
     Get.to(
-      () => CustomFormView(
-        form: CustomForm(
-          title: 'Change password',
-          fields: [
-            Field(
-              'currentPassword',
-              '',
-              textFieldBuilder(label: 'Current password', obscureText: true),
+      () => () => CustomFormView(
+            form: CustomForm(
+              title: 'Change password',
+              fields: [
+                Field(
+                  'currentPassword',
+                  '',
+                  textFieldBuilder(
+                      label: 'Current password', obscureText: true),
+                ),
+                Field(
+                  'newPassword',
+                  '',
+                  textFieldBuilder(label: 'New password', obscureText: true),
+                ),
+                Field(
+                  'confirmNewPassword',
+                  '',
+                  textFieldBuilder(
+                    label: 'Confirm new password',
+                    obscureText: true,
+                    isLast: true,
+                  ),
+                ),
+              ],
+              onSubmit: (inputs, setErrors) async {
+                final errors = {
+                  if (inputs['currentPassword'].isEmpty)
+                    'currentPassword': 'Please enter your password',
+                  if (inputs['newPassword'].isEmpty)
+                    'newPassword': 'Please enter a new password',
+                  if (inputs['confirmNewPassword'] != inputs['newPassword'])
+                    'confirmNewPassword': 'The passwords entered do not match',
+                };
+                if (errors.isNotEmpty) {
+                  setErrors(errors);
+                  return;
+                }
+                final authErrors = await _auth.changePassword(
+                  inputs['currentPassword'],
+                  inputs['newPassword'],
+                );
+                setErrors(authErrors);
+              },
             ),
-            Field(
-              'newPassword',
-              '',
-              textFieldBuilder(label: 'New password', obscureText: true),
-            ),
-            Field(
-              'confirmNewPassword',
-              '',
-              textFieldBuilder(
-                label: 'Confirm new password',
-                obscureText: true,
-                isLast: true,
-              ),
-            ),
-          ],
-          onSubmit: (inputs, setErrors) async {
-            final errors = {
-              if (inputs['currentPassword'].isEmpty)
-                'currentPassword': 'Please enter your password',
-              if (inputs['newPassword'].isEmpty)
-                'newPassword': 'Please enter a new password',
-              if (inputs['confirmNewPassword'] != inputs['newPassword'])
-                'confirmNewPassword': 'The passwords entered do not match',
-            };
-            if (errors.isNotEmpty) {
-              setErrors(errors);
-              return;
-            }
-            final authErrors = await _auth.changePassword(
-              inputs['currentPassword'],
-              inputs['newPassword'],
-            );
-            setErrors(authErrors);
-          },
-        ),
-      ),
+          ),
     );
   }
 

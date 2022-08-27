@@ -9,10 +9,10 @@ class MyChoiceChip extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MyChoiceChipState createState() => _MyChoiceChipState();
+  MyChoiceChipState createState() => MyChoiceChipState();
 }
 
-class _MyChoiceChipState extends State<MyChoiceChip> {
+class MyChoiceChipState extends State<MyChoiceChip> {
   bool _selected = false;
 
   @override

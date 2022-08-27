@@ -50,32 +50,32 @@ class MyProfileController extends GetxController {
   }
 
   Future<void> editAboutMe() async {
-    await Get.to(CustomFormView(
-      form: CustomForm(
-        title: 'Edit about me',
-        description: 'Enter a few words about yourself in the box below',
-        fields: [
-          Field(
-            'aboutMe',
-            user.aboutMe,
-            textFieldBuilder(label: 'About me', isLast: true),
+    await Get.to(() => CustomFormView(
+          form: CustomForm(
+            title: 'Edit about me',
+            description: 'Enter a few words about yourself in the box below',
+            fields: [
+              Field(
+                'aboutMe',
+                user.aboutMe,
+                textFieldBuilder(label: 'About me', isLast: true),
+              ),
+            ],
+            onSubmit: (inputs, setErrors) async {
+              final String aboutMe = inputs['aboutMe'];
+              if (aboutMe.isEmpty) {
+                // delete about; set to null
+                user.aboutMe = null;
+              } else {
+                user.aboutMe = aboutMe;
+              }
+              await _userDb.setUserData(user);
+              setErrors({});
+              Get.back();
+              update();
+            },
           ),
-        ],
-        onSubmit: (inputs, setErrors) async {
-          final String aboutMe = inputs['aboutMe'];
-          if (aboutMe.isEmpty) {
-            // delete about; set to null
-            user.aboutMe = null;
-          } else {
-            user.aboutMe = aboutMe;
-          }
-          await _userDb.setUserData(user);
-          setErrors({});
-          Get.back();
-          update();
-        },
-      ),
-    ));
+        ));
   }
 
   void verifyEmail() async {
@@ -95,7 +95,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  void toSettings() => Get.to(SettingsView());
+  void toSettings() => Get.to(() => SettingsView());
 
-  void toFriendsList() => Get.to(FriendsView());
+  void toFriendsList() => Get.to(() => FriendsView());
 }

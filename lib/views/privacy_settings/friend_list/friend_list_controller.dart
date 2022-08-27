@@ -23,16 +23,16 @@ class FriendListController extends GetxController {
     final unselectedFriends = _miscCache.myFriends
         .where((user) => !friends.any((selected) => selected.id == user.id))
         .toList();
-    Get.to(UserSelectorView(
-      title: 'Add friends',
-      canSelectMultiple: true,
-      onlyUsers: unselectedFriends,
-      onSubmit: (selectedUsers) {
-        friends.addAll(selectedUsers);
-        Get.back();
-        update();
-      },
-    ));
+    Get.to(() => UserSelectorView(
+          title: 'Add friends',
+          canSelectMultiple: true,
+          onlyUsers: unselectedFriends,
+          onSubmit: (selectedUsers) {
+            friends.addAll(selectedUsers);
+            Get.back();
+            update();
+          },
+        ));
   }
 
   void removeFriend(DiscourseUser user) {

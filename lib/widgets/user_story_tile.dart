@@ -54,11 +54,11 @@ class UserStoryTile extends StatelessWidget {
   }
 
   void _viewStory() {
-    Get.to(StoryView(
-      title: "${user.username}'s story",
-      story: story,
-      // TODO
-      onShowOptions: () async {},
-    ));
+    Get.to(() => StoryView(
+          title: "${user.username}'s story",
+          story: story,
+          // TODO
+          onShowOptions: () async {},
+        ));
   }
 }

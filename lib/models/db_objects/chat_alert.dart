@@ -15,10 +15,12 @@ enum ChatAction {
 }
 
 class ChatAlert extends ChatLogObject {
+  @override
   final String id;
   String chatId;
   ChatAction action; // used to chose icon
   String content;
+  @override
   DateTime sentTimestamp;
 
   ChatAlert({

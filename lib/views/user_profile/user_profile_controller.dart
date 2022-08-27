@@ -79,10 +79,13 @@ class UserProfileController extends GetxController {
         Get.back();
       }
     }
-    Get.to(ChatView(chat: _chat!));
+    Get.to(() => ChatView(chat: _chat!));
   }
 
   void toExaminePhoto(String photoUrl) {
-    Get.to(ExaminePhotoView(photo: Photo.url(photoUrl)));
+    Get.to(
+      () => ExaminePhotoView(photo: Photo.url(photoUrl)),
+      transition: Transition.fadeIn,
+    );
   }
 }

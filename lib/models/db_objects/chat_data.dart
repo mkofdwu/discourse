@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
-import 'package:discourse/models/db_objects/user.dart';
 
 enum ChatType { private, group }
 

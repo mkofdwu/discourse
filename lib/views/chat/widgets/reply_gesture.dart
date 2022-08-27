@@ -14,10 +14,10 @@ class ReplyGesture extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ReplyGestureState createState() => _ReplyGestureState();
+  ReplyGestureState createState() => ReplyGestureState();
 }
 
-class _ReplyGestureState extends State<ReplyGesture> {
+class ReplyGestureState extends State<ReplyGesture> {
   static const double _climax = 60;
   late double _horizontalDragStart;
   double _horizontalDragDist = 0;

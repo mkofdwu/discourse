@@ -60,10 +60,8 @@ class MessageView extends StatelessWidget {
                     children: [
                       if (message.photo != null)
                         _buildPhotoView(controller, message.photo!),
-                      Container(
+                      SizedBox(
                         width: message.photo != null ? 200 : null,
-                        // padding: const EdgeInsets.symmetric(
-                        //     horizontal: 16, vertical: 14),
                         child: IntrinsicWidth(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -155,7 +153,7 @@ class MessageView extends StatelessWidget {
           children: [
             RichText(
               text: TextSpan(
-                text: message.text! + '  ',
+                text: '${message.text!}  ',
                 style: TextStyle(
                   fontFamily: 'Avenir',
                   fontWeight: FontWeight.w500,

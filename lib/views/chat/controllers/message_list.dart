@@ -10,7 +10,7 @@ import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-const CHUNK_SIZE = 20; // load 50 messages at a time
+const chunkSize = 20; // load 50 messages at a time
 
 class MessageListController extends GetxController {
   final _chatLogDb = Get.find<ChatLogDbService>();
@@ -73,7 +73,7 @@ class MessageListController extends GetxController {
           (fetchOlder
               ? chatLog.first.sentTimestamp
               : chatLog.last.sentTimestamp),
-      CHUNK_SIZE,
+      chunkSize,
       fetchOlder,
     );
     if (fetchOlder) {
@@ -82,9 +82,9 @@ class MessageListController extends GetxController {
       chatLog.addAll(moreMessages);
     }
     if (fetchOlder) {
-      _reachedTop = moreMessages.length < CHUNK_SIZE;
+      _reachedTop = moreMessages.length < chunkSize;
     } else {
-      _reachedBottom = moreMessages.length < CHUNK_SIZE;
+      _reachedBottom = moreMessages.length < chunkSize;
     }
     update();
   }
@@ -198,7 +198,7 @@ class MessageListController extends GetxController {
   }
 
   void toSelectDate() async {
-    final date = await Get.to(DateSelectorView(title: 'Go to date'));
+    final date = await Get.to(() => DateSelectorView(title: 'Go to date'));
     if (date != null) {
       jumpToTimestamp(date);
     }

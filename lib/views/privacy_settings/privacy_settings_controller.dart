@@ -36,28 +36,28 @@ class PrivacySettingsController extends GetxController {
     // a bit confusing
     if (friendList == null) {
       // selecting all friends
-      Get.to(FriendsView());
+      Get.to(() => FriendsView());
       return;
     }
-    final result = await Get.to(FriendListView(
-      title: 'Edit friend list',
-      listName: friendList.name,
-      friends: friendList.friends, // will be copied in view constructor
-      actions: {
-        FluentIcons.delete_20_regular: () async {
-          final confirm = await Get.bottomSheet(YesNoBottomSheet(
-            title: 'Delete list?',
-            subtitle: 'Are you sure you want to delete this friend list?',
-          ));
-          if (confirm ?? false) {
-            await _storyDb.deleteFriendList(friendList.id);
-            _miscCache.myFriendLists.remove(friendList);
-            Get.back(); // return to this page
-            update();
-          }
-        },
-      },
-    ));
+    final result = await Get.to(() => FriendListView(
+          title: 'Edit friend list',
+          listName: friendList.name,
+          friends: friendList.friends, // will be copied in view constructor
+          actions: {
+            FluentIcons.delete_20_regular: () async {
+              final confirm = await Get.bottomSheet(YesNoBottomSheet(
+                title: 'Delete list?',
+                subtitle: 'Are you sure you want to delete this friend list?',
+              ));
+              if (confirm ?? false) {
+                await _storyDb.deleteFriendList(friendList.id);
+                _miscCache.myFriendLists.remove(friendList);
+                Get.back(); // return to this page
+                update();
+              }
+            },
+          },
+        ));
     if (result != null) {
       friendList.name = result['name'];
       friendList.friends = result['friends'];
@@ -67,30 +67,30 @@ class PrivacySettingsController extends GetxController {
   }
 
   void toNewFriendList() async {
-    Get.to(UserSelectorView(
-      title: 'Select friends',
-      canSelectMultiple: true,
-      onlyUsers: _miscCache.myFriends,
-      onSubmit: (selectedUsers) async {
-        final result = await Get.to(FriendListView(
-          title: 'New friend list',
-          listName: '',
-          friends: selectedUsers,
+    Get.to(() => UserSelectorView(
+          title: 'Select friends',
+          canSelectMultiple: true,
+          onlyUsers: _miscCache.myFriends,
+          onSubmit: (selectedUsers) async {
+            final result = await Get.to(() => FriendListView(
+                  title: 'New friend list',
+                  listName: '',
+                  friends: selectedUsers,
+                ));
+            if (result != null) {
+              final newList = await _storyDb.newFriendList(
+                result['name'],
+                result['friends'],
+              );
+              _miscCache.myFriendLists.add(newList);
+              Get.back(); // return to this page
+              update();
+            }
+          },
         ));
-        if (result != null) {
-          final newList = await _storyDb.newFriendList(
-            result['name'],
-            result['friends'],
-          );
-          _miscCache.myFriendLists.add(newList);
-          Get.back(); // return to this page
-          update();
-        }
-      },
-    ));
   }
 
   void toBlockedUsers() {
-    Get.to(BlockedUsersView());
+    Get.to(() => BlockedUsersView());
   }
 }

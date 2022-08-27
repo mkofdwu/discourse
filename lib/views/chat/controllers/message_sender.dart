@@ -1,7 +1,6 @@
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
-import 'package:discourse/services/chat/chat_log_str.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
@@ -14,7 +13,6 @@ import 'package:discourse/services/storage.dart';
 
 class MessageSenderController extends GetxController {
   final _chatLogDb = Get.find<ChatLogDbService>();
-  final _chatLogStr = Get.find<ChatLogStrService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _storage = Get.find<StorageService>();
@@ -53,8 +51,7 @@ class MessageSenderController extends GetxController {
   Future<void> _actuallySendMessage(
       UnsentMessage unsentMessage, UserChat chat) async {
     await _uploadMessagePhoto(unsentMessage, chat);
-    final message = await _chatLogDb.sendMessage(unsentMessage);
-    // await _chatLogStr.appendToLog(message);
+    await _chatLogDb.sendMessage(unsentMessage);
     unsentMessages.remove(unsentMessage);
   }
 

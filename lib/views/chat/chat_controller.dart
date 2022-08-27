@@ -15,7 +15,6 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/whos_typing.dart';
 import 'package:discourse/views/group_details/group_details_view.dart';
-import 'package:discourse/views/date_selector/date_selector_view.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/views/viewed_by/viewed_by_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
@@ -74,11 +73,11 @@ class ChatController extends GetxController {
     if (chat is NonExistentChat) return;
     onStopReading();
     if (chat is UserPrivateChat) {
-      await Get.to(UserProfileView(
-        user: (chat as UserPrivateChat).otherUser,
-      ));
+      await Get.to(() => UserProfileView(
+            user: (chat as UserPrivateChat).otherUser,
+          ));
     } else {
-      await Get.to(GroupDetailsView(chat: chat as UserGroupChat));
+      await Get.to(() => GroupDetailsView(chat: chat as UserGroupChat));
     }
     onStartReading();
   }
@@ -140,7 +139,7 @@ class ChatController extends GetxController {
       chat as UserGroupChat,
       message.sentTimestamp,
     );
-    await Get.to(ViewedByView(viewedBy: viewedBy));
+    await Get.to(() => ViewedByView(viewedBy: viewedBy));
     onStartReading();
   }
 

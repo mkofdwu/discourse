@@ -60,10 +60,7 @@ class UserPrivateChat extends UserChat {
           .userLastSeenStream(otherUser.id)
           .asyncMap((lastSeen) {
         if (lastSeen == null) return 'online';
-        return 'last seen ' +
-            (isSameDay(lastSeen, DateTime.now())
-                ? formatTime(lastSeen)
-                : formatDate(lastSeen));
+        return 'last seen ${isSameDay(lastSeen, DateTime.now()) ? formatTime(lastSeen) : formatDate(lastSeen)}';
       });
 }
 
@@ -115,9 +112,6 @@ class NonExistentChat extends UserChat {
           .userLastSeenStream(otherUser.id)
           .asyncMap((lastSeen) {
         if (lastSeen == null) return 'online';
-        return 'last seen ' +
-            (isSameDay(lastSeen, DateTime.now())
-                ? formatTime(lastSeen)
-                : formatDate(lastSeen));
+        return 'last seen ${isSameDay(lastSeen, DateTime.now()) ? formatTime(lastSeen) : formatDate(lastSeen)}';
       });
 }

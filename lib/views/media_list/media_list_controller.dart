@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 
 class MediaListController extends GetxController {
   void toExaminePhoto(String photoUrl) {
-    Get.to(ExaminePhotoView(photo: Photo.url(photoUrl)));
+    Get.to(
+      () => ExaminePhotoView(photo: Photo.url(photoUrl)),
+      transition: Transition.fadeIn,
+    );
   }
 }
