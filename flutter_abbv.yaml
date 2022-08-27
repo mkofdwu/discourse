@@ -16,18 +16,8 @@ widgets:
       suf.: 'FluentIcons.$'
     onPressed:
       on: $variable
-  MyTextField:
-    code: tf
-    controller:
-      c: $variable
-    label: $variable
-    obscureText:
-      o: 'true'
-    error:
-      e: $variable
-    numLines:
-      h: '$'
-    onChanged:
-      change: $variable
-    onSubmit:
-      submit: $variable
+  MyIconButton:
+    code: ib
+    __icon: # positional argument
+      i.: 'FluentIcons.$'
+    onPressed: $variable

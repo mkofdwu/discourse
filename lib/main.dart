@@ -45,6 +45,7 @@ class DiscourseApp extends StatelessWidget {
         themeMode: ThemeMode.dark,
         theme: kLightTheme,
         darkTheme: kDarkTheme,
+        defaultTransition: Transition.rightToLeft,
         home: StartupView(),
         defaultTransition: Transition.rightToLeft,
         onReady: () {

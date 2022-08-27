@@ -1,4 +1,5 @@
 import 'package:discourse/widgets/app_bar.dart';
+import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +27,12 @@ class FriendsView extends StatelessWidget {
                         subtitle: user.aboutMe,
                         photoUrl: user.photoUrl,
                         iconData: FluentIcons.person_16_regular,
-                        suffixIcons: {
-                          FluentIcons.more_vertical_20_regular: () =>
-                              controller.showFriendOptions(user)
-                        },
+                        extraWidgets: [
+                          MyIconButton(
+                            FluentIcons.more_vertical_20_filled,
+                            onPressed: () => controller.showFriendOptions(user),
+                          ),
+                        ],
                       ),
                     ))
                 .toList(),

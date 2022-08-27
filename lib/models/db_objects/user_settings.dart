@@ -10,6 +10,14 @@ class UserSettings {
     required this.publicAccount,
   });
 
+  factory UserSettings.defaultSettings() {
+    return UserSettings(
+      enableNotifications: true,
+      showStoryTo: null,
+      publicAccount: true, // for now to let everyone find each other
+    );
+  }
+
   factory UserSettings.fromMap(Map<String, dynamic> map) {
     return UserSettings(
       enableNotifications: map['enableNotifications'],

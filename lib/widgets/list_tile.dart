@@ -1,5 +1,4 @@
 import 'package:discourse/constants/palette.dart';
-import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -13,9 +12,9 @@ class MyListTile extends StatelessWidget {
   final String? photoUrl;
   final IconData iconData; // icon displayed if photoUrl is null
   final List<Widget> extraWidgets;
-  final Map<IconData, Function()> suffixIcons;
   final bool isSelected;
   final Function()? onPressed;
+  final bool increaseWidthFactor;
 
   const MyListTile({
     Key? key,
@@ -25,9 +24,9 @@ class MyListTile extends StatelessWidget {
     this.photoUrl,
     required this.iconData,
     this.extraWidgets = const [],
-    this.suffixIcons = const {},
     this.isSelected = false,
     this.onPressed,
+    this.increaseWidthFactor = true,
   }) : super(key: key);
 
   @override
@@ -40,12 +39,15 @@ class MyListTile extends StatelessWidget {
           );
   }
 
-  Widget _buildPressed(bool pressed) => AnimatedOpacity(
-        duration: Duration(milliseconds: 160),
-        opacity: pressed ? 0.6 : 1,
-        child: Container(
-          color: Colors.transparent,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+  Widget _buildPressed(bool pressed) => FractionallySizedBox(
+        widthFactor: increaseWidthFactor ? 1.16 : 1,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(pressed ? 0.08 : 0),
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Row(
             children: <Widget>[
               Stack(
@@ -55,6 +57,7 @@ class MyListTile extends StatelessWidget {
                     iconSize: 20,
                     photoUrl: photoUrl,
                     placeholderIcon: isSelected ? null : iconData,
+                    backgroundColor: Color(0xFF606060),
                   ),
                   if (isSelected)
                     Container(
@@ -129,12 +132,6 @@ class MyListTile extends StatelessWidget {
                 ),
               ),
               ...extraWidgets,
-              ...suffixIcons
-                  .map((iconData, onTapIcon) => MapEntry(
-                        iconData,
-                        MyIconButton(iconData, onPressed: onTapIcon),
-                      ))
-                  .values
             ],
           ),
         ),

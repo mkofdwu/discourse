@@ -102,11 +102,14 @@ class GroupDetailsView extends StatelessWidget {
                             subtitle: member.user.aboutMe,
                             tag: _memberRoleToString(member.role),
                             iconData: FluentIcons.person_16_regular,
-                            suffixIcons: {
+                            extraWidgets: [
                               if (controller.hasAdminPrivileges)
-                                FluentIcons.more_vertical_20_regular: () =>
-                                    controller.showMemberOptions(member),
-                            },
+                                MyIconButton(
+                                  FluentIcons.more_vertical_20_filled,
+                                  onPressed: () =>
+                                      controller.showMemberOptions(member),
+                                ),
+                            ],
                             onPressed: () {
                               Get.to(UserProfileView(user: member.user));
                             },
