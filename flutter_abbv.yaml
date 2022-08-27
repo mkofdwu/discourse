@@ -1,0 +1,33 @@
+color_palette: Palette
+icon_set: FluentIcons
+widgets:
+  MyButton:
+    code: button
+    text: $variable
+    isPrimary:
+      primary: 'true'
+    fillWidth:
+      fillw: 'true'
+    isLoading:
+      loading: 'true'
+    prefixIcon:
+      pre.: 'FluentIcons.$'
+    suffixIcon:
+      suf.: 'FluentIcons.$'
+    onPressed:
+      on: $variable
+  MyTextField:
+    code: tf
+    controller:
+      c: $variable
+    label: $variable
+    obscureText:
+      o: 'true'
+    error:
+      e: $variable
+    numLines:
+      h: '$'
+    onChanged:
+      change: $variable
+    onSubmit:
+      submit: $variable

@@ -46,6 +46,7 @@ class DiscourseApp extends StatelessWidget {
         theme: kLightTheme,
         darkTheme: kDarkTheme,
         home: StartupView(),
+        defaultTransition: Transition.rightToLeft,
         onReady: () {
           // hacky fix to call after all services have been initialized
           Future.delayed(Duration(seconds: 1), _setOnline);
