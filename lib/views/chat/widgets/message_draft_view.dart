@@ -195,9 +195,9 @@ class _MessageDraftViewState extends State<MessageDraftView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedSize(
-              duration: Duration(milliseconds: 300),
+              duration: Duration(milliseconds: 200),
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 200),
                 child: _replyPreview,
                 transitionBuilder: (child, animation) {
                   return FadeTransition(opacity: animation, child: child);
@@ -205,9 +205,9 @@ class _MessageDraftViewState extends State<MessageDraftView> {
               ),
             ),
             AnimatedSize(
-              duration: Duration(milliseconds: 300),
+              duration: Duration(milliseconds: 200),
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 200),
                 child: _photoPreview,
                 transitionBuilder: (child, animation) {
                   return FadeTransition(opacity: animation, child: child);
