@@ -14,9 +14,9 @@ import 'package:discourse/widgets/app_state_handler.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
-import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import 'chat_controller.dart';
@@ -24,68 +24,105 @@ import 'controllers/message_list.dart';
 import 'controllers/message_selection.dart';
 import 'controllers/message_sender.dart';
 
-class ChatView extends StatelessWidget {
+class ChatView extends StatefulWidget {
   final UserChat chat;
 
   const ChatView({Key? key, required this.chat}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  State<ChatView> createState() => _ChatViewState();
+}
+
+class _ChatViewState extends State<ChatView> {
+  MessageListController get messageListController =>
+      Get.find<MessageListController>();
+
+  @override
+  void initState() {
+    super.initState();
     Get.put<MessageSenderController>(MessageSenderController());
     Get.put<MessageSelectionController>(MessageSelectionController());
     Get.put<MessageListController>(MessageListController());
+  }
+
+  @override
+  void dispose() {
+    Get.delete<MessageSenderController>();
+    Get.delete<MessageSelectionController>();
+    Get.delete<MessageListController>();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GetBuilder<ChatController>(
-      // global: false, <- should not be here
-      init: ChatController(chat),
-      builder: (controller) => Obx(
-        () => AppStateHandler(
-          onStart: controller.onStartReading,
-          onExit: controller.onStopReading,
-          child: Scaffold(
-            appBar: controller.messageSelection.isSelecting
+      init: ChatController(widget.chat),
+      builder: (controller) => AppStateHandler(
+        onStart: controller.onStartReading,
+        onExit: controller.onStopReading,
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(76),
+            child: Obx(() => controller.messageSelection.isSelecting
                 ? _buildMessageSelectionAppBar(controller)
                 : controller.showSearchBar
                     ? _buildSearchAppBar(controller)
-                    : _buildAppBar(controller),
-            body: Column(
-              children: [
-                Expanded(
-                  child: GetBuilder<MessageListController>(
-                    builder: (messageListController) => Stack(
-                      children: [
-                        _buildMessagesList(controller, messageListController),
-                        if (!controller.messageSelection.isSelecting)
-                          _buildMessagesListBottom(
-                              controller, messageListController),
-                      ],
+                    : _buildAppBar(controller)),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    GetBuilder<MessageListController>(
+                      builder: (messageListController) =>
+                          _buildMessagesList(controller, messageListController),
                     ),
-                  ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity:
+                            controller.messageSelection.isSelecting ? 0 : 1,
+                        child: _buildMessagesListBottom(controller),
+                      ),
+                    ),
+                  ],
                 ),
-                if (!controller.messageSelection.isSelecting)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                    child: MessageDraftView(),
-                  ),
-              ],
-            ),
+              ),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: controller.messageSelection.isSelecting ? 0 : 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+                  child: MessageDraftView(),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMessagesList(ChatController controller,
-          MessageListController messageListController) =>
-      ReverseThomasScroll(
-        list: messageListController.chatLog,
-        scrollController: messageListController.scrollController,
+  Widget _buildMessagesList(
+    ChatController controller,
+    MessageListController messageListController,
+  ) =>
+      FlutterListView.builder(
+        reverse: true,
+        controller: messageListController.listController,
+        itemCount: messageListController.chatLog.length,
         itemBuilder: (context, i) {
+          print('Building item $i');
           final chatObject = messageListController.chatLog[i];
-          final prevObject =
-              i - 1 < 0 ? null : messageListController.chatLog[i - 1];
-          final nextObject = i + 1 >= messageListController.chatLog.length
+          final prevObject = i + 1 >= messageListController.chatLog.length
               ? null
               : messageListController.chatLog[i + 1];
+          final nextObject =
+              i - 1 < 0 ? null : messageListController.chatLog[i - 1];
           final showDate = prevObject == null ||
               !isSameDay(
                 prevObject.sentTimestamp,
@@ -133,6 +170,7 @@ class ChatView extends StatelessWidget {
                       controller, messageListController, chatObject, prevObject)
                   : _buildChatAlert(
                       chatObject.asChatAlert, prevObject, nextObject, showDate),
+              if (i == 0) SizedBox(height: 80),
             ],
           );
         },
@@ -146,11 +184,7 @@ class ChatView extends StatelessWidget {
   ) {
     final messageWidget = message.isDeleted
         ? DeletedMessageView(message: message)
-        : MessageView(
-            key: messageListController.messageKey(message.id),
-            message: message,
-            isHighlighted: message.id == controller.highlightedMessageId,
-          );
+        : MessageView(message: message);
     if (prevObject == null) return messageWidget;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,37 +269,34 @@ class ChatView extends StatelessWidget {
     }
   }
 
-  Widget _buildMessagesListBottom(
-    ChatController controller,
-    MessageListController messageListController,
-  ) =>
-      Positioned(
-        left: 0,
-        right: 0,
-        bottom: 0,
+  Widget _buildMessagesListBottom(ChatController controller) => Container(
         height: 80,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                Get.theme.scaffoldBackgroundColor,
-                Get.theme.scaffoldBackgroundColor.withOpacity(0),
-              ],
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SizedBox(width: 16),
-              _buildTypingIndicator(controller),
-              Spacer(),
-              if (messageListController.showGoToBottomArrow)
-                _buildScrollToBottomArrow(controller, messageListController),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Get.theme.scaffoldBackgroundColor,
+              Get.theme.scaffoldBackgroundColor.withOpacity(0),
             ],
           ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            SizedBox(width: 16),
+            _buildTypingIndicator(controller),
+            Spacer(),
+            Obx(
+              () => AnimatedScale(
+                scale: messageListController.showGoToBottomArrow.value ? 1 : 0,
+                duration: Duration(milliseconds: 200),
+                child: _buildScrollToBottomArrow(
+                    controller, messageListController),
+              ),
+            ),
+          ],
         ),
       );
 
@@ -360,7 +391,7 @@ class ChatView extends StatelessWidget {
         child: Row(
           children: [
             PhotoOrIcon(
-              photoUrl: chat.photoUrl,
+              photoUrl: widget.chat.photoUrl,
               placeholderIcon: controller.isPrivateChat
                   ? FluentIcons.person_16_regular
                   : FluentIcons.people_community_16_regular,
@@ -372,12 +403,12 @@ class ChatView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    chat.title,
+                    widget.chat.title,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   SizedBox(height: 4),
                   StreamBuilder<String?>(
-                    stream: chat.subtitle,
+                    stream: widget.chat.subtitle,
                     builder: (context, snapshot) {
                       return Text(
                         snapshot.data ?? '',
@@ -414,12 +445,12 @@ class ChatView extends StatelessWidget {
 
   PreferredSizeWidget _buildSearchAppBar(ChatController controller) =>
       PreferredSize(
-        preferredSize: Size.fromHeight(100),
+        preferredSize: Size.fromHeight(76),
         child: SafeArea(
           child: Container(
-            height: 100,
+            height: 76,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            margin: const EdgeInsets.all(18),
+            margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: Palette.black3,
               borderRadius: BorderRadius.circular(8),
@@ -465,9 +496,9 @@ class ChatView extends StatelessWidget {
         child: Stack(
           children: [
             Container(
-              width: 48,
-              height: 48,
-              margin: EdgeInsets.only(top: 8, right: 6),
+              width: 40,
+              height: 40,
+              margin: EdgeInsets.only(top: 8, right: 2),
               decoration: BoxDecoration(
                 color: Color(0xFF404040),
                 borderRadius: BorderRadius.circular(24),

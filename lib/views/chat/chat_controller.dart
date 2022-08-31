@@ -31,7 +31,7 @@ class ChatController extends GetxController {
 
   UserChat chat; // current chat
 
-  String? highlightedMessageId;
+  Rx<String?> highlightedMessageId = Rx<String?>(null);
   bool showSearchBar = false;
 
   // bool get isSelectingMessages => _messageSelection.isSelecting;
@@ -144,11 +144,9 @@ class ChatController extends GetxController {
   }
 
   void highlightMessage(String messageId) {
-    highlightedMessageId = messageId;
-    update();
+    highlightedMessageId.value = messageId;
     Future.delayed(Duration(seconds: 1), () {
-      highlightedMessageId = null;
-      update();
+      highlightedMessageId.value = '';
     });
   }
 }

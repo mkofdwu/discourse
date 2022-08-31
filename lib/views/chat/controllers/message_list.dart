@@ -6,8 +6,8 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/date_selector/date_selector_view.dart';
-import 'package:discourse/widgets/thomas_scroll.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 const chunkSize = 20; // load 50 messages at a time
@@ -17,27 +17,20 @@ class MessageListController extends GetxController {
 
   UserChat get _chat => Get.find<ChatController>().chat;
 
-  final scrollController = ScrollController(
-      initialScrollOffset: -80); // specific to customscrollview with center
+  final listController = FlutterListViewController();
 
-  // first element is the oldest, last element is most recent message.
-  final chatLog = TopBottomList<ChatLogObject>([]);
-  final _messageKeys = <String, GlobalKey>{};
-  bool _reachedTop = false;
+  final chatLog = RxList<ChatLogObject>();
+  bool _reachedTop = false; // whether all messages have been loaded until top
   bool _reachedBottom = false;
   StreamSubscription? _lastMessageSubscription;
   int numNewMessages =
       0; // used if user has not scrolled to bottom; this number is displayed on the scroll to bottom FAB
 
-  double get _trueOffset =>
-      scrollController.position.pixels -
-      scrollController.position.minScrollExtent;
-  bool get showGoToBottomArrow =>
-      scrollController.hasClients && _trueOffset > 80;
+  RxBool showGoToBottomArrow = false.obs;
 
   @override
   void onReady() async {
-    scrollController.addListener(onScroll);
+    listController.addListener(onScroll);
     // required to specify timestamp since there are no messages yet
     await _fetchMoreMessages(true,
         timestamp: DateTime.now().add(Duration(hours: 1)));
@@ -48,14 +41,8 @@ class MessageListController extends GetxController {
 
   @override
   void onClose() {
+    listController.removeListener(onScroll);
     _lastMessageSubscription?.cancel();
-    scrollController.removeListener(onScroll);
-  }
-
-  GlobalKey messageKey(String messageId) {
-    // cant use the same global key after rebuild or smth
-    _messageKeys[messageId] = GlobalKey();
-    return _messageKeys[messageId]!;
   }
 
   Future<void> _fetchMoreMessages(bool fetchOlder,
@@ -77,9 +64,9 @@ class MessageListController extends GetxController {
       fetchOlder,
     );
     if (fetchOlder) {
-      chatLog.addAllTop(moreMessages.reversed); // adds them the correct dir
+      chatLog.addAll(moreMessages.reversed);
     } else {
-      chatLog.addAll(moreMessages);
+      chatLog.insertAll(0, moreMessages.reversed);
     }
     if (fetchOlder) {
       _reachedTop = moreMessages.length < chunkSize;
@@ -93,11 +80,11 @@ class MessageListController extends GetxController {
     if (_chat is NonExistentChat) return;
     _lastMessageSubscription =
         _chatLogDb.streamLastChatObject(_chat.id).listen((chatObject) {
-      if (chatLog.isEmpty || chatObject.id != chatLog.last.id) {
+      if (chatLog.isEmpty || chatObject.id != chatLog.first.id) {
         if (_reachedBottom) {
-          chatLog.add(chatObject);
+          chatLog.insert(0, chatObject);
         }
-        if (showGoToBottomArrow) {
+        if (showGoToBottomArrow.value) {
           numNewMessages += 1;
         }
         update();
@@ -105,12 +92,12 @@ class MessageListController extends GetxController {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollToBottom();
           });
-        } else if (_reachedBottom && !showGoToBottomArrow) {
+        } else if (_reachedBottom && !showGoToBottomArrow.value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            scrollController.animateTo(
-              scrollController.position.minScrollExtent,
-              duration: const Duration(milliseconds: 160),
-              curve: Curves.easeIn,
+            listController.animateTo(
+              listController.position.minScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
             );
           });
         }
@@ -119,25 +106,23 @@ class MessageListController extends GetxController {
   }
 
   Future<void> scrollToMessage(String messageId) async {
-    // sadly, this doesn't work since listview hasn't built messages that are not
-    // visible yet
-    // if (_messageKeys.containsKey(messageId)) {
-    //   await Scrollable.ensureVisible(
-    //     _messageKeys[messageId]!.currentContext!,
-    //     duration: const Duration(milliseconds: 400),
-    //     alignment: 0.8,
-    //   );
-    // } else {
-    // if message is so long ago that it hasn't been loaded yet
-    await jumpToMessage(messageId);
-    // }
+    final index = chatLog.indexWhere((m) => m.id == messageId);
+    if (index == -1) {
+      // if message is so long ago that it hasn't been loaded yet
+      await jumpToMessage(messageId);
+    }
+    await listController.sliverController.animateToIndex(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      offset: 80,
+    );
   }
 
   Future<void> jumpToMessage(String messageId) async {
     // this method may also be called when scrolling to specific image/video/link
     // in the chat or a starred message
     chatLog.clear();
-    _messageKeys.clear();
     chatLog.add(await _chatLogDb.getMessage(_chat.id, messageId));
     // then fetch messages on either side
     await _fetchMoreMessages(true);
@@ -149,7 +134,6 @@ class MessageListController extends GetxController {
   void jumpToTimestamp(DateTime timestamp) async {
     // fetch messages on either side
     chatLog.clear();
-    _messageKeys.clear();
     await _fetchMoreMessages(true, timestamp: timestamp);
     await _fetchMoreMessages(false, timestamp: timestamp);
     // TODO: scroll to correct message
@@ -157,10 +141,9 @@ class MessageListController extends GetxController {
   }
 
   void onScroll() {
-    update(); // for scroll to bottom button display conditionally
-    if (scrollController.position.atEdge) {
-      // this works also without checking true offset
-      if (scrollController.position.pixels >= 0) {
+    showGoToBottomArrow.value = listController.offset > 80;
+    if (listController.position.atEdge) {
+      if (listController.position.pixels >= 0) {
         // scrolled to the top
         if (!_reachedTop) _fetchMoreMessages(true);
       } else {
@@ -176,14 +159,14 @@ class MessageListController extends GetxController {
       return;
     }
 
-    final bottom = scrollController.position.minScrollExtent;
-    if (_trueOffset > 1000) {
-      scrollController.jumpTo(bottom);
+    final bottom = listController.position.minScrollExtent;
+    if (listController.offset > 1000) {
+      listController.jumpTo(bottom);
     } else {
-      scrollController.animateTo(
+      listController.animateTo(
         bottom,
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeIn,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     }
 

@@ -30,6 +30,7 @@ dependencies:
   fluentui_system_icons: ^1.1.153
   carousel_slider: ^4.0.0
   sleek_circular_slider: ^2.0.1
+  flutter_list_view: ^1.1.18
 
 dev_dependencies:
   flutter_lints: ^2.0.1
