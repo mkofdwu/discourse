@@ -2,6 +2,7 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/utils/date_time.dart';
+import 'package:discourse/views/chats/chat_selection_bar.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
@@ -34,24 +35,29 @@ class ChatsView extends StatelessWidget {
                   onPressed: controller.newGroup,
                 ),
               ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 36),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: _buildTop(),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: _buildTop(),
+                  ),
+                  SizedBox(height: 36),
+                  if (controller.isLoading)
+                    Center(child: Loading())
+                  else if (controller.hasNoContent)
+                    OnboardingView()
+                  else
+                    ..._buildContent(),
+                ],
               ),
-              SizedBox(height: 36),
-              if (controller.isLoading)
-                Center(child: Loading())
-              else if (controller.hasNoContent)
-                OnboardingView()
-              else
-                ..._buildContent(),
-            ],
-          ),
+            ),
+            _buildChatSelectionBar(),
+          ],
         ),
       ),
     );
@@ -235,9 +241,7 @@ class ChatsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (controller.numMyStories == 0)
-                  SizedBox.shrink()
-                else
+                if (controller.myStory.isNotEmpty)
                   Positioned(
                     right: 0,
                     top: 4,
@@ -250,7 +254,7 @@ class ChatsView extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          controller.numMyStories.toString(),
+                          controller.myStory.length.toString(),
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 12,
@@ -295,28 +299,32 @@ class ChatsView extends StatelessWidget {
                       return StreamBuilder<int>(
                           stream: controller.numUnreadMessagesStream(chat),
                           builder: (context, snapshot) {
-                            return MyListTile(
-                              title: chat.title,
-                              subtitle: subtitle,
-                              photoUrl: chat.photoUrl,
-                              iconData: FluentIcons.person_16_regular,
-                              extraWidgets: [
-                                if (snapshot.hasData && snapshot.data! > 0)
-                                  _buildNumUnreadMessages(snapshot.data!),
-                                if (chat.pinned)
-                                  MyIconButton(
-                                    FluentIcons.pin_20_filled,
-                                    onPressed: () =>
-                                        controller.togglePinChat(chat),
-                                  ),
-                                MyIconButton(
-                                  FluentIcons.more_vertical_20_filled,
-                                  onPressed: () =>
-                                      controller.showChatOptions(chat),
-                                ),
-                              ],
-                              onPressed: () => controller.toChat(chat),
-                            );
+                            return Obx(() => MyListTile(
+                                  isSelected:
+                                      controller.selectedChats.contains(chat),
+                                  title: chat.title,
+                                  subtitle: subtitle,
+                                  photoUrl: chat.photoUrl,
+                                  iconData: FluentIcons.person_16_regular,
+                                  extraWidgets: [
+                                    if (snapshot.hasData && snapshot.data! > 0)
+                                      _buildNumUnreadMessages(snapshot.data!),
+                                    if (chat.pinned)
+                                      MyIconButton(
+                                        FluentIcons.pin_20_filled,
+                                        onPressed: () =>
+                                            controller.togglePinChat(chat),
+                                      ),
+                                    // MyIconButton(
+                                    //   FluentIcons.more_vertical_20_filled,
+                                    //   onPressed: () =>
+                                    //       controller.showChatOptions(chat),
+                                    // ),
+                                  ],
+                                  onPressed: () => controller.tapChat(chat),
+                                  onLongPress: () =>
+                                      controller.toggleSelectChat(chat),
+                                ));
                           });
                     },
                   ))
@@ -339,6 +347,16 @@ class ChatsView extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+        ),
+      );
+
+  Widget _buildChatSelectionBar() => Obx(
+        () => ChatSelectionBar(
+          numSelected: controller.selectedChats.length,
+          allSelected: controller.allSelected,
+          onSelectAll: controller.toggleSelectAll,
+          onPinChats: () {},
+          onDismiss: controller.cancelSelection,
         ),
       );
 }

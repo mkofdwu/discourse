@@ -20,17 +20,9 @@ class MyStoryController extends GetxController {
   final _relationships = Get.find<RelationshipsService>();
 
   final listAnimationController = ListAnimationController();
-  bool isLoading = false;
-  List<StoryPage> myStory = [];
+  List<StoryPage> myStory;
 
-  @override
-  void onReady() async {
-    isLoading = true;
-    update();
-    myStory = await _storyDb.myStory();
-    isLoading = false;
-    update();
-  }
+  MyStoryController(this.myStory);
 
   void viewMyStory() async {
     if (myStory.isEmpty) {

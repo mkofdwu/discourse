@@ -15,12 +15,14 @@ import 'package:get/get.dart';
 import 'my_story_controller.dart';
 
 class MyStoryView extends StatelessWidget {
-  const MyStoryView({Key? key}) : super(key: key);
+  final List<StoryPage> myStory;
+
+  const MyStoryView({Key? key, required this.myStory}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MyStoryController>(
-      init: MyStoryController(),
+      init: MyStoryController(myStory),
       builder: (controller) => Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: myAppBar(
@@ -45,37 +47,34 @@ class MyStoryView extends StatelessWidget {
             ],
           ),
         ),
-        body: controller.isLoading
-            ? Center(child: Loading())
-            : controller.myStory.isEmpty
-                ? _buildPlaceholder(controller)
-                : MyAnimatedList(
-                    controller: controller.listAnimationController,
-                    list: controller.myStory,
-                    listTileBuilder: (i, story) {
-                      story as StoryPage;
-                      return MyListTile(
-                        increaseWidthFactor: false,
-                        title: '${story.viewedAt.length} views',
-                        subtitle: formatTime(story.sentTimestamp),
-                        photoUrl: story.type == StoryType.photo
-                            ? story.content
-                            : null,
-                        iconData: FluentIcons.text_description_20_regular,
-                        extraWidgets: [
-                          MyIconButton(
-                            FluentIcons.edit_20_regular,
-                            onPressed: () => controller.editStory(story),
-                          ),
-                          MyIconButton(
-                            FluentIcons.delete_20_regular,
-                            onPressed: () => controller.deleteStory(i),
-                          ),
-                        ],
-                        onPressed: () => controller.viewSingleStory(story),
-                      );
-                    },
-                  ),
+        body: controller.myStory.isEmpty
+            ? _buildPlaceholder(controller)
+            : MyAnimatedList(
+                controller: controller.listAnimationController,
+                list: controller.myStory,
+                listTileBuilder: (i, story) {
+                  story as StoryPage;
+                  return MyListTile(
+                    increaseWidthFactor: false,
+                    title: '${story.viewedAt.length} views',
+                    subtitle: formatTime(story.sentTimestamp),
+                    photoUrl:
+                        story.type == StoryType.photo ? story.content : null,
+                    iconData: FluentIcons.text_description_20_regular,
+                    extraWidgets: [
+                      MyIconButton(
+                        FluentIcons.edit_20_regular,
+                        onPressed: () => controller.editStory(story),
+                      ),
+                      MyIconButton(
+                        FluentIcons.delete_20_regular,
+                        onPressed: () => controller.deleteStory(i),
+                      ),
+                    ],
+                    onPressed: () => controller.viewSingleStory(story),
+                  );
+                },
+              ),
       ),
     );
   }
