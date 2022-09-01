@@ -33,8 +33,11 @@ class ChatsController extends GetxController {
   int numMyStories = 0;
   List<UserChat> chats = [];
   bool hasNoContent = false;
+  final selectedChats = RxList<UserChat>();
 
   DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
+  bool get isSelecting => selectedChats.isNotEmpty;
+  bool get allSelected => chats.length == selectedChats.length;
 
   @override
   void onReady() {
@@ -128,5 +131,33 @@ class ChatsController extends GetxController {
     update();
   }
 
-  void toChat(UserChat chat) => Get.to(() => ChatView(chat: chat));
+  void tapChat(UserChat chat) {
+    if (isSelecting) {
+      toggleSelectChat(chat);
+    } else {
+      Get.to(() => ChatView(chat: chat));
+    }
+  }
+
+  void toggleSelectChat(UserChat chat) {
+    final index = selectedChats.indexOf(chat);
+    if (index == -1) {
+      selectedChats.add(chat);
+    } else {
+      selectedChats.removeAt(index);
+    }
+  }
+
+  void toggleSelectAll() {
+    if (allSelected) {
+      // should this be the desired behaviour (since it just ends selection)
+      selectedChats.clear();
+    } else {
+      selectedChats.value = List.from(chats);
+    }
+  }
+
+  void cancelSelection() {
+    selectedChats.clear();
+  }
 }

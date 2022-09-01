@@ -14,6 +14,7 @@ class MyListTile extends StatelessWidget {
   final List<Widget> extraWidgets;
   final bool isSelected;
   final Function()? onPressed;
+  final Function()? onLongPress;
   final bool increaseWidthFactor;
 
   const MyListTile({
@@ -26,6 +27,7 @@ class MyListTile extends StatelessWidget {
     this.extraWidgets = const [],
     this.isSelected = false,
     this.onPressed,
+    this.onLongPress,
     this.increaseWidthFactor = true,
   }) : super(key: key);
 
@@ -35,6 +37,7 @@ class MyListTile extends StatelessWidget {
         ? _buildPressed(false)
         : PressedBuilder(
             onPressed: onPressed!,
+            onLongPress: onLongPress,
             builder: _buildPressed,
           );
   }
@@ -52,30 +55,47 @@ class MyListTile extends StatelessWidget {
             children: <Widget>[
               Stack(
                 children: [
-                  PhotoOrIcon(
-                    size: 50,
-                    iconSize: 20,
-                    photoUrl: photoUrl,
-                    placeholderIcon: isSelected ? null : iconData,
-                    backgroundColor: Color(0xFF606060),
-                  ),
-                  if (isSelected)
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.4),
-                        border: Border.all(color: Palette.orange, width: 2),
-                        borderRadius: BorderRadius.circular(26),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(27),
+                      border: Border.all(
+                        width: 2,
+                        color: isSelected ? Palette.orange : Colors.transparent,
                       ),
-                      child: Center(
-                        child: Icon(
-                          FluentIcons.checkmark_16_filled,
+                    ),
+                    child: PhotoOrIcon(
+                      size: 50,
+                      iconSize: 20,
+                      photoUrl: photoUrl,
+                      placeholderIcon: iconData,
+                      backgroundColor: Color(0xFF606060),
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: AnimatedScale(
+                      duration: Duration(milliseconds: 200),
+                      scale: isSelected ? 1 : 0,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
                           color: Palette.orange,
-                          size: 16,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            FluentIcons.checkmark_12_filled,
+                            color: Colors.black,
+                            size: 12,
+                          ),
                         ),
                       ),
                     ),
+                  ),
                 ],
               ),
               SizedBox(width: 20),

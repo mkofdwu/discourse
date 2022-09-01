@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class PressedBuilder extends StatefulWidget {
-  final FutureOr<dynamic> Function() onPressed;
+  final Function() onPressed;
+  final Function()? onLongPress;
   final Widget Function(bool) builder;
 
-  const PressedBuilder(
-      {Key? key, required this.onPressed, required this.builder})
-      : super(key: key);
+  const PressedBuilder({
+    Key? key,
+    required this.onPressed,
+    this.onLongPress,
+    required this.builder,
+  }) : super(key: key);
 
   @override
   PressedBuilderState createState() => PressedBuilderState();
@@ -29,6 +33,7 @@ class PressedBuilderState extends State<PressedBuilder> {
         });
       },
       onTapCancel: () => setState(() => _pressed = false),
+      onLongPress: widget.onLongPress,
       child: widget.builder(_pressed),
     );
   }
