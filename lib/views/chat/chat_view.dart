@@ -500,7 +500,7 @@ class _ChatViewState extends State<ChatView> {
               height: 40,
               margin: EdgeInsets.only(top: 8, right: 2),
               decoration: BoxDecoration(
-                color: Color(0xFF404040),
+                color: Color(0xFF606060),
                 borderRadius: BorderRadius.circular(24),
               ),
               alignment: Alignment.center,
