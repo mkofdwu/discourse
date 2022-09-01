@@ -30,7 +30,7 @@ class ChatsController extends GetxController {
   bool isLoading = false;
   bool hasNewRequests = false;
   Map<DiscourseUser, List<StoryPage>> friendsStories = {};
-  int numMyStories = 0;
+  List<StoryPage> myStory = [];
   List<UserChat> chats = [];
   bool hasNoContent = false;
   final selectedChats = RxList<UserChat>();
@@ -49,7 +49,7 @@ class ChatsController extends GetxController {
     update();
     hasNewRequests = await _requests.hasNewRequests();
     friendsStories = await _storyDb.friendsStories();
-    numMyStories = (await _storyDb.myStory()).length;
+    myStory = await _storyDb.myStory();
     chats = await _commonChatDb.myChats();
     hasNoContent = friendsStories.isEmpty && chats.isEmpty;
     isLoading = false;
@@ -74,8 +74,7 @@ class ChatsController extends GetxController {
   }
 
   void toMyStory() async {
-    await Get.to(() => MyStoryView());
-    fetchData(); // FIXME: this seems like an inefficient way to solve the problem
+    await Get.to(() => MyStoryView(myStory: myStory));
   }
 
   int seenNum(List<StoryPage> story) {

@@ -241,9 +241,7 @@ class ChatsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (controller.numMyStories == 0)
-                  SizedBox.shrink()
-                else
+                if (controller.myStory.isNotEmpty)
                   Positioned(
                     right: 0,
                     top: 4,
@@ -256,7 +254,7 @@ class ChatsView extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          controller.numMyStories.toString(),
+                          controller.myStory.length.toString(),
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 12,
@@ -317,11 +315,11 @@ class ChatsView extends StatelessWidget {
                                         onPressed: () =>
                                             controller.togglePinChat(chat),
                                       ),
-                                    MyIconButton(
-                                      FluentIcons.more_vertical_20_filled,
-                                      onPressed: () =>
-                                          controller.showChatOptions(chat),
-                                    ),
+                                    // MyIconButton(
+                                    //   FluentIcons.more_vertical_20_filled,
+                                    //   onPressed: () =>
+                                    //       controller.showChatOptions(chat),
+                                    // ),
                                   ],
                                   onPressed: () => controller.tapChat(chat),
                                   onLongPress: () =>
@@ -357,6 +355,7 @@ class ChatsView extends StatelessWidget {
           numSelected: controller.selectedChats.length,
           allSelected: controller.allSelected,
           onSelectAll: controller.toggleSelectAll,
+          onPinChats: () {},
           onDismiss: controller.cancelSelection,
         ),
       );
