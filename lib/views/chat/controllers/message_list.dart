@@ -160,15 +160,15 @@ class MessageListController extends GetxController {
     }
 
     final bottom = listController.position.minScrollExtent;
-    if (listController.offset > 1000) {
-      listController.jumpTo(bottom);
-    } else {
-      listController.animateTo(
-        bottom,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
+    // if (listController.offset > 1000) {
+    //   listController.jumpTo(bottom);
+    // } else {
+    listController.animateTo(
+      bottom,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    // }
 
     // this may not be completely accurate
     numNewMessages = 0;

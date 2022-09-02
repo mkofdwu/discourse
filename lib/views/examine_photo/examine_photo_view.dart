@@ -78,6 +78,7 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
+                    height: 1.8,
                   ),
                 ),
                 Spacer(),

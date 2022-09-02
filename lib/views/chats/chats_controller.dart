@@ -38,6 +38,8 @@ class ChatsController extends GetxController {
   DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
   bool get isSelecting => selectedChats.isNotEmpty;
   bool get allSelected => chats.length == selectedChats.length;
+  bool get showPinSelected => selectedChats.every((chat) => !chat.pinned);
+  bool get showUnpinSelected => selectedChats.every((chat) => chat.pinned);
 
   @override
   void onReady() {
@@ -154,6 +156,24 @@ class ChatsController extends GetxController {
     } else {
       selectedChats.value = List.from(chats);
     }
+  }
+
+  void pinSelected() async {
+    for (final chat in selectedChats) {
+      chat.pinned = true;
+      await _commonChatDb.setPinChat(chat.id, true);
+    }
+    selectedChats.clear();
+    update();
+  }
+
+  void unpinSelected() async {
+    for (final chat in selectedChats) {
+      chat.pinned = false;
+      await _commonChatDb.setPinChat(chat.id, false);
+    }
+    selectedChats.clear();
+    update();
   }
 
   void cancelSelection() {

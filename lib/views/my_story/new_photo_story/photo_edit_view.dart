@@ -55,7 +55,11 @@ class PhotoEditView extends StatelessWidget {
                   SizedBox(width: 20),
                   Text(
                     'Edit photo',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      height: 1.8,
+                    ),
                   ),
                   Spacer(),
                   MyIconButton(

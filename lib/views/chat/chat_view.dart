@@ -14,6 +14,7 @@ import 'package:discourse/widgets/app_state_handler.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
+import 'package:discourse/widgets/selection_options_bar.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
@@ -60,44 +61,61 @@ class _ChatViewState extends State<ChatView> {
       builder: (controller) => AppStateHandler(
         onStart: controller.onStartReading,
         onExit: controller.onStopReading,
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(76),
-            child: Obx(() => controller.messageSelection.isSelecting
-                ? _buildMessageSelectionAppBar(controller)
-                : controller.showSearchBar
-                    ? _buildSearchAppBar(controller)
-                    : _buildAppBar(controller)),
-          ),
-          body: Column(
+        child: Material(
+          child: Stack(
             children: [
-              Expanded(
-                child: Stack(
+              Scaffold(
+                appBar: _buildAppBar(controller),
+                body: Column(
                   children: [
-                    GetBuilder<MessageListController>(
-                      builder: (messageListController) =>
-                          _buildMessagesList(controller, messageListController),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          GetBuilder<MessageListController>(
+                            builder: (messageListController) =>
+                                _buildMessagesList(
+                                    controller, messageListController),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: controller.messageSelection.isSelecting
+                                  ? 0
+                                  : 1,
+                              child: _buildMessagesListBottom(controller),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 200),
-                        opacity:
-                            controller.messageSelection.isSelecting ? 0 : 1,
-                        child: _buildMessagesListBottom(controller),
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: controller.messageSelection.isSelecting ? 0 : 1,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+                        child: MessageDraftView(),
                       ),
                     ),
                   ],
                 ),
               ),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 200),
-                opacity: controller.messageSelection.isSelecting ? 0 : 1,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                  child: MessageDraftView(),
+              Obx(
+                () => SelectionOptionsBar(
+                  numSelected: controller.messageSelection.numSelected,
+                  options: {
+                    if (controller.messageSelection.canReplyToSelectedMessages)
+                      FluentIcons.arrow_reply_20_regular:
+                          controller.messageSelection.replyToSelectedMessages,
+                    if (controller.messageSelection.canDeleteSelectedMessages)
+                      FluentIcons.delete_20_regular:
+                          controller.messageSelection.deleteSelectedMessages,
+                    if (controller.messageSelection.canGoToViewedBy)
+                      FluentIcons.eye_20_regular: controller.toMessageViewedBy
+                  },
+                  onDismiss: controller.messageSelection.cancelSelection,
                 ),
               ),
             ],

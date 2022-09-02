@@ -2,7 +2,6 @@ import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/utils/date_time.dart';
-import 'package:discourse/views/chats/chat_selection_bar.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
@@ -10,6 +9,7 @@ import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
+import 'package:discourse/widgets/selection_options_bar.dart';
 import 'package:discourse/widgets/user_story_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -198,7 +198,7 @@ class ChatsView extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            SizedBox(width: 40),
+            SizedBox(width: 30),
             _buildYourStoryButton(),
             SizedBox(width: 20),
             if (controller.friendsStories.isNotEmpty)
@@ -214,7 +214,7 @@ class ChatsView extends StatelessWidget {
                         ))
                     .toList(),
               ),
-            SizedBox(width: 40),
+            SizedBox(width: 30),
           ],
         ),
       );
@@ -350,13 +350,19 @@ class ChatsView extends StatelessWidget {
         ),
       );
 
-  Widget _buildChatSelectionBar() => Obx(
-        () => ChatSelectionBar(
-          numSelected: controller.selectedChats.length,
-          allSelected: controller.allSelected,
-          onSelectAll: controller.toggleSelectAll,
-          onPinChats: () {},
-          onDismiss: controller.cancelSelection,
-        ),
-      );
+  Widget _buildChatSelectionBar() => Obx(() => SelectionOptionsBar(
+        numSelected: controller.selectedChats.length,
+        options: {
+          (controller.allSelected
+                  ? FluentIcons.select_all_on_24_regular
+                  : FluentIcons.select_all_off_20_regular):
+              controller.toggleSelectAll,
+          if (controller.showPinSelected)
+            FluentIcons.pin_20_regular: controller.pinSelected,
+          if (controller.showUnpinSelected)
+            FluentIcons.pin_off_20_regular: controller.unpinSelected,
+          FluentIcons.archive_24_regular: () {},
+        },
+        onDismiss: controller.cancelSelection,
+      ));
 }

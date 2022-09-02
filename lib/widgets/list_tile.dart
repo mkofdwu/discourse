@@ -71,7 +71,7 @@ class MyListTile extends StatelessWidget {
                       ),
                     ),
                     child: PhotoOrIcon(
-                      size: 50,
+                      size: compact ? 46 : 50,
                       iconSize: 20,
                       photoUrl: photoUrl,
                       placeholderIcon: iconData,
@@ -103,7 +103,7 @@ class MyListTile extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(width: 20),
+              SizedBox(width: compact ? 16 : 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +141,7 @@ class MyListTile extends StatelessWidget {
                           ),
                       ],
                     ),
-                    if (subtitle != null) SizedBox(height: 8),
+                    if (subtitle != null) SizedBox(height: compact ? 4 : 8),
                     if (subtitle != null)
                       Text(
                         subtitle!,
