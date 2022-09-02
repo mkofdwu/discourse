@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 class MyIconButton extends StatelessWidget {
   final IconData iconData;
-  final Widget? child;
+  final Color? color;
   final Function() onPressed;
 
   const MyIconButton(
     this.iconData, {
     Key? key,
-    this.child,
+    this.color,
     required this.onPressed,
   }) : super(key: key);
 
@@ -21,7 +21,7 @@ class MyIconButton extends StatelessWidget {
         width: 36,
         height: 36,
         child: Center(
-          child: child ?? Icon(iconData, size: 24),
+          child: Icon(iconData, size: 24, color: color),
         ),
       ),
     );

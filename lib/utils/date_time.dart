@@ -10,6 +10,16 @@ bool isSameDay(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
+String formatTimeAgo(DateTime dateTime) {
+  if (isSameDay(dateTime, DateTime.now())) {
+    return formatTime(dateTime);
+  }
+  if (isSameDay(dateTime, DateTime.now().subtract(Duration(days: 1)))) {
+    return 'yesterday';
+  }
+  return formatDate(dateTime);
+}
+
 String timeOfDay() {
   final hour = DateTime.now().hour;
   if (hour < 12) return 'morning';

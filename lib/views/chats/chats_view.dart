@@ -70,27 +70,32 @@ class ChatsView extends StatelessWidget {
             'Good ${timeOfDay()}',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
-          MyIconButton(
-            FluentIcons.alert_24_regular,
+          OpacityFeedback(
             onPressed: controller.toActivity,
-            child: Stack(
-              children: [
-                Icon(FluentIcons.alert_24_regular),
-                !controller.hasNewRequests
-                    ? SizedBox.shrink()
-                    : Positioned(
-                        top: 0,
-                        right: 1,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Palette.orange,
-                            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Center(
+                child: Stack(
+                  children: [
+                    Icon(FluentIcons.alert_24_regular),
+                    !controller.hasNewRequests
+                        ? SizedBox.shrink()
+                        : Positioned(
+                            top: 0,
+                            right: 1,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Palette.orange,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -125,7 +130,7 @@ class ChatsView extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 24),
         _buildStories(),
         SizedBox(height: 40),
         Padding(
@@ -285,6 +290,7 @@ class ChatsView extends StatelessWidget {
                     stream: controller.streamLastChatObject(chat),
                     builder: (context, snapshot) {
                       String? subtitle;
+                      String lastActive = '';
                       if (snapshot.hasData) {
                         final chatObject = snapshot.data!;
                         // TODO: show icon next to text (e.g. photo or chat action icon)
@@ -295,10 +301,12 @@ class ChatsView extends StatelessWidget {
                         } else {
                           subtitle = chatObject.asChatAlert.content;
                         }
+                        lastActive = formatTimeAgo(chatObject.sentTimestamp);
                       }
                       return StreamBuilder<int>(
                           stream: controller.numUnreadMessagesStream(chat),
                           builder: (context, snapshot) {
+                            final numUnreadMessages = snapshot.data ?? 0;
                             return Obx(() => MyListTile(
                                   isSelected:
                                       controller.selectedChats.contains(chat),
@@ -307,19 +315,42 @@ class ChatsView extends StatelessWidget {
                                   photoUrl: chat.photoUrl,
                                   iconData: FluentIcons.person_16_regular,
                                   extraWidgets: [
-                                    if (snapshot.hasData && snapshot.data! > 0)
-                                      _buildNumUnreadMessages(snapshot.data!),
-                                    if (chat.pinned)
-                                      MyIconButton(
-                                        FluentIcons.pin_20_filled,
-                                        onPressed: () =>
-                                            controller.togglePinChat(chat),
-                                      ),
-                                    // MyIconButton(
-                                    //   FluentIcons.more_vertical_20_filled,
-                                    //   onPressed: () =>
-                                    //       controller.showChatOptions(chat),
-                                    // ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          lastActive,
+                                          style: TextStyle(
+                                            color: Get.theme.primaryColor
+                                                .withOpacity(0.4),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                            height: numUnreadMessages > 0 ||
+                                                    chat.pinned
+                                                ? 6
+                                                : 26),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (numUnreadMessages > 0)
+                                              _buildNumUnreadMessages(
+                                                  numUnreadMessages),
+                                            if (chat.pinned) ...[
+                                              SizedBox(width: 8),
+                                              Icon(
+                                                FluentIcons.pin_20_filled,
+                                                size: 20,
+                                                color: Color(0xFF606060),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(width: 6),
                                   ],
                                   onPressed: () => controller.tapChat(chat),
                                   onLongPress: () =>
@@ -335,14 +366,14 @@ class ChatsView extends StatelessWidget {
         height: 16,
         padding: const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
-          color: Palette.orange,
+          color: Color(0xFF606060),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
           child: Text(
             numUnreadMessages.toString(),
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w700,
             ),

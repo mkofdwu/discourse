@@ -89,49 +89,6 @@ class ChatsController extends GetxController {
   Stream<int> numUnreadMessagesStream(UserChat chat) =>
       _chatLogDb.numUnreadMessagesStream(chat.id, chat.lastReadAt);
 
-  void showChatOptions(UserChat chat) async {
-    final choice = await Get.bottomSheet(ChoiceBottomSheet(
-      title: 'Chat options',
-      choices: [
-        chat is UserPrivateChat ? 'View profile' : 'View group details',
-        chat.pinned ? 'Unpin chat' : 'Pin chat',
-        chat is UserPrivateChat
-            ? (_miscCache.myFriends.contains(chat.otherUser)
-                ? 'Remove friend'
-                : 'Request friend')
-            : 'Leave group',
-      ],
-    ));
-    if (choice == null) return;
-    switch (choice) {
-      case 'View profile':
-        Get.to(
-            () => UserProfileView(user: (chat as UserPrivateChat).otherUser));
-        break;
-      case 'View group details':
-        Get.to(() => GroupDetailsView(chat: chat as UserGroupChat));
-        break;
-      case 'Pin chat':
-      case 'Unpin chat':
-        togglePinChat(chat);
-        break;
-      case 'Remove friend':
-        askRemoveFriend((chat as UserPrivateChat).otherUser, update);
-        break;
-      case 'Request friend':
-        requestFriend((chat as UserPrivateChat).otherUser.id);
-        break;
-      case 'Leave group':
-        break;
-    }
-  }
-
-  void togglePinChat(UserChat chat) async {
-    chat.pinned = !chat.pinned;
-    await _commonChatDb.setPinChat(chat.id, chat.pinned);
-    update();
-  }
-
   void tapChat(UserChat chat) {
     if (isSelecting) {
       toggleSelectChat(chat);
