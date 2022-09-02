@@ -16,6 +16,7 @@ class MyListTile extends StatelessWidget {
   final Function()? onPressed;
   final Function()? onLongPress;
   final bool increaseWidthFactor;
+  final bool compact;
 
   const MyListTile({
     Key? key,
@@ -29,6 +30,7 @@ class MyListTile extends StatelessWidget {
     this.onPressed,
     this.onLongPress,
     this.increaseWidthFactor = true,
+    this.compact = false,
   }) : super(key: key);
 
   @override
@@ -46,7 +48,10 @@ class MyListTile extends StatelessWidget {
         widthFactor: increaseWidthFactor ? 1.16 : 1,
         child: AnimatedContainer(
           duration: Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+          padding: EdgeInsets.symmetric(
+            vertical: compact ? 8 : 10,
+            horizontal: 18,
+          ),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(pressed ? 0.08 : 0),
             borderRadius: BorderRadius.circular(10),

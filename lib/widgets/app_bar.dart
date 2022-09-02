@@ -25,7 +25,7 @@ PreferredSize myAppBar({
             Text(
               title,
               style: TextStyle(
-                height: 1.4, // center it properly
+                height: 1.8, // center it properly
                 fontFamily: 'Avenir',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,

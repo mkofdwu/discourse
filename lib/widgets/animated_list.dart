@@ -7,20 +7,20 @@ class ListAnimationController {
   Widget Function(int, dynamic)? listTileBuilder;
 
   void animateInsert(int index) {
-    // key.currentState!.insertItem(index);
+    key.currentState!.insertItem(index);
   }
 
   void animateRemove(int index, dynamic item) {
-    // key.currentState!.removeItem(
-    //   index,
-    //   (context, animation) => SizeTransition(
-    //     sizeFactor: animation,
-    //     child: FadeTransition(
-    //       opacity: animation,
-    //       child: listTileBuilder!(index, item),
-    //     ),
-    //   ),
-    // );
+    key.currentState!.removeItem(
+      index,
+      (context, animation) => SizeTransition(
+        sizeFactor: animation,
+        child: FadeTransition(
+          opacity: animation,
+          child: listTileBuilder!(index, item),
+        ),
+      ),
+    );
   }
 }
 

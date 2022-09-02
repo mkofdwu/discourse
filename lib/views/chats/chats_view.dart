@@ -149,7 +149,7 @@ class ChatsView extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: _buildChatsList(),

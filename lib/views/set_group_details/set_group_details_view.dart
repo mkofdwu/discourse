@@ -27,12 +27,12 @@ class SetGroupDetailsView extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         appBar: myAppBar(title: 'New group'),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
+          padding: const EdgeInsets.all(30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildPhotoAndName(controller),
-              SizedBox(height: 44),
+              SizedBox(height: 40),
               if (controller.addMembers.isNotEmpty) ...[
                 Row(
                   children: [
@@ -47,14 +47,14 @@ class SetGroupDetailsView extends StatelessWidget {
                     _buildAddButton('Friends', controller.addFriends),
                   ],
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 20),
                 Expanded(
                   child: UsersGrid(
                     users: controller.addMembers,
                     removeUser: controller.removeAddMember,
                   ),
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 30),
               ],
               if (controller.sendInvitesTo.isNotEmpty) ...[
                 Row(

@@ -54,26 +54,27 @@ class UserSelectorView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(28, 30, 28, 42),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                 child: Row(
                   children: [
                     MyIconButton(
                       FluentIcons.chevron_left_20_regular,
                       onPressed: Get.back,
                     ),
-                    SizedBox(width: 20),
+                    SizedBox(width: 16),
                     Text(
                       title,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
+                        height: 1.8,
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(40, 0, 40, 30),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                 child: _buildSearchTextField(controller),
               ),
               if (controller.searchController.text.isEmpty)
@@ -94,7 +95,7 @@ class UserSelectorView extends StatelessWidget {
                   Expanded(child: _buildResultsList(controller, onlyUsers!)),
               if (controller.searchResults.isNotEmpty && onlyUsers == null)
                 Padding(
-                  padding: const EdgeInsets.only(left: 50, bottom: 24),
+                  padding: const EdgeInsets.only(left: 32, bottom: 12),
                   child: Text(
                     '${controller.searchResults.length} results',
                     style: TextStyle(
@@ -155,12 +156,13 @@ class UserSelectorView extends StatelessWidget {
     List<DiscourseUser> results,
   ) =>
       ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         itemCount: results.length,
         itemBuilder: (context, i) {
           final user = results[i];
           return MyListTile(
             iconData: FluentIcons.person_16_regular,
+            compact: true,
             title: user.username,
             subtitle: user.aboutMe,
             photoUrl: user.photoUrl,

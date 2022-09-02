@@ -6,7 +6,6 @@ import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
-import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -47,11 +46,11 @@ class MyStoryView extends StatelessWidget {
             ],
           ),
         ),
-        body: controller.myStory.isEmpty
+        body: myStory.isEmpty
             ? _buildPlaceholder(controller)
             : MyAnimatedList(
                 controller: controller.listAnimationController,
-                list: controller.myStory,
+                list: myStory,
                 listTileBuilder: (i, story) {
                   story as StoryPage;
                   return MyListTile(

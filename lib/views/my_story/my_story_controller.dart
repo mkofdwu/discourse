@@ -20,12 +20,12 @@ class MyStoryController extends GetxController {
   final _relationships = Get.find<RelationshipsService>();
 
   final listAnimationController = ListAnimationController();
-  List<StoryPage> myStory;
+  final List<StoryPage> _myStory;
 
-  MyStoryController(this.myStory);
+  MyStoryController(this._myStory);
 
   void viewMyStory() async {
-    if (myStory.isEmpty) {
+    if (_myStory.isEmpty) {
       Get.snackbar(
         'Nothing to show',
         'You dont have anything added to your story. Try writing something or adding a photo first',
@@ -33,7 +33,7 @@ class MyStoryController extends GetxController {
     } else {
       Get.to(() => StoryView(
             title: 'Your story',
-            story: myStory,
+            story: _myStory,
             // TODO
             onShowOptions: () async {
               final choice = await Get.bottomSheet(ChoiceBottomSheet(
@@ -77,13 +77,13 @@ class MyStoryController extends GetxController {
   }
 
   void deleteStory(int i) async {
-    final story = myStory.removeAt(i);
     final confirm = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Delete story?',
       subtitle:
           'Are you sure you want to delete this story? This action is irreversible!',
     ));
     if (confirm ?? false) {
+      final story = _myStory.removeAt(i);
       await _storyDb.deleteStory(story.id);
       listAnimationController.animateRemove(i, story);
       update();
@@ -93,13 +93,12 @@ class MyStoryController extends GetxController {
   void newTextPost() async {
     final result = await Get.to(() => TextStoryView());
     if (result != null) {
-      myStory.add(result as StoryPage);
-      if (myStory.length > 1) {
+      _myStory.add(result as StoryPage);
+      if (_myStory.length > 1) {
         // if story was empty at first, list hasn't been created yet
-        listAnimationController.animateInsert(myStory.length - 1);
+        listAnimationController.animateInsert(_myStory.length - 1);
       }
     }
-    update();
   }
 
   void newPhotoPost() async {
@@ -114,8 +113,8 @@ class MyStoryController extends GetxController {
         sendToIds: await _relationships
             .getFriends(), // future: select friend list before posting photo
       ));
-      myStory.add(story);
-      listAnimationController.animateInsert(myStory.length - 1);
+      _myStory.add(story);
+      listAnimationController.animateInsert(_myStory.length - 1);
       update();
     }
   }

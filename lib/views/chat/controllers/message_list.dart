@@ -115,7 +115,7 @@ class MessageListController extends GetxController {
       index,
       duration: Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      offset: 80,
+      offset: 200,
     );
   }
 
