@@ -73,14 +73,14 @@ class UserProfileController extends GetxController {
   void sendMessage() {
     if (_chat == null) return;
     if (Get.isRegistered<ChatController>()) {
-      // profile page probably accessed from group details page
-      // or private chat page
-      // hacky solution
-      while (Get.isRegistered<ChatController>()) {
-        Get.back();
-      }
+      // profile page probably accessed from group details page or private chat page
+      Get.offUntil(
+        GetPageRoute(page: () => ChatView(chat: _chat!)),
+        (route) => route.isFirst,
+      );
+    } else {
+      Get.to(() => ChatView(chat: _chat!));
     }
-    Get.to(() => ChatView(chat: _chat!));
   }
 
   void toExaminePhoto(String photoUrl) {

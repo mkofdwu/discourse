@@ -41,23 +41,24 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
-    Get.put<MessageSenderController>(MessageSenderController());
-    Get.put<MessageSelectionController>(MessageSelectionController());
-    Get.put<MessageListController>(MessageListController());
+    Get.put(MessageSenderController());
+    Get.put(MessageSelectionController());
+    Get.put(ChatController(widget.chat));
+    Get.put(MessageListController());
   }
 
   @override
   void dispose() {
-    Get.delete<MessageSenderController>();
-    Get.delete<MessageSelectionController>();
     Get.delete<MessageListController>();
+    Get.delete<ChatController>();
+    Get.delete<MessageSelectionController>();
+    Get.delete<MessageSenderController>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatController>(
-      init: ChatController(widget.chat),
       builder: (controller) => AppStateHandler(
         onStart: controller.onStartReading,
         onExit: controller.onStopReading,
