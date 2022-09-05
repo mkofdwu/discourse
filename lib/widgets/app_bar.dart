@@ -1,3 +1,4 @@
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ PreferredSize myAppBar({
       child: Container(
         height: 76,
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        color: Get.theme.primaryColorLight,
+        color: Palette.black3,
         child: Row(
           children: [
             MyIconButton(

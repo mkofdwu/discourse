@@ -24,7 +24,8 @@ class UserProfileController extends GetxController {
   UserChat? _chat;
   List<StoryPage>? userStory;
 
-  List<String> get mediaUrls => _chat?.privateData.mediaUrls ?? [];
+  List<String> get mediaUrls =>
+      _chat is NonExistentChat ? [] : (_chat?.privateData.mediaUrls ?? []);
 
   UserProfileController(this._user);
 

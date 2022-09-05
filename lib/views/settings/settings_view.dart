@@ -15,7 +15,7 @@ class SettingsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Settings'),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
+          padding: const EdgeInsets.all(30),
           child: Column(
             children: [
               SettingTile(

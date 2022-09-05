@@ -16,68 +16,71 @@ class MyProfileView extends StatelessWidget {
       global: false,
       init: MyProfileController(),
       builder: (controller) => SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Profile',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
-                  MyIconButton(
-                    FluentIcons.options_24_regular,
-                    onPressed: controller.toSettings,
-                  ),
-                ],
-              ),
-              SizedBox(height: 60),
-              OpacityFeedback(
-                onPressed: controller.selectPhoto,
-                child: PhotoOrIcon(
-                  size: 100,
-                  iconSize: 36,
-                  backgroundColor: Color(0xFF3C3C3C),
-                  photoUrl: controller.user.photoUrl,
-                  placeholderIcon: FluentIcons.person_28_regular,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Profile',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                    ),
+                    MyIconButton(
+                      FluentIcons.options_24_regular,
+                      onPressed: controller.toSettings,
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 32),
-              _buildTextField(
-                'Username',
-                controller.user.username,
-                controller.editUsername,
-              ),
-              SizedBox(height: 24),
-              _buildTextField(
-                'About me',
-                controller.user.aboutMe ??
-                    'Nothing here yet. Click to add an about',
-                controller.editAboutMe,
-                fontSize: 14,
-                showIcon: false,
-              ),
-              SizedBox(height: 44),
-              if (controller.emailVerified)
-                SettingTile(
-                  name: 'Email verified',
-                  description: controller.user.email,
-                  trailing: Icon(FluentIcons.checkmark_16_filled, size: 16),
-                )
-              else
-                SettingTile(
-                  name: 'Verify email',
-                  onPressed: controller.verifyEmail,
+                SizedBox(height: 60),
+                OpacityFeedback(
+                  onPressed: controller.selectPhoto,
+                  child: PhotoOrIcon(
+                    size: 100,
+                    iconSize: 36,
+                    backgroundColor: Color(0xFF3C3C3C),
+                    photoUrl: controller.user.photoUrl,
+                    placeholderIcon: FluentIcons.person_28_regular,
+                  ),
                 ),
-              SizedBox(height: 14),
-              SettingTile(
-                name: 'Friends',
-                onPressed: controller.toFriendsList,
-              ),
-            ],
+                SizedBox(height: 32),
+                _buildTextField(
+                  'Username',
+                  controller.user.username,
+                  controller.editUsername,
+                ),
+                SizedBox(height: 24),
+                _buildTextField(
+                  'About me',
+                  controller.user.aboutMe ??
+                      'Nothing here yet. Click to add an about',
+                  controller.editAboutMe,
+                  fontSize: 14,
+                  showIcon: false,
+                ),
+                SizedBox(height: 44),
+                if (controller.emailVerified)
+                  SettingTile(
+                    name: 'Email verified',
+                    description: controller.user.email,
+                    trailing: Icon(FluentIcons.checkmark_16_filled, size: 16),
+                  )
+                else
+                  SettingTile(
+                    name: 'Verify email',
+                    onPressed: controller.verifyEmail,
+                  ),
+                SizedBox(height: 14),
+                SettingTile(
+                  name: 'Friends',
+                  onPressed: controller.toFriendsList,
+                ),
+              ],
+            ),
           ),
         ),
       ),

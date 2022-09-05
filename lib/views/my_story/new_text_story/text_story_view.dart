@@ -19,7 +19,7 @@ class TextStoryView extends StatelessWidget {
     return GetBuilder<TextStoryController>(
       init: TextStoryController(defaultStory),
       builder: (controller) => Scaffold(
-        backgroundColor: Palette.orange, // Color(0xFF314EB2),
+        backgroundColor: Palette.orange,
         floatingActionButton: PressedBuilder(
           onPressed: controller.submit,
           builder: (pressed) => Container(
@@ -58,14 +58,18 @@ class TextStoryView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 36, vertical: 30),
+                    padding: const EdgeInsets.all(28),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildTop(),
                         SizedBox(height: 36),
-                        Expanded(child: _buildTextField(controller)),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: _buildTextField(controller),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -85,11 +89,11 @@ class TextStoryView extends StatelessWidget {
             FluentIcons.chevron_left_24_regular,
             onPressed: () => Get.back(),
           ),
-          SizedBox(width: 16),
+          SizedBox(width: 12),
           Text(
             defaultStory == null ? 'New story' : 'Edit story',
             style: TextStyle(
-              height: 1.4,
+              height: 1.6,
               fontFamily: 'Avenir',
               fontSize: 18,
               fontWeight: FontWeight.w700,

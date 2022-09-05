@@ -37,23 +37,25 @@ class ChatsView extends StatelessWidget {
               ),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 36),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: _buildTop(),
-                  ),
-                  SizedBox(height: 36),
-                  if (controller.isLoading)
-                    Center(child: Loading())
-                  else if (controller.hasNoContent)
-                    OnboardingView()
-                  else
-                    ..._buildContent(),
-                ],
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 36),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: _buildTop(),
+                    ),
+                    SizedBox(height: 36),
+                    if (controller.isLoading)
+                      Center(child: Loading())
+                    else if (controller.hasNoContent)
+                      OnboardingView()
+                    else
+                      ..._buildContent(),
+                  ],
+                ),
               ),
             ),
             _buildChatSelectionBar(),
@@ -350,7 +352,7 @@ class ChatsView extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(width: 6),
+                                    SizedBox(width: 4),
                                   ],
                                   onPressed: () => controller.tapChat(chat),
                                   onLongPress: () =>

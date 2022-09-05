@@ -110,6 +110,7 @@ class UserProfileView extends StatelessWidget {
                   mainAxisSpacing: 12,
                   childAspectRatio: 5 / 6,
                   physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                   children: controller.mediaUrls
                       .map((photoUrl) => OpacityFeedback(
                             onPressed: () =>

@@ -20,9 +20,7 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _builder(HomeController controller) => Scaffold(
-        body: SafeArea(
-          child: _buildBody(controller),
-        ),
+        body: _buildBody(controller),
         bottomNavigationBar: Container(
           padding: const EdgeInsets.symmetric(horizontal: 54, vertical: 14),
           color: Get.theme.primaryColorLight,

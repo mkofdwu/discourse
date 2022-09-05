@@ -25,14 +25,12 @@ class ListAnimationController {
 }
 
 class MyAnimatedList extends StatefulWidget {
-  final bool isAttachmentList;
   final ListAnimationController controller;
   final List list;
   final Widget Function(int, dynamic) listTileBuilder;
 
   const MyAnimatedList({
     Key? key,
-    this.isAttachmentList = false,
     required this.controller,
     required this.list,
     required this.listTileBuilder,
@@ -53,11 +51,7 @@ class _MyAnimatedListState<T> extends State<MyAnimatedList> {
   Widget build(BuildContext context) {
     return AnimatedList(
       key: widget.controller.key,
-      physics: widget.isAttachmentList ? NeverScrollableScrollPhysics() : null,
-      shrinkWrap: widget.isAttachmentList,
-      padding: widget.isAttachmentList
-          ? null
-          : const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 16),
       initialItemCount: widget.list.length,
       itemBuilder: (context, i, animation) {
         return SizeTransition(
