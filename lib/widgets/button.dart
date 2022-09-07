@@ -32,9 +32,9 @@ class MyButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24), // 12
         decoration: BoxDecoration(
-          color: isPrimary
+          color: isPrimary && !isLoading
               ? Get.theme.colorScheme.primary
-              : Palette.black3, // Get.theme.primaryColorLight,
+              : Palette.black3,
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: fillWidth ? Alignment.center : null,
@@ -43,7 +43,7 @@ class MyButton extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
-                  color: isPrimary ? Colors.black : Colors.white,
+                  color: Colors.white,
                   strokeWidth: 2,
                 ),
               )

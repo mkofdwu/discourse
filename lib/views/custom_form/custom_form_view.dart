@@ -50,7 +50,11 @@ class CustomFormView extends StatelessWidget {
                   )
                   .toList(),
               Spacer(),
-              MyButton(text: 'Submit', onPressed: controller.submit),
+              MyButton(
+                text: 'Submit',
+                isLoading: controller.isLoading,
+                onPressed: controller.submit,
+              ),
             ],
           ),
         ),

@@ -14,26 +14,41 @@ import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class GroupDetailsController extends GetxController {
+class GroupDetailsController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _media = Get.find<MediaService>();
   final _storage = Get.find<StorageService>();
 
   final UserGroupChat _chat;
+  late TabController tabController;
 
   GroupDetailsController(this._chat);
 
   DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
 
   MemberRole get currentUserRole => _chat.groupData.members
-      .singleWhere((member) => member.user == currentUser)
+      .singleWhere((member) => member.user.id == currentUser.id)
       .role;
 
   bool get hasAdminPrivileges =>
       currentUserRole == MemberRole.admin ||
       currentUserRole == MemberRole.owner;
+
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void onClose() {
+    tabController.dispose();
+    super.onClose();
+  }
 
   void viewGroupPhoto() async {
     if (_chat.photoUrl != null) {
@@ -244,6 +259,29 @@ class GroupDetailsController extends GetxController {
         () => MediaListView(photoUrls: _chat.data.mediaUrls.reversed.toList()));
   }
 
+  void showGroupOptions() async {
+    final choice = await Get.bottomSheet(ChoiceBottomSheet(
+      title: 'Group options',
+      choices: [
+        if (hasAdminPrivileges) 'Edit name or description',
+        if (hasAdminPrivileges) 'Change photo',
+        'Leave group',
+      ],
+    ));
+    if (choice == null) return;
+    switch (choice) {
+      case 'Edit name & description':
+        editNameAndDescription();
+        break;
+      case 'Change photo':
+        selectPhoto();
+        break;
+      case 'Leave group':
+        leaveGroup();
+        break;
+    }
+  }
+
   void leaveGroup() async {
     final confirmed = await Get.bottomSheet(YesNoBottomSheet(
       title: 'Leave group?',
@@ -258,6 +296,4 @@ class GroupDetailsController extends GetxController {
       await _groupChatDb.leaveGroup(_chat.id);
     }
   }
-
-  void deleteGroup() {}
 }

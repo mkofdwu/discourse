@@ -17,6 +17,7 @@ class MyListTile extends StatelessWidget {
   final Function()? onLongPress;
   final bool increaseWidthFactor;
   final bool compact;
+  final bool isActionTile;
 
   const MyListTile({
     Key? key,
@@ -31,6 +32,7 @@ class MyListTile extends StatelessWidget {
     this.onLongPress,
     this.increaseWidthFactor = true,
     this.compact = false,
+    this.isActionTile = false,
   }) : super(key: key);
 
   @override
@@ -75,7 +77,8 @@ class MyListTile extends StatelessWidget {
                       iconSize: 20,
                       photoUrl: photoUrl,
                       placeholderIcon: iconData,
-                      backgroundColor: Color(0xFF606060),
+                      backgroundColor:
+                          isActionTile ? Palette.black3 : Color(0xFF606060),
                     ),
                   ),
                   Positioned(
@@ -116,7 +119,9 @@ class MyListTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: subtitle == null ? 18 : 16,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: isActionTile
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                           ),
                         ),
                         Spacer(),
