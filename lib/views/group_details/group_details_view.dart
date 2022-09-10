@@ -1,15 +1,10 @@
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/views/group_details/app_bar.dart';
 import 'package:discourse/views/user_profile/user_profile_view.dart';
-import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
-import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -171,36 +166,4 @@ class GroupDetailsView extends StatelessWidget {
   Widget _linksTab() => Container(height: 10, color: Colors.blue);
 
   Widget _filesTab() => Container(height: 10, color: Colors.yellow);
-
-  Widget _buildAddMembersButton(GroupDetailsController controller) =>
-      OpacityFeedback(
-        onPressed: controller.toAddMembers,
-        child: Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: Palette.black3,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Get.theme.primaryColor.withOpacity(0.1)),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(child: Icon(FluentIcons.add_16_filled, size: 16)),
-              ),
-              SizedBox(width: 16),
-              Text(
-                'Add members',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-        ),
-      );
 }

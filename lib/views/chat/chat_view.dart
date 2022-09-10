@@ -9,7 +9,6 @@ import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/views/chat/widgets/participants_typing.dart';
-import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/app_state_handler.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -135,7 +134,6 @@ class _ChatViewState extends State<ChatView> {
         controller: messageListController.listController,
         itemCount: messageListController.chatLog.length,
         itemBuilder: (context, i) {
-          print('Building item $i');
           final chatObject = messageListController.chatLog[i];
           final prevObject = i + 1 >= messageListController.chatLog.length
               ? null
@@ -443,57 +441,6 @@ class _ChatViewState extends State<ChatView> {
               ),
             ),
           ],
-        ),
-      );
-
-  PreferredSizeWidget _buildMessageSelectionAppBar(ChatController controller) =>
-      myAppBar(
-        title: '${controller.messageSelection.numSelected} selected',
-        onBack: controller.messageSelection.cancelMessageSelection,
-        actions: {
-          if (controller.messageSelection.canReplyToSelectedMessages)
-            FluentIcons.arrow_reply_20_regular:
-                controller.messageSelection.replyToSelectedMessages,
-          if (controller.messageSelection.canDeleteSelectedMessages)
-            FluentIcons.delete_20_regular:
-                controller.messageSelection.deleteSelectedMessages,
-          if (controller.messageSelection.canGoToViewedBy)
-            FluentIcons.eye_20_regular: controller.toMessageViewedBy,
-        },
-      );
-
-  PreferredSizeWidget _buildSearchAppBar(ChatController controller) =>
-      PreferredSize(
-        preferredSize: Size.fromHeight(76),
-        child: SafeArea(
-          child: Container(
-            height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            margin: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Palette.black3,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                MyIconButton(
-                  FluentIcons.chevron_left_24_regular,
-                  onPressed: () => Get.back(),
-                ),
-                SizedBox(width: 12),
-                Spacer(),
-                MyIconButton(
-                  FluentIcons.arrow_sort_up_24_regular,
-                  onPressed: controller.showChatOptions,
-                ),
-                SizedBox(width: 0),
-                MyIconButton(
-                  FluentIcons.arrow_sort_down_24_regular,
-                  onPressed: controller.showChatOptions,
-                ),
-              ],
-            ),
-          ),
         ),
       );
 

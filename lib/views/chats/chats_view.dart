@@ -4,7 +4,6 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
-import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
