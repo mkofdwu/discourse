@@ -1,7 +1,7 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/widgets/icon_button.dart';
-import 'package:discourse/widgets/pressed_builder.dart';
+import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,104 +51,11 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
           // hacky solution to get full control
           return Stack(
             children: [
-              FlexibleSpaceBar(
-                background: GestureDetector(
-                  onTap: controller.viewGroupPhoto,
-                  child: widget.chat.photoUrl != null
-                      ? Hero(
-                          tag: widget.chat.photoUrl!,
-                          child: Image.network(
-                            widget.chat.photoUrl!,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Container(
-                          color: Palette.orange.withOpacity(0.6),
-                          child: Icon(
-                            FluentIcons.people_community_28_regular,
-                            color: Colors.white.withOpacity(0.1),
-                            size: 96,
-                          ),
-                        ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(
-                    lerp(74, 40, extent),
-                    36,
-                    lerp(28, 40, extent),
-                    lerp(18 + 52, 30 + 52, extent),
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(lerp(0, 0.6, extent)),
-                        Colors.black.withOpacity(0),
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Transform.translate(
-                        // feels very dirty but it works
-                        offset: Offset(
-                          0,
-                          lerp(
-                            descriptionTextHeight == null
-                                ? 6
-                                : descriptionTextHeight + 26,
-                            0,
-                            extent,
-                          ),
-                        ),
-                        child: Text(
-                          widget.chat.title,
-                          style: TextStyle(
-                            fontSize: lerp(16, 24, extent),
-                            fontWeight: extent < 0.1
-                                ? FontWeight.w500
-                                : FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      if (widget.chat.groupData.description.isNotEmpty)
-                        Opacity(
-                          opacity: lerp(0, 1, extent),
-                          child: Text(
-                            widget.chat.groupData.description,
-                            key: _descriptionTextKey,
-                          ),
-                        ),
-                      if (widget.chat.groupData.description.isNotEmpty)
-                        SizedBox(height: 20),
-                      Text(
-                        // TODO
-                        'Created by you, 19/04/2021',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                          fontSize: lerp(12, 14, extent),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildPhoto(),
+              _buildDetailsText(extent, descriptionTextHeight),
               // this needs to be on top so it can be clicked
-              _buildButtons(extent),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: _buildTabBar(),
-              ),
+              _buildTopButtons(extent),
+              _buildTabBar(),
             ],
           );
         },
@@ -156,88 +63,171 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
     );
   }
 
-  Widget _buildButtons(double extent) => SafeArea(
+  Widget _buildPhoto() {
+    return FlexibleSpaceBar(
+      background: GestureDetector(
+        onTap: controller.viewGroupPhoto,
+        child: widget.chat.photoUrl != null
+            ? Hero(
+                tag: widget.chat.photoUrl!,
+                child: Image.network(
+                  widget.chat.photoUrl!,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : Container(
+                color: Palette.orange.withOpacity(0.6),
+                child: Icon(
+                  FluentIcons.people_community_28_regular,
+                  color: Colors.white.withOpacity(0.1),
+                  size: 96,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Positioned _buildDetailsText(double extent, double? descriptionTextHeight) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(
+            lerp(74, 40, extent),
+            36,
+            lerp(28, 40, extent),
+            lerp(18 + 52, 30 + 52, extent),
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+                Colors.black.withOpacity(lerp(0, 0.8, extent)),
+                Colors.black.withOpacity(0),
+              ],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Transform.translate(
+                // feels very dirty but it works
+                offset: Offset(
+                  0,
+                  lerp(
+                    descriptionTextHeight == null
+                        ? 6
+                        : descriptionTextHeight + 26,
+                    0,
+                    extent,
+                  ),
+                ),
+                child: Text(
+                  widget.chat.title,
+                  style: TextStyle(
+                    fontSize: lerp(16, 24, extent),
+                    fontWeight:
+                        extent < 0.1 ? FontWeight.w500 : FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+              if (widget.chat.groupData.description.isNotEmpty)
+                Opacity(
+                  opacity: lerp(0, 1, extent),
+                  child: Text(
+                    widget.chat.groupData.description,
+                    key: _descriptionTextKey,
+                  ),
+                ),
+              if (widget.chat.groupData.description.isNotEmpty)
+                SizedBox(height: 20),
+              Text(
+                // TODO
+                'Created by you, 19/04/2021',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: lerp(12, 14, extent),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopButtons(double extent) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: widget.chat.photoUrl == null
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(lerp(0, 0.4, extent)),
+                  Colors.black.withOpacity(0),
+                ],
+              ),
+      ),
+      child: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-            left: lerp(24, 40, extent),
-            top: lerp(20, 36, extent),
-            right: lerp(24, 40, extent),
+            left: lerp(28, 40, extent),
+            top: lerp(20, 32, extent),
+            right: lerp(20, 32, extent),
+            bottom: 36,
           ),
           child: Row(
             children: [
-              extent < 0.1
-                  ? MyIconButton(
-                      FluentIcons.chevron_left_24_regular,
-                      onPressed: Get.back,
-                    )
-                  : _buildBackButton(extent),
+              OpacityFeedback(
+                onPressed: Get.back,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(FluentIcons.chevron_left_24_regular),
+                    SizedBox(width: 8),
+                    Text(
+                      'BACK',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(lerp(0, 1, extent)),
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.4,
+                        height: 1.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Spacer(),
               if (controller.hasAdminPrivileges)
-                _buildButton(
-                  extent,
-                  FluentIcons.edit_20_regular,
-                  controller.editNameAndDescription,
+                MyIconButton(
+                  FluentIcons.edit_24_regular,
+                  size: 22,
+                  onPressed: controller.editNameAndDescription,
                 ),
-              SizedBox(width: 12),
-              _buildButton(
-                extent,
-                FluentIcons.more_vertical_20_regular,
-                controller.showGroupOptions,
+              SizedBox(width: lerp(8, 12, extent)),
+              MyIconButton(
+                FluentIcons.more_vertical_24_regular,
+                onPressed: controller.showGroupOptions,
               ),
             ],
           ),
         ),
-      );
+      ),
+    );
+  }
 
-  Widget _buildBackButton(double extent) => PressedBuilder(
-        onPressed: Get.back,
-        builder: (pressed) => AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(pressed ? 0.2 : 0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Icon(
-                FluentIcons.chevron_left_20_regular,
-                size: 20,
-              ),
-              SizedBox(width: 8),
-              Text(
-                'BACK',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(lerp(0, 1, extent)),
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-  Widget _buildButton(
-          double extent, IconData iconData, VoidCallback onPressed) =>
-      extent < 0.1
-          ? MyIconButton(iconData, onPressed: onPressed)
-          : PressedBuilder(
-              onPressed: onPressed,
-              builder: (pressed) => AnimatedContainer(
-                duration: const Duration(milliseconds: 100),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(pressed ? 0.2 : 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(iconData, size: 20),
-              ),
-            );
-
-  Widget _buildTabBar() => Container(
+  Widget _buildTabBar() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
         padding: EdgeInsets.fromLTRB(12, 10, 12, 0),
         decoration: BoxDecoration(
           color: Get.theme.scaffoldBackgroundColor,
@@ -268,5 +258,7 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
             ],
           ),
         ),
-      );
+      ),
+    );
+  }
 }

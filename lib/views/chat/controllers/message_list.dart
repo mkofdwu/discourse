@@ -86,8 +86,8 @@ class MessageListController extends GetxController {
         }
         if (showGoToBottomArrow.value) {
           numNewMessages += 1;
+          update();
         }
-        update();
         if (chatObject is Message && chatObject.fromMe) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollToBottom();

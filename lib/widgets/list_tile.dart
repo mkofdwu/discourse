@@ -106,7 +106,7 @@ class MyListTile extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(width: compact ? 16 : 20),
+              SizedBox(width: compact ? 14 : 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,6 +161,7 @@ class MyListTile extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(width: 8),
               ...extraWidgets,
             ],
           ),

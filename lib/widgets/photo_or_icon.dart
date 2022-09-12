@@ -13,6 +13,7 @@ class PhotoOrIcon extends StatelessWidget {
   final String? photoUrl;
   final File? photoFile;
   final IconData? placeholderIcon;
+  final bool hero;
 
   const PhotoOrIcon({
     Key? key,
@@ -24,35 +25,44 @@ class PhotoOrIcon extends StatelessWidget {
     required this.photoUrl,
     this.photoFile,
     required this.placeholderIcon,
+    this.hero = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return photoUrl == null && photoFile == null
-        ? Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(radius ?? size / 2),
-              color: backgroundColor,
-            ),
-            child: Center(
-              child: Icon(
-                placeholderIcon,
-                size: iconSize,
-                color: Colors.white.withOpacity(iconOpacity),
-              ),
-            ),
-          )
-        : SizedBox(
-            width: size,
-            height: size,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius ?? size / 2),
-              child: photoFile != null
-                  ? Image.file(photoFile!, fit: BoxFit.cover)
-                  : CachedNetworkImage(imageUrl: photoUrl!, fit: BoxFit.cover),
-            ),
-          );
+    if (photoUrl == null && photoFile == null) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius ?? size / 2),
+          color: backgroundColor,
+        ),
+        child: Center(
+          child: Icon(
+            placeholderIcon,
+            size: iconSize,
+            color: Colors.white.withOpacity(iconOpacity),
+          ),
+        ),
+      );
+    }
+
+    final imageWidget = ClipRRect(
+      borderRadius: BorderRadius.circular(radius ?? size / 2),
+      child: photoFile != null
+          ? Image.file(photoFile!, fit: BoxFit.cover)
+          : CachedNetworkImage(imageUrl: photoUrl!, fit: BoxFit.cover),
+    );
+    return SizedBox(
+      width: size,
+      height: size,
+      child: hero
+          ? Hero(
+              tag: photoFile != null ? photoFile!.path : photoUrl!,
+              child: imageWidget,
+            )
+          : imageWidget,
+    );
   }
 }

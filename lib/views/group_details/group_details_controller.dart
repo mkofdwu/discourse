@@ -65,7 +65,9 @@ class GroupDetailsController extends GetxController
               if (choice == null) return;
               switch (choice) {
                 case 'Change photo':
-                  selectPhoto();
+                  if (await selectPhoto()) {
+                    Get.back();
+                  }
                   break;
                 case 'Remove photo':
                   _askRemovePhoto();
@@ -81,13 +83,13 @@ class GroupDetailsController extends GetxController
     }
   }
 
-  void selectPhoto() async {
+  Future<bool> selectPhoto() async {
     if (!hasAdminPrivileges) {
       Get.snackbar(
         "You can't do that",
         "Sadly, you don't have permissions to change the group photo",
       );
-      return;
+      return false;
     }
     final newPhoto = await _media.selectPhoto();
     if (newPhoto != null) {
@@ -95,7 +97,9 @@ class GroupDetailsController extends GetxController
       await _groupChatDb.updatePhoto(_chat.id, newPhoto.url);
       _chat.groupData.photoUrl = newPhoto.url;
       update();
+      return true;
     }
+    return false;
   }
 
   void _askRemovePhoto() async {

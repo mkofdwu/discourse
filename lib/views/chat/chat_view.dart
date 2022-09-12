@@ -129,68 +129,73 @@ class _ChatViewState extends State<ChatView> {
     ChatController controller,
     MessageListController messageListController,
   ) =>
-      FlutterListView.builder(
-        reverse: true,
-        controller: messageListController.listController,
-        itemCount: messageListController.chatLog.length,
-        itemBuilder: (context, i) {
-          final chatObject = messageListController.chatLog[i];
-          final prevObject = i + 1 >= messageListController.chatLog.length
-              ? null
-              : messageListController.chatLog[i + 1];
-          final nextObject =
-              i - 1 < 0 ? null : messageListController.chatLog[i - 1];
-          final showDate = prevObject == null ||
-              !isSameDay(
-                prevObject.sentTimestamp,
-                chatObject.sentTimestamp,
-              );
+      Obx(
+        () => FlutterListView(
+          reverse: true,
+          controller: messageListController.listController,
+          delegate: FlutterListViewDelegate(
+            (context, i) {
+              final chatObject = messageListController.chatLog[i];
+              final prevObject = i + 1 >= messageListController.chatLog.length
+                  ? null
+                  : messageListController.chatLog[i + 1];
+              final nextObject =
+                  i - 1 < 0 ? null : messageListController.chatLog[i - 1];
+              final showDate = prevObject == null ||
+                  !isSameDay(
+                    prevObject.sentTimestamp,
+                    chatObject.sentTimestamp,
+                  );
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (showDate) ...[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
-                  child: OpacityFeedback(
-                    onPressed: messageListController.toSelectDate,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatDate(chatObject.sentTimestamp),
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w700),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (showDate) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
+                      child: OpacityFeedback(
+                        onPressed: messageListController.toSelectDate,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _formatDate(chatObject.sentTimestamp),
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.w700),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              _dayOfWeek(chatObject.sentTimestamp),
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          _dayOfWeek(chatObject.sentTimestamp),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                Container(
-                  height: 1,
-                  width: double.infinity,
-                  color: Colors.white.withOpacity(0.1),
-                  margin: const EdgeInsets.symmetric(horizontal: 30),
-                ),
-                SizedBox(height: 32),
-              ],
-              chatObject is Message
-                  ? _buildMessage(
-                      controller, messageListController, chatObject, prevObject)
-                  : _buildChatAlert(
-                      chatObject.asChatAlert, prevObject, nextObject, showDate),
-              if (i == 0) SizedBox(height: 80),
-            ],
-          );
-        },
+                    Container(
+                      height: 1,
+                      width: double.infinity,
+                      color: Colors.white.withOpacity(0.1),
+                      margin: const EdgeInsets.symmetric(horizontal: 30),
+                    ),
+                    SizedBox(height: 32),
+                  ],
+                  chatObject is Message
+                      ? _buildMessage(controller, messageListController,
+                          chatObject, prevObject)
+                      : _buildChatAlert(chatObject.asChatAlert, prevObject,
+                          nextObject, showDate),
+                  if (i == 0) SizedBox(height: 80),
+                ],
+              );
+            },
+            childCount: messageListController.chatLog.length,
+            onItemKey: (i) => messageListController.chatLog[i].id,
+          ),
+        ),
       );
 
   Widget _buildMessage(
@@ -412,6 +417,7 @@ class _ChatViewState extends State<ChatView> {
               placeholderIcon: controller.isPrivateChat
                   ? FluentIcons.person_16_regular
                   : FluentIcons.people_community_16_regular,
+              hero: true,
             ),
             SizedBox(width: 20),
             Expanded(
@@ -464,7 +470,7 @@ class _ChatViewState extends State<ChatView> {
             Container(
               width: 40,
               height: 40,
-              margin: EdgeInsets.only(top: 8, right: 2),
+              margin: EdgeInsets.only(top: 6, right: 4),
               decoration: BoxDecoration(
                 color: Color(0xFF606060),
                 borderRadius: BorderRadius.circular(24),
@@ -481,11 +487,11 @@ class _ChatViewState extends State<ChatView> {
                 top: 0,
                 right: 0,
                 child: Container(
-                  width: 24,
-                  height: 24,
+                  width: 20,
+                  height: 20,
                   decoration: BoxDecoration(
                     color: Palette.orange,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
                     child: Text(

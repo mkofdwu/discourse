@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 class MyIconButton extends StatelessWidget {
   final IconData iconData;
   final Color? color;
+  final double? size;
   final Function() onPressed;
 
   const MyIconButton(
     this.iconData, {
     Key? key,
     this.color,
+    this.size,
     required this.onPressed,
   }) : super(key: key);
 
@@ -21,7 +23,7 @@ class MyIconButton extends StatelessWidget {
         width: 36,
         height: 36,
         child: Center(
-          child: Icon(iconData, size: 24, color: color),
+          child: Icon(iconData, size: size, color: color),
         ),
       ),
     );
