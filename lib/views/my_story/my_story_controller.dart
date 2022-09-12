@@ -15,6 +15,7 @@ import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/storage.dart';
 import 'package:discourse/models/unsent_story.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -42,9 +43,9 @@ class MyStoryController extends GetxController {
 
   void viewMyStory() async {
     if (_myStory.isEmpty) {
-      Get.snackbar(
-        'Nothing to show',
-        'You dont have anything added to your story. Try writing something or adding a photo first',
+      showSnackBar(
+        type: SnackBarType.info,
+        message: 'Try adding a story first!',
       );
     } else {
       Get.to(() => StoryView(

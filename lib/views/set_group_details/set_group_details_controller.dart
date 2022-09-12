@@ -9,6 +9,7 @@ import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/storage.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -112,9 +113,9 @@ class SetGroupDetailsController extends GetxController {
       addMembers,
     );
     Get.off(ChatView(chat: chat));
-    Get.snackbar(
-      'Invites sent',
-      'Group invites were sent to ${sendInvitesTo.length} people',
+    showSnackBar(
+      type: SnackBarType.success,
+      message: 'Group invites were sent to ${sendInvitesTo.length} people',
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/friends/friends_view.dart';
 import 'package:discourse/views/settings/settings_view.dart';
 import 'package:discourse/widgets/bottom_sheets/input_bottom_sheet.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
@@ -38,9 +39,9 @@ class MyProfileController extends GetxController {
     ));
     if (newUsername == null || newUsername.isEmpty) return;
     if (await _userDb.getUserByUsername(newUsername) != null) {
-      Get.snackbar(
-        'Error',
-        'Failed to change username as this username is already taken',
+      showSnackBar(
+        type: SnackBarType.error,
+        message: 'This username is already taken',
       );
       return;
     }
@@ -81,15 +82,15 @@ class MyProfileController extends GetxController {
   void verifyEmail() async {
     try {
       await _auth.verifyEmail();
-      Get.snackbar(
-        'Email sent',
-        'Click the link sent to ${user.email} to validate your email',
+      showSnackBar(
+        type: SnackBarType.success,
+        message: 'Click the link sent to your email',
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'too-many-requests') {
-        Get.snackbar(
-          'Failed to send email',
-          'There have been too many email verification requests from this device. Try again in a while',
+        showSnackBar(
+          type: SnackBarType.error,
+          message: 'Too many requests. Try again later',
         );
       }
     }

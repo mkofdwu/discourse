@@ -1,6 +1,7 @@
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:get/get.dart';
 import 'package:discourse/views/notification_settings/notification_settings_view.dart';
 import 'package:discourse/views/privacy_settings/privacy_settings_view.dart';
@@ -72,7 +73,10 @@ class SettingsController extends GetxController {
     if (confirmed ?? false) {
       _auth.signOut();
       Get.offAll(SignInView());
-      Get.snackbar('Success', 'Signed out successfully');
+      showSnackBar(
+        type: SnackBarType.success,
+        message: 'Signed out successfully',
+      );
     }
   }
 }

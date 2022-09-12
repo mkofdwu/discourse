@@ -1,5 +1,6 @@
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/services/requests.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:get/get.dart';
 
 Future<void> requestFriend(String userId) async {
@@ -8,5 +9,8 @@ Future<void> requestFriend(String userId) async {
     type: RequestType.friend,
     data: null,
   ));
-  Get.snackbar('Success', 'Your friend request has been sent');
+  showSnackBar(
+    type: SnackBarType.success,
+    message: 'Your friend request has been sent',
+  );
 }

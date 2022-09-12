@@ -1,3 +1,4 @@
+import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -13,6 +14,7 @@ import 'package:discourse/views/media_list/media_list_view.dart';
 import 'package:discourse/views/user_selector/user_selector_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
+import 'package:discourse/widgets/snack_bar.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -85,9 +87,9 @@ class GroupDetailsController extends GetxController
 
   Future<bool> selectPhoto() async {
     if (!hasAdminPrivileges) {
-      Get.snackbar(
-        "You can't do that",
-        "Sadly, you don't have permissions to change the group photo",
+      showSnackBar(
+        type: SnackBarType.info,
+        message: "Only admins can change the photo",
       );
       return false;
     }
@@ -117,9 +119,9 @@ class GroupDetailsController extends GetxController
 
   void editNameAndDescription() {
     if (!hasAdminPrivileges) {
-      Get.snackbar(
-        "You can't do that",
-        "Sadly, you don't have permissions to edit the group details",
+      showSnackBar(
+        type: SnackBarType.info,
+        message: "Only admins can edit the group details",
       );
       return;
     }
@@ -243,9 +245,9 @@ class GroupDetailsController extends GetxController
               selectedUsers.map((user) => Member.create(user)).toList(),
             );
             Get.back();
-            Get.snackbar(
-              'Success',
-              'Added or sent invites to ${selectedUsers.length} users',
+            showSnackBar(
+              type: SnackBarType.success,
+              message: 'Added or sent invites to ${selectedUsers.length} users',
             );
           },
         ));
