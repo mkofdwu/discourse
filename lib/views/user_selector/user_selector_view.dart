@@ -109,6 +109,29 @@ class UserSelectorView extends StatelessWidget {
                   child:
                       _buildResultsList(controller, controller.searchResults),
                 ),
+              if (controller.searchController.text.isNotEmpty &&
+                  controller.searchResults.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/images/undraw_empty.png',
+                          width: 160,
+                        ),
+                        SizedBox(height: 40),
+                        Text(
+                          "Couldn't find anyone...",
+                          style: TextStyle(
+                            color: Get.theme.primaryColor.withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

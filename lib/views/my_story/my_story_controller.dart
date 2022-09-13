@@ -159,6 +159,8 @@ class MyStoryController extends GetxController {
       isScrollControlled: true,
       builder: (context) => SafeArea(
         child: DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: viewedAt.isEmpty ? 0.6 : 1,
           builder: (context, controller) {
             return LayoutBuilder(builder: (context, constraints) {
               final progress = constraints.maxHeight / Get.height;
@@ -186,21 +188,35 @@ class MyStoryController extends GetxController {
                         ),
                       ),
                       SizedBox(height: 30),
-                      ...viewedAt
-                          .map((user, timestamp) => MapEntry(
-                              user,
-                              MyListTile(
-                                title: user.username,
-                                // removed after 24 hours so its either today or ystd
-                                subtitle:
-                                    '${isSameDay(timestamp, DateTime.now()) ? 'Today' : 'Yesterday'}, ${formatTime(timestamp)}',
-                                photoUrl: story.type == StoryType.photo
-                                    ? story.content
-                                    : null,
-                                iconData:
-                                    FluentIcons.text_description_20_regular,
-                              )))
-                          .values,
+                      if (viewedAt.isEmpty) ...[
+                        SizedBox(height: 30),
+                        Image.asset(
+                          'assets/images/undraw_book.png',
+                          width: 160,
+                        ),
+                        SizedBox(height: 40),
+                        Text(
+                          'No one has seen your story yet',
+                          style: TextStyle(
+                            color: Get.theme.primaryColor.withOpacity(0.6),
+                          ),
+                        ),
+                      ] else
+                        ...viewedAt
+                            .map((user, timestamp) => MapEntry(
+                                user,
+                                MyListTile(
+                                  title: user.username,
+                                  // removed after 24 hours so its either today or ystd
+                                  subtitle:
+                                      '${isSameDay(timestamp, DateTime.now()) ? 'Today' : 'Yesterday'}, ${formatTime(timestamp)}',
+                                  photoUrl: story.type == StoryType.photo
+                                      ? story.content
+                                      : null,
+                                  iconData:
+                                      FluentIcons.text_description_20_regular,
+                                )))
+                            .values,
                     ],
                   ),
                 ),
