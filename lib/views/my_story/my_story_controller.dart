@@ -5,6 +5,7 @@ import 'package:discourse/services/media.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/utils/date_time.dart';
+import 'package:discourse/views/chats/chats_controller.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
 import 'package:discourse/views/my_story/new_text_story/text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
@@ -34,15 +35,15 @@ class MyStoryController extends GetxController {
   final _userDb = Get.find<UserDbService>();
 
   final listAnimationController = ListAnimationController();
-  final List<StoryPage> _myStory;
   final selectedStories = RxList<StoryPage>();
 
+  RxList<StoryPage> get myStory => Get.find<ChatsController>().myStory;
   bool get isSelecting => selectedStories.isNotEmpty;
 
-  MyStoryController(this._myStory);
+  MyStoryController();
 
   void viewMyStory() async {
-    if (_myStory.isEmpty) {
+    if (myStory.isEmpty) {
       showSnackBar(
         type: SnackBarType.info,
         message: 'Try adding a story first!',
@@ -50,7 +51,7 @@ class MyStoryController extends GetxController {
     } else {
       Get.to(() => StoryView(
             title: 'Your story',
-            story: _myStory,
+            story: myStory,
             // TODO
             onShowOptions: () async {
               final choice = await Get.bottomSheet(ChoiceBottomSheet(
@@ -107,25 +108,22 @@ class MyStoryController extends GetxController {
     ));
     if (confirm ?? false) {
       for (final story in selectedStories) {
-        final index = _myStory.indexOf(story);
+        final index = myStory.indexOf(story);
         await _storyDb.deleteStory(story.id);
         listAnimationController.animateRemove(index, story);
-        _myStory.removeAt(index);
+        myStory.removeAt(index);
       }
       selectedStories.clear();
-      update();
     }
   }
 
   void newTextPost() async {
     final result = await Get.to(() => TextStoryView());
     if (result != null) {
-      _myStory.add(result as StoryPage);
-      if (_myStory.length > 1) {
+      myStory.add(result as StoryPage);
+      if (myStory.length > 1) {
         // if story was empty at first, list hasn't been created yet
-        listAnimationController.animateInsert(_myStory.length - 1);
-      } else {
-        update(); // replace placeholder with list
+        listAnimationController.animateInsert(myStory.length - 1);
       }
     }
   }
@@ -142,9 +140,8 @@ class MyStoryController extends GetxController {
         sendToIds: await _relationships
             .getFriends(), // future: select friend list before posting photo
       ));
-      _myStory.add(story);
-      listAnimationController.animateInsert(_myStory.length - 1);
-      update();
+      myStory.add(story);
+      listAnimationController.animateInsert(myStory.length - 1);
     }
   }
 

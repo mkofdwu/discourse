@@ -245,29 +245,32 @@ class ChatsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (controller.myStory.isNotEmpty)
-                  Positioned(
-                    right: 0,
-                    top: 4,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: Palette.orange,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          controller.myStory.length.toString(),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                Obx(
+                  () => controller.myStory.isEmpty
+                      ? SizedBox()
+                      : Positioned(
+                          right: 0,
+                          top: 4,
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Palette.orange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                controller.myStory.length.toString(),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
+                ),
               ],
             ),
             SizedBox(height: 12),

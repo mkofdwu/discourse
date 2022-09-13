@@ -12,14 +12,12 @@ import 'package:get/get.dart';
 import 'my_story_controller.dart';
 
 class MyStoryView extends StatelessWidget {
-  final List<StoryPage> myStory;
-
-  const MyStoryView({Key? key, required this.myStory}) : super(key: key);
+  const MyStoryView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MyStoryController>(
-      init: MyStoryController(myStory),
+      init: MyStoryController(),
       builder: (controller) => Material(
         child: Stack(
           children: [
@@ -47,49 +45,53 @@ class MyStoryView extends StatelessWidget {
                   ],
                 ),
               ),
-              body: myStory.isEmpty
-                  ? _buildPlaceholder(controller)
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 24, top: 24),
-                          child: Text(
-                            'Click to view, long press for more options',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.4),
-                              fontWeight: FontWeight.w500,
+              body: Obx(
+                () => controller.myStory.isEmpty
+                    ? _buildPlaceholder(controller)
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 24, top: 24),
+                            child: Text(
+                              'Click to view, long press for more options',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.4),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: MyAnimatedList(
-                            controller: controller.listAnimationController,
-                            list: myStory,
-                            listTileBuilder: (i, story) {
-                              story as StoryPage;
-                              return Obx(
-                                () => MyListTile(
-                                  increaseWidthFactor: false,
-                                  title: '${story.viewedAt.length} views',
-                                  subtitle: formatTime(story.sentTimestamp),
-                                  photoUrl: story.type == StoryType.photo
-                                      ? story.content
-                                      : null,
-                                  iconData:
-                                      FluentIcons.text_description_20_regular,
-                                  isSelected: controller.selectedStories
-                                      .contains(story),
-                                  onPressed: () => controller.onTapStory(story),
-                                  onLongPress: () =>
-                                      controller.toggleSelectStory(story),
-                                ),
-                              );
-                            },
+                          Expanded(
+                            child: MyAnimatedList(
+                              controller: controller.listAnimationController,
+                              list: controller.myStory,
+                              listTileBuilder: (i, story) {
+                                story as StoryPage;
+                                return Obx(
+                                  // for selected state
+                                  () => MyListTile(
+                                    increaseWidthFactor: false,
+                                    title: '${story.viewedAt.length} views',
+                                    subtitle: formatTime(story.sentTimestamp),
+                                    photoUrl: story.type == StoryType.photo
+                                        ? story.content
+                                        : null,
+                                    iconData:
+                                        FluentIcons.text_description_20_regular,
+                                    isSelected: controller.selectedStories
+                                        .contains(story),
+                                    onPressed: () =>
+                                        controller.onTapStory(story),
+                                    onLongPress: () =>
+                                        controller.toggleSelectStory(story),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
             Obx(() => SelectionOptionsBar(
                   numSelected: controller.selectedStories.length,
