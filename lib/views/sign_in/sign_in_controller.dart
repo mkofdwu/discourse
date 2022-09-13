@@ -1,3 +1,4 @@
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
@@ -10,6 +11,7 @@ import 'package:get/get.dart';
 class SignInController extends GetxController {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
+  final _cache = Get.find<MiscCache>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -33,6 +35,7 @@ class SignInController extends GetxController {
       password: passwordController.text,
     );
     if (errors.isEmpty) {
+      await _cache.fetchData();
       Get.off(HomeView());
     } else {
       inputErrors = errors;
@@ -41,28 +44,30 @@ class SignInController extends GetxController {
   }
 
   Future<void> _signUp() async {
-    final username = await Get.to(() => CustomFormView(
-          form: CustomForm(
-            title: 'Account details',
-            fields: [
-              Field(
-                'username',
-                '',
-                textFieldBuilder(label: 'Username', isLast: true),
-              ),
-            ],
-            onSubmit: (inputs, setErrors) async {
-              final username = inputs['username'] as String;
-              if (username.isEmpty) {
-                setErrors({'username': 'Please enter a username'});
-              } else if (await _userDb.getUserByUsername(username) != null) {
-                setErrors({'username': 'This username is already taken'});
-              } else {
-                Get.back(result: username);
-              }
-            },
-          ),
-        ));
+    final username = await Get.to(
+      () => CustomFormView(
+        form: CustomForm(
+          title: 'Account details',
+          fields: [
+            Field(
+              'username',
+              '',
+              textFieldBuilder(label: 'Username', isLast: true),
+            ),
+          ],
+          onSubmit: (inputs, setErrors) async {
+            final username = inputs['username'] as String;
+            if (username.isEmpty) {
+              setErrors({'username': 'Please enter a username'});
+            } else if (await _userDb.getUserByUsername(username) != null) {
+              setErrors({'username': 'This username is already taken'});
+            } else {
+              Get.back(result: username);
+            }
+          },
+        ),
+      ),
+    );
     if (username == null) return;
     final errors = await _auth.signUp(
       email: emailController.text,
@@ -71,6 +76,7 @@ class SignInController extends GetxController {
       confirmPassword: confirmPasswordController.text,
     );
     if (errors.isEmpty) {
+      await _cache.fetchData();
       Get.off(HomeView());
     } else {
       inputErrors = errors;

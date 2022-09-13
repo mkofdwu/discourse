@@ -108,7 +108,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
             SizedBox(height: 24),
             _buildButton(item[3], item[4]),
-            SizedBox(height: 44),
+            SizedBox(height: 40),
           ],
         ),
       );

@@ -1,5 +1,6 @@
 import 'package:discourse/models/chat_log_object.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chats/chats_controller.dart';
 import 'package:discourse/widgets/list_tile.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ChatsList extends StatelessWidget {
+  MiscCache get cache => Get.find();
   ChatsController get controller => Get.find();
 
   const ChatsList({Key? key}) : super(key: key);
@@ -15,7 +17,7 @@ class ChatsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: controller.chats
+      children: cache.chats
           .map((chat) => StreamBuilder<ChatLogObject>(
                 stream: controller.streamLastChatObject(chat),
                 builder: (context, snapshot) {

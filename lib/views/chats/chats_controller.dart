@@ -4,8 +4,8 @@ import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/requests.dart';
-import 'package:discourse/services/story_db.dart';
 import 'package:discourse/views/activity/activity_view.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/my_story/my_story_view.dart';
@@ -18,43 +18,27 @@ class ChatsController extends GetxController {
   final _commonChatDb = Get.find<CommonChatDbService>();
   final _chatLogDb = Get.find<ChatLogDbService>();
   final _requests = Get.find<RequestsService>();
-  final _storyDb = Get.find<StoryDbService>();
+  final _cache = Get.find<MiscCache>();
 
-  bool isLoading = false;
-  bool hasNewRequests = false;
-  Map<DiscourseUser, List<StoryPage>> friendsStories = {};
-  final myStory = <StoryPage>[].obs;
-  List<UserChat> chats = [];
-  bool hasNoContent = false;
+  RxBool hasNewRequests = false.obs;
   final selectedChats = RxList<UserChat>();
 
   DiscourseUser get currentUser => Get.find<AuthService>().currentUser;
+  bool get hasNoContent =>
+      _cache.friendsStories.isEmpty && _cache.chats.isEmpty;
   bool get isSelecting => selectedChats.isNotEmpty;
-  bool get allSelected => chats.length == selectedChats.length;
+  bool get allSelected => _cache.chats.length == selectedChats.length;
   bool get showPinSelected => selectedChats.every((chat) => !chat.pinned);
   bool get showUnpinSelected => selectedChats.every((chat) => chat.pinned);
 
   @override
-  void onReady() {
-    fetchData();
-  }
-
-  Future<void> fetchData() async {
-    isLoading = true;
-    update();
-    hasNewRequests = await _requests.hasNewRequests();
-    friendsStories = await _storyDb.friendsStories();
-    myStory.clear();
-    myStory.addAll(await _storyDb.myStory());
-    chats = await _commonChatDb.myChats();
-    hasNoContent = friendsStories.isEmpty && chats.isEmpty;
-    isLoading = false;
-    update();
+  void onReady() async {
+    hasNewRequests.value = await _requests.hasNewRequests();
   }
 
   void toActivity() async {
     await Get.to(() => ActivityView());
-    fetchData(); // if all requests have been cleared
+    hasNewRequests.value = false;
   }
 
   void newGroup() {
@@ -105,7 +89,7 @@ class ChatsController extends GetxController {
       // should this be the desired behaviour (since it just ends selection)
       selectedChats.clear();
     } else {
-      selectedChats.value = List.from(chats);
+      selectedChats.value = List.from(_cache.chats);
     }
   }
 

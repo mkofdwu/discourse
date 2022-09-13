@@ -38,7 +38,7 @@ class UserPrivateChat extends UserChat {
 
   UserPrivateChat({
     required String id,
-    DateTime? lastReadAt,
+    required DateTime? lastReadAt,
     required bool pinned,
     required this.otherUser,
     required PrivateChatData data,
@@ -67,7 +67,7 @@ class UserPrivateChat extends UserChat {
 class UserGroupChat extends UserChat {
   UserGroupChat({
     required String id,
-    DateTime? lastReadAt,
+    required DateTime? lastReadAt,
     required bool pinned,
     required GroupChatData data,
   }) : super(

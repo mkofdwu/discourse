@@ -1,9 +1,9 @@
 import 'package:discourse/constants/palette.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/chats/chats_list.dart';
 import 'package:discourse/views/chats/onboarding_view.dart';
 import 'package:discourse/widgets/floating_action_button.dart';
-import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:discourse/widgets/photo_or_icon.dart';
 import 'package:discourse/widgets/selection_options_bar.dart';
@@ -16,7 +16,8 @@ import 'package:discourse/views/chats/chats_controller.dart';
 class ChatsView extends StatelessWidget {
   const ChatsView({Key? key}) : super(key: key);
 
-  ChatsController get controller => Get.find<ChatsController>();
+  ChatsController get controller => Get.find();
+  MiscCache get cache => Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +46,7 @@ class ChatsView extends StatelessWidget {
                       child: _buildTop(),
                     ),
                     SizedBox(height: 36),
-                    if (controller.isLoading)
-                      Center(child: Loading())
-                    else if (controller.hasNoContent)
+                    if (controller.hasNoContent)
                       OnboardingView()
                     else
                       ..._buildContent(),
@@ -78,20 +77,22 @@ class ChatsView extends StatelessWidget {
                 child: Stack(
                   children: [
                     Icon(FluentIcons.alert_24_regular),
-                    !controller.hasNewRequests
-                        ? SizedBox.shrink()
-                        : Positioned(
-                            top: 0,
-                            right: 1,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: Palette.orange,
-                                borderRadius: BorderRadius.circular(4),
+                    Obx(
+                      () => !controller.hasNewRequests.value
+                          ? SizedBox.shrink()
+                          : Positioned(
+                              top: 0,
+                              right: 1,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: Palette.orange,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               ),
                             ),
-                          ),
+                    ),
                   ],
                 ),
               ),
@@ -156,7 +157,7 @@ class ChatsView extends StatelessWidget {
         SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: controller.chats.isEmpty ? SizedBox.shrink() : ChatsList(),
+          child: cache.chats.isEmpty ? SizedBox.shrink() : ChatsList(),
         ),
       ];
 
@@ -205,19 +206,14 @@ class ChatsView extends StatelessWidget {
             SizedBox(width: 30),
             _buildYourStoryButton(),
             SizedBox(width: 20),
-            if (controller.friendsStories.isNotEmpty)
-              Row(
-                children: controller.friendsStories.entries
-                    .map((entry) => Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: UserStoryTile(
-                            user: entry.key,
-                            story: entry.value,
-                            seenNum: controller.seenNum(entry.value),
-                          ),
-                        ))
-                    .toList(),
-              ),
+            ...cache.friendsStories.entries.map((entry) => Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: UserStoryTile(
+                    user: entry.key,
+                    story: entry.value,
+                    seenNum: controller.seenNum(entry.value),
+                  ),
+                )),
             SizedBox(width: 30),
           ],
         ),
@@ -246,7 +242,7 @@ class ChatsView extends StatelessWidget {
                   ),
                 ),
                 Obx(
-                  () => controller.myStory.isEmpty
+                  () => cache.myStory.isEmpty
                       ? SizedBox()
                       : Positioned(
                           right: 0,
@@ -260,7 +256,7 @@ class ChatsView extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                controller.myStory.length.toString(),
+                                cache.myStory.length.toString(),
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 12,

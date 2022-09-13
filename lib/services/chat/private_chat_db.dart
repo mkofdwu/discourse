@@ -95,6 +95,7 @@ class PrivateChatDbService extends GetxService
     }
     return UserPrivateChat(
       id: chatDoc.id,
+      lastReadAt: null,
       pinned: false,
       otherUser: otherUser,
       data: PrivateChatData(mediaUrls: []),
@@ -103,7 +104,7 @@ class PrivateChatDbService extends GetxService
 
   @override
   Future<void> addUserPrivateChat(String chatId, String otherUserId) async {
-    await _usersRef.doc(_auth.id).collection('chats').doc(chatId).set({
+    _usersRef.doc(_auth.id).collection('chats').doc(chatId).set({
       'type': 0,
       'lastReadAt': null,
       'pinned': false,

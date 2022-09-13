@@ -4,6 +4,7 @@ import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/widgets/animated_list.dart';
 import 'package:discourse/widgets/app_bar.dart';
 import 'package:discourse/widgets/list_tile.dart';
+import 'package:discourse/widgets/loading.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -81,20 +82,24 @@ class _RejectedRequestsViewState extends State<RejectedRequestsView> {
       init: RejectedRequestsController(),
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Rejected requests'),
-        body: controller.requestControllers.isEmpty && !controller.loading
-            ? _buildPlaceholder()
-            : MyAnimatedList(
-                controller: _listAnimationController,
-                list: controller.requestControllers,
-                listTileBuilder: (i, rq) {
-                  return RejectedRequestListTile(
-                    controller: controller,
-                    rq: rq,
-                    animateRemove: () =>
-                        _listAnimationController.animateRemove(i, rq),
-                  );
-                },
-              ),
+        body: Obx(
+          () => controller.loading.value
+              ? Center(child: Loading())
+              : controller.requestControllers.isEmpty
+                  ? _buildPlaceholder()
+                  : MyAnimatedList(
+                      controller: _listAnimationController,
+                      list: controller.requestControllers,
+                      listTileBuilder: (i, rq) {
+                        return RejectedRequestListTile(
+                          controller: controller,
+                          rq: rq,
+                          animateRemove: () =>
+                              _listAnimationController.animateRemove(i, rq),
+                        );
+                      },
+                    ),
+        ),
       ),
     );
   }

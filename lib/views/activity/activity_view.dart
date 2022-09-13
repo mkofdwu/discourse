@@ -96,22 +96,24 @@ class _ActivityViewState extends State<ActivityView> {
             FluentIcons.more_vertical_20_regular: controller.showOptions,
           },
         ),
-        body: controller.loading
-            ? Center(child: Loading())
-            : controller.requestControllers.isEmpty
-                ? _buildPlaceholder()
-                : MyAnimatedList(
-                    controller: _listAnimationController,
-                    list: controller.requestControllers,
-                    listTileBuilder: (i, rq) {
-                      return ActivityListTile(
-                        activityController: controller,
-                        rq: rq,
-                        animateRemove: () =>
-                            _listAnimationController.animateRemove(i, rq),
-                      );
-                    },
-                  ),
+        body: Obx(
+          () => controller.loading.value
+              ? Center(child: Loading())
+              : controller.requestControllers.isEmpty
+                  ? _buildPlaceholder()
+                  : MyAnimatedList(
+                      controller: _listAnimationController,
+                      list: controller.requestControllers,
+                      listTileBuilder: (i, rq) {
+                        return ActivityListTile(
+                          activityController: controller,
+                          rq: rq,
+                          animateRemove: () =>
+                              _listAnimationController.animateRemove(i, rq),
+                        );
+                      },
+                    ),
+        ),
       ),
     );
   }

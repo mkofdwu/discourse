@@ -2,10 +2,10 @@ import 'package:discourse/models/db_objects/story_page.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/services/media.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:discourse/utils/date_time.dart';
-import 'package:discourse/views/chats/chats_controller.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
 import 'package:discourse/views/my_story/new_text_story/text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
@@ -37,7 +37,7 @@ class MyStoryController extends GetxController {
   final listAnimationController = ListAnimationController();
   final selectedStories = RxList<StoryPage>();
 
-  RxList<StoryPage> get myStory => Get.find<ChatsController>().myStory;
+  RxList<StoryPage> get myStory => Get.find<MiscCache>().myStory;
   bool get isSelecting => selectedStories.isNotEmpty;
 
   MyStoryController();

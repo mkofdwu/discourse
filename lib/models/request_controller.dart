@@ -1,5 +1,6 @@
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
+import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/received_request.dart';
 import 'package:discourse/services/auth.dart';
@@ -52,6 +53,7 @@ abstract class RequestController {
 class TalkRequestController extends RequestController {
   final _relationships = Get.find<RelationshipsService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
+  final _cache = Get.find<MiscCache>();
 
   TalkRequestController(ReceivedRequest request) : super(request);
 
@@ -73,12 +75,22 @@ class TalkRequestController extends RequestController {
     await _relationships.setMutualRelationship(
         request.fromUser.id, RelationshipStatus.canTalk);
     await _privateChatDb.addUserPrivateChat(request.data, request.fromUser.id);
+    _cache.chats.insert(
+      0,
+      UserPrivateChat(
+        id: request.data,
+        lastReadAt: null,
+        pinned: false,
+        otherUser: request.fromUser,
+        data: await _privateChatDb.getChatData(request.data),
+      ),
+    );
   }
 }
 
 class FriendRequestController extends RequestController {
   final _relationships = Get.find<RelationshipsService>();
-  final _miscCache = Get.find<MiscCache>();
+  final _cache = Get.find<MiscCache>();
 
   FriendRequestController(ReceivedRequest request) : super(request);
 
@@ -99,7 +111,7 @@ class FriendRequestController extends RequestController {
     // TODO: if this is a degrade do nothing
     await _relationships.setMutualRelationship(
         request.fromUser.id, RelationshipStatus.friend);
-    _miscCache.myFriends.add(request.fromUser);
+    _cache.myFriends.add(request.fromUser);
   }
 }
 
@@ -108,6 +120,7 @@ class GroupInviteRequestController extends RequestController {
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _chatLogDb = Get.find<ChatLogDbService>();
   final _auth = Get.find<AuthService>();
+  final _cache = Get.find<MiscCache>();
 
   GroupChatData? _chatData;
 
@@ -137,6 +150,15 @@ class GroupInviteRequestController extends RequestController {
       request.data,
       ChatAction.memberJoin,
       '${_auth.currentUser.username} joined the group with ${request.fromUser.username}\'s invite',
+    );
+    _cache.chats.insert(
+      0,
+      UserGroupChat(
+        id: request.data,
+        lastReadAt: null,
+        pinned: false,
+        data: await _groupChatDb.getChatData(request.data),
+      ),
     );
   }
 }

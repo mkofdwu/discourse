@@ -1,4 +1,5 @@
 import 'package:discourse/services/auth.dart';
+import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/widgets/snack_bar.dart';
@@ -10,6 +11,7 @@ import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 
 class SettingsController extends GetxController {
   final _auth = Get.find<AuthService>();
+  final _cache = Get.find<MiscCache>();
 
   void toNotifs() => Get.to(() => NotificationSettingsView());
 
@@ -71,7 +73,8 @@ class SettingsController extends GetxController {
       subtitle: 'Are you sure you want to sign out of your account?',
     ));
     if (confirmed ?? false) {
-      _auth.signOut();
+      await _auth.signOut();
+      _cache.clearData();
       Get.offAll(SignInView());
       showSnackBar(
         type: SnackBarType.success,
