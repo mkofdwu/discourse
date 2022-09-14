@@ -21,6 +21,6 @@ class RejectedRequestsController extends GetxController {
   void undoRejection(RequestController rq) async {
     await _requests.undoRejection(rq.request);
     requestControllers.remove(rq);
-    Get.find<ActivityController>().requestControllers.add(rq);
+    Get.find<ActivityController>().addRequest(rq);
   }
 }

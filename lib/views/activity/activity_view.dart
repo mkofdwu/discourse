@@ -75,15 +75,8 @@ class ActivityListTile extends StatelessWidget {
       );
 }
 
-class ActivityView extends StatefulWidget {
+class ActivityView extends StatelessWidget {
   const ActivityView({Key? key}) : super(key: key);
-
-  @override
-  State<ActivityView> createState() => _ActivityViewState();
-}
-
-class _ActivityViewState extends State<ActivityView> {
-  final _listAnimationController = ListAnimationController();
 
   @override
   Widget build(BuildContext context) {
@@ -93,27 +86,29 @@ class _ActivityViewState extends State<ActivityView> {
         appBar: myAppBar(
           title: 'Activity',
           actions: {
-            FluentIcons.more_vertical_20_regular: controller.showOptions,
+            FluentIcons.more_vertical_24_regular: controller.showOptions,
           },
         ),
-        body: Obx(
-          () => controller.loading.value
-              ? Center(child: Loading())
-              : controller.requestControllers.isEmpty
-                  ? _buildPlaceholder()
-                  : MyAnimatedList(
-                      controller: _listAnimationController,
-                      list: controller.requestControllers,
-                      listTileBuilder: (i, rq) {
-                        return ActivityListTile(
-                          activityController: controller,
-                          rq: rq,
-                          animateRemove: () =>
-                              _listAnimationController.animateRemove(i, rq),
-                        );
-                      },
-                    ),
-        ),
+        body: Obx(() {
+          if (controller.loading.value) {
+            return Center(child: Loading());
+          }
+          if (controller.requestControllers.isEmpty) {
+            return _buildPlaceholder();
+          }
+          return MyAnimatedList(
+            controller: controller.listAnimation,
+            list: controller.requestControllers,
+            listTileBuilder: (i, rq) {
+              return ActivityListTile(
+                activityController: controller,
+                rq: rq,
+                animateRemove: () =>
+                    controller.listAnimation.animateRemove(i, rq),
+              );
+            },
+          );
+        }),
       ),
     );
   }

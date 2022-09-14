@@ -107,13 +107,13 @@ class _ChatViewState extends State<ChatView> {
                   numSelected: controller.messageSelection.numSelected,
                   options: {
                     if (controller.messageSelection.canReplyToSelectedMessages)
-                      FluentIcons.arrow_reply_20_regular:
+                      FluentIcons.arrow_reply_24_regular:
                           controller.messageSelection.replyToSelectedMessages,
                     if (controller.messageSelection.canDeleteSelectedMessages)
-                      FluentIcons.delete_20_regular:
+                      FluentIcons.delete_24_regular:
                           controller.messageSelection.deleteSelectedMessages,
                     if (controller.messageSelection.canGoToViewedBy)
-                      FluentIcons.eye_20_regular: controller.toMessageViewedBy
+                      FluentIcons.eye_24_regular: controller.toMessageViewedBy
                   },
                   onDismiss: controller.messageSelection.cancelSelection,
                 ),
@@ -396,7 +396,7 @@ class _ChatViewState extends State<ChatView> {
                   FluentIcons.chevron_left_24_regular,
                   onPressed: () => Get.back(),
                 ),
-                SizedBox(width: 12),
+                SizedBox(width: 4),
                 Expanded(child: _appBarContent(controller)),
                 MyIconButton(
                   FluentIcons.more_vertical_24_regular,

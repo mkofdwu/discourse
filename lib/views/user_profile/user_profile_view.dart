@@ -25,7 +25,7 @@ class UserProfileView extends StatelessWidget {
           title: 'User profile',
           actions: {
             FluentIcons.chat_24_regular: controller.sendMessage,
-            FluentIcons.more_vertical_20_regular: controller.showProfileOptions,
+            FluentIcons.more_vertical_24_regular: controller.showProfileOptions,
           },
         ),
         body: SingleChildScrollView(

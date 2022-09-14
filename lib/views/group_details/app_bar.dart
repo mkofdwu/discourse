@@ -95,7 +95,7 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
       child: IgnorePointer(
         child: Container(
           padding: EdgeInsets.fromLTRB(
-            lerp(74, 40, extent),
+            lerp(68, 40, extent),
             36,
             lerp(28, 40, extent),
             lerp(18 + 52, 30 + 52, extent),
@@ -177,9 +177,9 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-            left: lerp(28, 40, extent),
-            top: lerp(20, 32, extent),
-            right: lerp(20, 32, extent),
+            left: lerp(24, 36, extent),
+            top: lerp(14, 24, extent),
+            right: lerp(12, 24, extent),
             bottom: 36,
           ),
           child: Row(
@@ -210,7 +210,6 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
                   size: 22,
                   onPressed: controller.editNameAndDescription,
                 ),
-              SizedBox(width: lerp(8, 12, extent)),
               MyIconButton(
                 FluentIcons.more_vertical_24_regular,
                 onPressed: controller.showGroupOptions,

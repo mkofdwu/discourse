@@ -72,7 +72,7 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                   FluentIcons.chevron_left_24_regular,
                   onPressed: Get.back,
                 ),
-                SizedBox(width: 12),
+                SizedBox(width: 4),
                 Text(
                   widget.title,
                   style: TextStyle(
@@ -85,10 +85,7 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                 ...widget.suffixIcons
                     .map((iconData, onPressed) => MapEntry(
                           iconData,
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: MyIconButton(iconData, onPressed: onPressed),
-                          ),
+                          MyIconButton(iconData, onPressed: onPressed),
                         ))
                     .values,
               ],

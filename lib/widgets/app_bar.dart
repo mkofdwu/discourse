@@ -14,15 +14,15 @@ PreferredSize myAppBar({
     child: SafeArea(
       child: Container(
         height: 76,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         color: Palette.black3,
         child: Row(
           children: [
             MyIconButton(
-              FluentIcons.chevron_left_20_regular,
+              FluentIcons.chevron_left_24_filled,
               onPressed: onBack ?? () => Get.back(),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: 4),
             Text(
               title,
               style: TextStyle(
@@ -36,11 +36,9 @@ PreferredSize myAppBar({
             ...(actions ?? {})
                 .map(
                   (iconData, onPressed) => MapEntry(
-                      iconData,
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: MyIconButton(iconData, onPressed: onPressed),
-                      )),
+                    iconData,
+                    MyIconButton(iconData, onPressed: onPressed),
+                  ),
                 )
                 .values
                 .toList(),

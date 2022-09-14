@@ -58,10 +58,10 @@ class UserSelectorView extends StatelessWidget {
                 child: Row(
                   children: [
                     MyIconButton(
-                      FluentIcons.chevron_left_20_regular,
+                      FluentIcons.chevron_left_24_filled,
                       onPressed: Get.back,
                     ),
-                    SizedBox(width: 16),
+                    SizedBox(width: 8),
                     Text(
                       title,
                       style: TextStyle(

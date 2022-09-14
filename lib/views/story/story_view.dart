@@ -184,7 +184,7 @@ class _StoryViewState extends State<StoryView>
                   FluentIcons.chevron_left_24_regular,
                   onPressed: Get.back,
                 ),
-                SizedBox(width: 16),
+                SizedBox(width: 4),
                 Text(
                   widget.title,
                   style: TextStyle(

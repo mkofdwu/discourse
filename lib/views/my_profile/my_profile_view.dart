@@ -18,7 +18,7 @@ class MyProfileView extends StatelessWidget {
       builder: (controller) => SingleChildScrollView(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(40),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -27,8 +27,11 @@ class MyProfileView extends StatelessWidget {
                   children: [
                     Text(
                       'Profile',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        height: 1.8,
+                      ),
                     ),
                     MyIconButton(
                       FluentIcons.options_24_regular,

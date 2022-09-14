@@ -214,7 +214,7 @@ class MyStoryController extends GetxController {
                                       ? story.content
                                       : null,
                                   iconData:
-                                      FluentIcons.text_description_20_regular,
+                                      FluentIcons.text_description_24_regular,
                                 )))
                             .values,
                     ],

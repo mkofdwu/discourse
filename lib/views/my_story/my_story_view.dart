@@ -25,7 +25,7 @@ class MyStoryView extends StatelessWidget {
               resizeToAvoidBottomInset: false,
               appBar: myAppBar(
                 title: 'Your story',
-                actions: {FluentIcons.eye_20_regular: controller.viewMyStory},
+                actions: {FluentIcons.eye_24_regular: controller.viewMyStory},
               ),
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(bottom: 16, right: 10),
@@ -33,12 +33,12 @@ class MyStoryView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     MyFloatingActionButton(
-                      iconData: FluentIcons.edit_20_regular,
+                      iconData: FluentIcons.edit_24_regular,
                       onPressed: controller.newTextPost,
                     ),
                     SizedBox(height: 20),
                     MyFloatingActionButton(
-                      iconData: FluentIcons.camera_20_regular,
+                      iconData: FluentIcons.camera_24_regular,
                       isPrimary: false,
                       onPressed: controller.newPhotoPost,
                     ),

@@ -44,7 +44,7 @@ class PrivacySettingsController extends GetxController {
           listName: friendList.name,
           friends: friendList.friends, // will be copied in view constructor
           actions: {
-            FluentIcons.delete_20_regular: () async {
+            FluentIcons.delete_24_regular: () async {
               final confirm = await Get.bottomSheet(YesNoBottomSheet(
                 title: 'Delete list?',
                 subtitle: 'Are you sure you want to delete this friend list?',

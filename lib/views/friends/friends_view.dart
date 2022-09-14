@@ -17,7 +17,7 @@ class FriendsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Friends'),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 44),
+          padding: const EdgeInsets.all(30),
           child: Column(
             children: controller.myFriends
                 .map((user) => Padding(
@@ -27,12 +27,7 @@ class FriendsView extends StatelessWidget {
                         subtitle: user.aboutMe,
                         photoUrl: user.photoUrl,
                         iconData: FluentIcons.person_16_regular,
-                        extraWidgets: [
-                          MyIconButton(
-                            FluentIcons.more_vertical_20_filled,
-                            onPressed: () => controller.showFriendOptions(user),
-                          ),
-                        ],
+                        onPressed: () => controller.showFriendOptions(user),
                       ),
                     ))
                 .toList(),

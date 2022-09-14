@@ -29,7 +29,7 @@ class ChatsView extends StatelessWidget {
             : Padding(
                 padding: const EdgeInsets.only(bottom: 12, right: 10),
                 child: MyFloatingActionButton(
-                  iconData: FluentIcons.people_community_add_20_regular,
+                  iconData: FluentIcons.people_community_add_24_regular,
                   onPressed: controller.newGroup,
                 ),
               ),
@@ -285,12 +285,12 @@ class ChatsView extends StatelessWidget {
         options: {
           (controller.allSelected
                   ? FluentIcons.select_all_on_24_regular
-                  : FluentIcons.select_all_off_20_regular):
+                  : FluentIcons.select_all_off_24_regular):
               controller.toggleSelectAll,
           if (controller.showPinSelected)
-            FluentIcons.pin_20_regular: controller.pinSelected,
+            FluentIcons.pin_24_regular: controller.pinSelected,
           if (controller.showUnpinSelected)
-            FluentIcons.pin_off_20_regular: controller.unpinSelected,
+            FluentIcons.pin_off_24_regular: controller.unpinSelected,
           FluentIcons.archive_24_regular: () {},
         },
         onDismiss: controller.cancelSelection,

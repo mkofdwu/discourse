@@ -89,7 +89,7 @@ class TextStoryView extends StatelessWidget {
             FluentIcons.chevron_left_24_regular,
             onPressed: () => Get.back(),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: 4),
           Text(
             defaultStory == null ? 'New story' : 'Edit story',
             style: TextStyle(

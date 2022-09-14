@@ -52,7 +52,7 @@ class PhotoEditView extends StatelessWidget {
                     FluentIcons.chevron_left_24_regular,
                     onPressed: Get.back,
                   ),
-                  SizedBox(width: 20),
+                  SizedBox(width: 4),
                   Text(
                     'Edit photo',
                     style: TextStyle(

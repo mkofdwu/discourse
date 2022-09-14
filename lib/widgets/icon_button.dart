@@ -5,6 +5,7 @@ class MyIconButton extends StatelessWidget {
   final IconData iconData;
   final Color? color;
   final double? size;
+  final double? boxSize;
   final Function() onPressed;
 
   const MyIconButton(
@@ -12,6 +13,7 @@ class MyIconButton extends StatelessWidget {
     Key? key,
     this.color,
     this.size,
+    this.boxSize,
     required this.onPressed,
   }) : super(key: key);
 
@@ -19,9 +21,10 @@ class MyIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OpacityFeedback(
       onPressed: onPressed,
-      child: SizedBox(
-        width: 36,
-        height: 36,
+      child: Container(
+        width: boxSize ?? 48,
+        height: boxSize ?? 48,
+        color: Colors.transparent, // make entire area clickable
         child: Center(
           child: Icon(iconData, size: size, color: color),
         ),

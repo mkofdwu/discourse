@@ -62,17 +62,16 @@ class SelectionOptionsBar extends StatelessWidget {
                       ...options
                           .map((iconData, onPressed) => MapEntry(
                                 iconData,
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 4),
-                                  child: MyIconButton(
-                                    iconData,
-                                    onPressed: onPressed,
-                                  ),
+                                MyIconButton(
+                                  iconData,
+                                  boxSize: 40,
+                                  onPressed: onPressed,
                                 ),
                               ))
                           .values,
                       MyIconButton(
                         FluentIcons.dismiss_24_regular,
+                        boxSize: 40,
                         onPressed: onDismiss,
                       ),
                     ],
