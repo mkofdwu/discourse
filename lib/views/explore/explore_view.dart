@@ -28,8 +28,25 @@ class ExploreView extends StatelessWidget {
                 _buildSearchTextField(),
                 SizedBox(height: 24),
                 if (controller.searchController.text.isEmpty)
-                  Expanded(child: _buildSuggestions()),
-                if (controller.searchResults.isNotEmpty) ...[
+                  Expanded(child: _buildSuggestions())
+                else if (controller.searchResults.isEmpty) ...[
+                  SizedBox(height: 60),
+                  Center(
+                    child: Image.asset(
+                      'assets/images/undraw_empty.png',
+                      width: 160,
+                    ),
+                  ),
+                  SizedBox(height: 40),
+                  Center(
+                    child: Text(
+                      "Couldn't find anyone...",
+                      style: TextStyle(
+                        color: Get.theme.primaryColor.withOpacity(0.6),
+                      ),
+                    ),
+                  ),
+                ] else ...[
                   Padding(
                     padding: const EdgeInsets.only(left: 18, top: 12),
                     child: Text(

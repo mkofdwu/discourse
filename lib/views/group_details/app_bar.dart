@@ -1,5 +1,6 @@
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
+import 'package:discourse/utils/animation.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -7,10 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'group_details_controller.dart';
-
-double lerp(double from, double to, double extent) {
-  return from + extent * (to - from);
-}
 
 class GroupDetailsAppBar extends StatefulWidget {
   final UserGroupChat chat;

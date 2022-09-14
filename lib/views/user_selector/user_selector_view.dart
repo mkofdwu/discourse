@@ -77,40 +77,9 @@ class UserSelectorView extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                 child: _buildSearchTextField(controller),
               ),
-              if (controller.searchController.text.isEmpty)
-                if (onlyUsers == null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 64),
-                    child: Text(
-                      prompt,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Get.theme.primaryColor.withOpacity(0.2),
-                      ),
-                    ),
-                  )
-                else
-                  // if showing limited list of users (e.g. selecting from list
-                  // of friends) show all of them at the start
-                  Expanded(child: _buildResultsList(controller, onlyUsers!)),
-              if (controller.searchResults.isNotEmpty && onlyUsers == null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 32, bottom: 12),
-                  child: Text(
-                    '${controller.searchResults.length} results',
-                    style: TextStyle(
-                      color: Get.theme.primaryColor.withOpacity(0.4),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              if (controller.searchResults.isNotEmpty)
-                Expanded(
-                  child:
-                      _buildResultsList(controller, controller.searchResults),
-                ),
-              if (controller.searchController.text.isNotEmpty &&
-                  controller.searchResults.isEmpty)
+              if ((controller.searchController.text.isNotEmpty &&
+                      controller.searchResults.isEmpty) ||
+                  (onlyUsers != null && onlyUsers!.isEmpty))
                 Expanded(
                   child: Center(
                     child: Column(
@@ -131,7 +100,36 @@ class UserSelectorView extends StatelessWidget {
                       ],
                     ),
                   ),
+                )
+              else if (controller.searchController.text.isEmpty &&
+                  onlyUsers == null)
+                // prompt
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 64),
+                  child: Text(
+                    prompt,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Get.theme.primaryColor.withOpacity(0.2),
+                    ),
+                  ),
+                )
+              else ...[
+                Padding(
+                  padding: const EdgeInsets.only(left: 32, bottom: 12),
+                  child: Text(
+                    '${controller.searchResults.length} results',
+                    style: TextStyle(
+                      color: Get.theme.primaryColor.withOpacity(0.4),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
+                Expanded(
+                  child:
+                      _buildResultsList(controller, controller.searchResults),
+                ),
+              ]
             ],
           ),
         ),

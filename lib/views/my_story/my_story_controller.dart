@@ -5,7 +5,6 @@ import 'package:discourse/services/media.dart';
 import 'package:discourse/services/misc_cache.dart';
 import 'package:discourse/services/story_db.dart';
 import 'package:discourse/services/user_db.dart';
-import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/views/my_story/new_photo_story/photo_edit_view.dart';
 import 'package:discourse/views/my_story/new_text_story/text_story_view.dart';
 import 'package:discourse/views/story/story_view.dart';
@@ -15,17 +14,10 @@ import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
 import 'package:discourse/services/relationships.dart';
 import 'package:discourse/services/storage.dart';
 import 'package:discourse/models/unsent_story.dart';
-import 'package:discourse/widgets/list_tile.dart';
 import 'package:discourse/widgets/snack_bar.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:discourse/widgets/viewed_by_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-// used for bottom sheet
-double lerp(double from, double to, double extent, double startAfter) {
-  if (extent < startAfter) return from;
-  return from + (to - from) * (extent - startAfter) / (1 - startAfter);
-}
 
 class MyStoryController extends GetxController {
   final _storyDb = Get.find<StoryDbService>();
@@ -157,73 +149,7 @@ class MyStoryController extends GetxController {
       context: Get.context!,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          maxChildSize: viewedAt.isEmpty ? 0.6 : 1,
-          builder: (context, controller) {
-            return LayoutBuilder(builder: (context, constraints) {
-              final progress = constraints.maxHeight / Get.height;
-              return Container(
-                margin:
-                    EdgeInsets.symmetric(horizontal: lerp(8, 0, progress, 0.8)),
-                decoration: BoxDecoration(
-                  color: Get.theme.scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(lerp(10, 0, progress, 0.86)),
-                    topRight: Radius.circular(lerp(10, 0, progress, 0.86)),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  controller: controller,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 32),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Viewed by',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 30),
-                      if (viewedAt.isEmpty) ...[
-                        SizedBox(height: 30),
-                        Image.asset(
-                          'assets/images/undraw_book.png',
-                          width: 160,
-                        ),
-                        SizedBox(height: 40),
-                        Text(
-                          'No one has seen your story yet',
-                          style: TextStyle(
-                            color: Get.theme.primaryColor.withOpacity(0.6),
-                          ),
-                        ),
-                      ] else
-                        ...viewedAt
-                            .map((user, timestamp) => MapEntry(
-                                user,
-                                MyListTile(
-                                  title: user.username,
-                                  // removed after 24 hours so its either today or ystd
-                                  subtitle: timeTodayOrYesterday(timestamp),
-                                  photoUrl: story.type == StoryType.photo
-                                      ? story.content
-                                      : null,
-                                  iconData:
-                                      FluentIcons.text_description_24_regular,
-                                )))
-                            .values,
-                    ],
-                  ),
-                ),
-              );
-            });
-          },
-        ),
-      ),
+      builder: (context) => ViewedByModal(viewedAt: viewedAt),
     );
   }
 

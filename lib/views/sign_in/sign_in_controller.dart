@@ -31,7 +31,7 @@ class SignInController extends GetxController {
 
   Future<void> _signIn() async {
     final errors = await _auth.signIn(
-      email: emailController.text,
+      email: emailController.text.trim(),
       password: passwordController.text,
     );
     if (errors.isEmpty) {
@@ -70,8 +70,8 @@ class SignInController extends GetxController {
     );
     if (username == null) return;
     final errors = await _auth.signUp(
-      email: emailController.text,
-      username: username,
+      email: emailController.text.trim(),
+      username: username.trim(),
       password: passwordController.text,
       confirmPassword: confirmPasswordController.text,
     );

@@ -18,57 +18,64 @@ const colors = <SnackBarType, Color>{
 };
 
 void showSnackBar({required SnackBarType type, required String message}) {
-  ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-    backgroundColor: Colors.transparent,
-    elevation: 0,
-    content: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Palette.black3,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.6),
-                blurRadius: 30,
-                offset: const Offset(0, 16),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xff3a3a3a),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Center(
-                  child: Icon(
-                    icons[type],
-                    size: 20,
-                    color: colors[type],
-                  ),
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                message,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Avenir',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(width: 14),
-            ],
-          ),
-        ),
-      ],
-    ),
-  ));
+  Get.rawSnackbar(
+    icon: Icon(icons[type]!, size: 20, color: Colors.white),
+    shouldIconPulse: false,
+    message: message,
+    backgroundColor: colors[type]!,
+  );
+  // Get.rawSnackbar(
+  //   backgroundColor: Colors.transparent,
+  //   snackPosition: SnackPosition.TOP,
+  //   margin: const EdgeInsets.only(top: 28),
+  //   messageText: Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       Container(
+  //         padding: const EdgeInsets.all(6),
+  //         decoration: BoxDecoration(
+  //           color: Palette.black3,
+  //           borderRadius: BorderRadius.circular(30),
+  //           border: Border.all(color: Colors.white.withOpacity(0.1)),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withOpacity(0.6),
+  //               blurRadius: 30,
+  //               offset: const Offset(0, 16),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Row(
+  //           children: [
+  //             Container(
+  //               width: 36,
+  //               height: 36,
+  //               decoration: BoxDecoration(
+  //                 color: Color(0xff3a3a3a),
+  //                 borderRadius: BorderRadius.circular(18),
+  //               ),
+  //               child: Center(
+  //                 child: Icon(
+  //                   icons[type],
+  //                   size: 20,
+  //                   color: colors[type],
+  //                 ),
+  //               ),
+  //             ),
+  //             SizedBox(width: 12),
+  //             Text(
+  //               message,
+  //               style: TextStyle(
+  //                 color: Colors.white,
+  //                 fontFamily: 'Avenir',
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //             SizedBox(width: 14),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   ),
+  // );
 }
