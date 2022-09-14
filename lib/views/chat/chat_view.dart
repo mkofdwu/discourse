@@ -323,7 +323,7 @@ class _ChatViewState extends State<ChatView> {
       );
 
   String _formatDate(DateTime date) {
-    if (isSameDay(date, DateTime.now())) return 'Today';
+    if (isToday(date)) return 'Today';
     const monthNames = [
       'January',
       'February',

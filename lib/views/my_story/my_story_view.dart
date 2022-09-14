@@ -72,7 +72,8 @@ class MyStoryView extends StatelessWidget {
                                   () => MyListTile(
                                     increaseWidthFactor: false,
                                     title: '${story.viewedAt.length} views',
-                                    subtitle: formatTime(story.sentTimestamp),
+                                    subtitle: timeTodayOrYesterday(
+                                        story.sentTimestamp),
                                     photoUrl: story.type == StoryType.photo
                                         ? story.content
                                         : null,

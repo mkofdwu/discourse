@@ -139,9 +139,9 @@ class _StoryViewState extends State<StoryView>
           ),
         ),
         padding: EdgeInsets.fromLTRB(
-          24,
+          12,
           18 + Get.mediaQuery.padding.top,
-          24,
+          12,
           50,
         ),
         child: Column(
@@ -149,6 +149,7 @@ class _StoryViewState extends State<StoryView>
           children: [
             Row(
               children: [
+                SizedBox(width: 8),
                 for (var i = 0; i < widget.story.length; i++)
                   Expanded(
                     child: Container(
@@ -175,9 +176,10 @@ class _StoryViewState extends State<StoryView>
                           : null,
                     ),
                   ),
+                SizedBox(width: 8),
               ],
             ),
-            SizedBox(height: 24),
+            SizedBox(height: 12),
             Row(
               children: [
                 MyIconButton(
@@ -190,7 +192,7 @@ class _StoryViewState extends State<StoryView>
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    height: 1.4,
+                    height: 1.8,
                   ),
                 ),
                 Spacer(),

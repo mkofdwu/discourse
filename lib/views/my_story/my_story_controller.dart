@@ -208,8 +208,7 @@ class MyStoryController extends GetxController {
                                 MyListTile(
                                   title: user.username,
                                   // removed after 24 hours so its either today or ystd
-                                  subtitle:
-                                      '${isSameDay(timestamp, DateTime.now()) ? 'Today' : 'Yesterday'}, ${formatTime(timestamp)}',
+                                  subtitle: timeTodayOrYesterday(timestamp),
                                   photoUrl: story.type == StoryType.photo
                                       ? story.content
                                       : null,
