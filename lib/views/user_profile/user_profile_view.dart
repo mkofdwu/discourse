@@ -36,7 +36,8 @@ class UserProfileView extends StatelessWidget {
               CustomPaint(
                 painter: StoryBorderPainter(
                   seenNum: controller.storySeenNum,
-                  storyNum: controller.userStory?.length ?? 1,
+                  storyNum: controller.userStory?.length ?? 0,
+                  animationValue: controller.storyBorderScale,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(10),

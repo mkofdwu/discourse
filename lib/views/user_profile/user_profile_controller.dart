@@ -12,9 +12,11 @@ import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/chat_view.dart';
 import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:discourse/widgets/bottom_sheets/choice_bottom_sheet.dart';
+import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 
-class UserProfileController extends GetxController {
+class UserProfileController extends GetxController
+    with GetTickerProviderStateMixin {
   final _privateChatDb = Get.find<PrivateChatDbService>();
   final _relationships = Get.find<RelationshipsService>();
   final _storyDb = Get.find<StoryDbService>();
@@ -23,6 +25,7 @@ class UserProfileController extends GetxController {
   RelationshipStatus? relationship;
   UserChat? _chat;
   List<StoryPage>? userStory;
+  double storyBorderScale = 0;
 
   List<String> get mediaUrls =>
       _chat is NonExistentChat ? [] : (_chat?.privateData.mediaUrls ?? []);
@@ -35,6 +38,19 @@ class UserProfileController extends GetxController {
     _chat = await _privateChatDb.getChatWith(_user);
     userStory = await _storyDb.getUserStory(_user.id);
     update();
+
+    final controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+    final animation = Tween(begin: 0.0, end: 1.0)
+        .chain(CurveTween(curve: Curves.easeInOut))
+        .animate(controller);
+    animation.addListener(() {
+      storyBorderScale = animation.value;
+      update();
+    });
+    controller.forward();
   }
 
   int get storySeenNum {

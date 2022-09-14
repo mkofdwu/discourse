@@ -4,13 +4,19 @@ import 'package:discourse/constants/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+double _degToRad(double deg) {
+  return deg * pi / 180;
+}
+
 class StoryBorderPainter extends CustomPainter {
   int seenNum;
   int storyNum;
+  double animationValue; // from 0 to 1
 
   StoryBorderPainter({
     required this.seenNum,
     required this.storyNum,
+    this.animationValue = 1,
   });
 
   @override
@@ -20,12 +26,13 @@ class StoryBorderPainter extends CustomPainter {
       ..strokeWidth = 3
       ..color = Palette.orange
       ..style = PaintingStyle.stroke;
+    if (storyNum <= 0) return;
     if (storyNum == 1) {
       if (seenNum == 1) paint.color = Get.theme.primaryColor.withOpacity(0.2);
       canvas.drawArc(
         Rect.fromLTWH(0, 0, size.width, size.height),
-        0,
-        2 * pi,
+        -pi / 2,
+        2 * pi * animationValue,
         false,
         paint,
       );
@@ -37,8 +44,8 @@ class StoryBorderPainter extends CustomPainter {
         }
         canvas.drawArc(
           Rect.fromLTWH(0, 0, size.width, size.height),
-          _degToRad(i * 360 / storyNum - 90),
-          _degToRad(sweepAngle),
+          _degToRad(i * 360 / storyNum) * animationValue - pi / 2,
+          _degToRad(sweepAngle) * animationValue,
           false,
           paint,
         );
@@ -50,8 +57,4 @@ class StoryBorderPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
-}
-
-_degToRad(double deg) {
-  return deg * pi / 180;
 }
