@@ -9,6 +9,7 @@ import 'package:discourse/views/chat/widgets/deleted_message_view.dart';
 import 'package:discourse/views/chat/widgets/message_draft_view.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/views/chat/widgets/participants_typing.dart';
+import 'package:discourse/views/chat/widgets/scale_appearance.dart';
 import 'package:discourse/widgets/app_state_handler.dart';
 import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -189,6 +190,11 @@ class _ChatViewState extends State<ChatView> {
                       : _buildChatAlert(chatObject.asChatAlert, prevObject,
                           nextObject, showDate),
                   if (i == 0) SizedBox(height: 80),
+                  if (i == 0)
+                    ScaleAppearance(
+                      appear: true,
+                      child: Container(height: 100),
+                    ),
                 ],
               );
             },
