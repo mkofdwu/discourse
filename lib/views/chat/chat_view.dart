@@ -170,7 +170,7 @@ class _ChatViewState extends State<ChatView> {
                 children: [
                   if (showDate) ...[
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 60, 40, 20),
+                      padding: const EdgeInsets.fromLTRB(32, 60, 32, 20),
                       child: OpacityFeedback(
                         onPressed: messageListController.toSelectDate,
                         child: Column(

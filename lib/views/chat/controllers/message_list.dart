@@ -58,8 +58,8 @@ class MessageListController extends GetxController {
       // or when jumping to section in chat log
       timestamp ??
           (fetchOlder
-              ? chatLog.first.sentTimestamp
-              : chatLog.last.sentTimestamp),
+              ? chatLog.last.sentTimestamp
+              : chatLog.first.sentTimestamp),
       chunkSize,
       fetchOlder,
     );
