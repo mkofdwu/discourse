@@ -44,5 +44,5 @@ String timeTodayOrYesterday(DateTime dateTime) {
   if (isYesterday(dateTime)) {
     return 'Yesterday, $time';
   }
-  throw 'Time must be today or yesterday: $dateTime';
+  return 'A while ago';
 }

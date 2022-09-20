@@ -31,9 +31,6 @@ class ChatAlert extends ChatLogObject {
     required this.sentTimestamp,
   });
 
-  @override
-  bool get isMessage => false;
-
   factory ChatAlert.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return ChatAlert(

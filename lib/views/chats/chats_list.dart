@@ -21,7 +21,7 @@ class ChatsList extends StatelessWidget {
           .map((chat) => StreamBuilder<ChatLogObject>(
                 stream: controller.streamLastChatObject(chat),
                 builder: (context, snapshot) {
-                  String? subtitle;
+                  String subtitle = '...';
                   String lastActive = '';
                   if (snapshot.hasData) {
                     final chatObject = snapshot.data!;

@@ -33,9 +33,6 @@ class Message extends ChatLogObject {
     required this.fromMe,
   });
 
-  @override
-  bool get isMessage => true;
-
   factory Message.fromDoc(
     DocumentSnapshot<Map<String, dynamic>> doc,
     DiscourseUser sender,

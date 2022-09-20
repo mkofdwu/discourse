@@ -46,6 +46,7 @@ class UserProfileView extends StatelessWidget {
                     iconSize: 48,
                     photoUrl: user.photoUrl,
                     placeholderIcon: FluentIcons.person_48_regular,
+                    hero: true,
                   ),
                 ),
               ),

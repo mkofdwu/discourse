@@ -17,6 +17,7 @@ class OpacityFeedback extends StatelessWidget {
   Widget build(BuildContext context) {
     return PressedBuilder(
       onPressed: onPressed,
+      animationDuration: 100,
       builder: (pressed) => AnimatedOpacity(
         opacity: pressed ? pressedOpacity : 1,
         duration: const Duration(milliseconds: 100),

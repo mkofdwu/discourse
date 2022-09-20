@@ -81,13 +81,30 @@ class _ChatViewState extends State<ChatView> {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: controller.messageSelection.isSelecting
-                                  ? 0
-                                  : 1,
-                              child: _buildMessagesListBottom(controller),
+                            child: IgnorePointer(
+                              child: Container(
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                    colors: [
+                                      Get.theme.scaffoldBackgroundColor,
+                                      Get.theme.scaffoldBackgroundColor
+                                          .withOpacity(0),
+                                    ],
+                                  ),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24),
+                              ),
                             ),
+                          ),
+                          Positioned(
+                            left: 24,
+                            right: 24,
+                            bottom: 0,
+                            child: _buildMessagesListBottom(controller),
                           ),
                         ],
                       ),
@@ -297,35 +314,21 @@ class _ChatViewState extends State<ChatView> {
     }
   }
 
-  Widget _buildMessagesListBottom(ChatController controller) => Container(
-        height: 80,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Get.theme.scaffoldBackgroundColor,
-              Get.theme.scaffoldBackgroundColor.withOpacity(0),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            SizedBox(width: 16),
-            _buildTypingIndicator(controller),
-            Spacer(),
-            Obx(
-              () => AnimatedScale(
-                scale: messageListController.showGoToBottomArrow.value ? 1 : 0,
-                duration: Duration(milliseconds: 200),
-                child: _buildScrollToBottomArrow(
-                    controller, messageListController),
-              ),
+  Widget _buildMessagesListBottom(ChatController controller) => Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(width: 16),
+          _buildTypingIndicator(controller),
+          Spacer(),
+          Obx(
+            () => AnimatedScale(
+              scale: messageListController.showGoToBottomArrow.value ? 1 : 0,
+              duration: Duration(milliseconds: 200),
+              child:
+                  _buildScrollToBottomArrow(controller, messageListController),
             ),
-          ],
-        ),
+          ),
+        ],
       );
 
   String _formatDate(DateTime date) {
@@ -400,7 +403,7 @@ class _ChatViewState extends State<ChatView> {
               children: [
                 MyIconButton(
                   FluentIcons.chevron_left_24_regular,
-                  onPressed: () => Get.back(),
+                  onPressed: Get.back,
                 ),
                 SizedBox(width: 4),
                 Expanded(child: _appBarContent(controller)),

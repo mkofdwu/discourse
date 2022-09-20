@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 class PressedBuilder extends StatefulWidget {
   final Function() onPressed;
   final Function()? onLongPress;
+  final int animationDuration;
   final Widget Function(bool) builder;
 
   const PressedBuilder({
     Key? key,
     required this.onPressed,
     this.onLongPress,
+    this.animationDuration = 200,
     required this.builder,
   }) : super(key: key);
 
@@ -26,8 +28,7 @@ class PressedBuilderState extends State<PressedBuilder> {
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
-        // setState(() => _pressed = false);
-        Future.delayed(const Duration(milliseconds: 200), () {
+        Future.delayed(Duration(milliseconds: widget.animationDuration), () {
           widget.onPressed();
           setState(() => _pressed = false);
         });

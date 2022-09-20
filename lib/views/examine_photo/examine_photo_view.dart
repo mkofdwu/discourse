@@ -10,6 +10,7 @@ class ExaminePhotoView extends StatefulWidget {
   final String title;
   final Photo photo;
   final String? caption;
+  final String? heroTag;
   final Map<IconData, Function()> suffixIcons;
 
   const ExaminePhotoView({
@@ -17,6 +18,7 @@ class ExaminePhotoView extends StatefulWidget {
     this.title = 'View photo',
     required this.photo,
     this.caption,
+    this.heroTag, // can supply a custom tag to prevent undesired transitions
     this.suffixIcons = const {},
   }) : super(key: key);
 
@@ -25,8 +27,6 @@ class ExaminePhotoView extends StatefulWidget {
 }
 
 class _ExaminePhotoViewState extends State<ExaminePhotoView> {
-  bool _zoomedIn = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,34 +38,34 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
             ),
             minScale: PhotoViewComputedScale.contained,
             scaleStateChangedCallback: (scaleState) {
-              if (scaleState.name == 'zoomedIn') {
-                setState(() => _zoomedIn = true);
-              } else {
-                setState(() => _zoomedIn = false);
-              }
+              setState(() {});
             },
-            heroAttributes: PhotoViewHeroAttributes(tag: widget.photo.heroTag),
+            heroAttributes: PhotoViewHeroAttributes(
+              tag: widget.heroTag ?? widget.photo.heroTag,
+            ),
             imageProvider: widget.photo.isLocal
                 ? FileImage(widget.photo.file!) as ImageProvider
                 : CachedNetworkImageProvider(widget.photo.url!),
           ),
-          Container(
-            padding: EdgeInsets.fromLTRB(
-              30,
-              28 + Get.mediaQuery.padding.top,
-              30,
-              28,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.5),
-                  Colors.black.withOpacity(0),
-                ],
+          IgnorePointer(
+            child: Container(
+              height: 100 + Get.mediaQuery.padding.top,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0),
+                  ],
+                ),
               ),
             ),
+          ),
+          Positioned(
+            left: 30,
+            top: 24 + Get.mediaQuery.padding.top,
+            right: 30,
             child: Row(
               children: [
                 MyIconButton(
@@ -91,11 +91,11 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
               ],
             ),
           ),
-          if (widget.caption != null && !_zoomedIn)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(50, 80, 50, 42),
                 decoration: BoxDecoration(
@@ -114,6 +114,7 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

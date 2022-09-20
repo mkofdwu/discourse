@@ -49,7 +49,7 @@ class MyListTile extends StatelessWidget {
   Widget _buildPressed(bool pressed) => FractionallySizedBox(
         widthFactor: increaseWidthFactor ? 1.16 : 1,
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 160),
+          duration: Duration(milliseconds: 200),
           padding: EdgeInsets.symmetric(
             vertical: compact ? 8 : 10,
             horizontal: 18,

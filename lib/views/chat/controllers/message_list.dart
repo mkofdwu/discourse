@@ -176,7 +176,9 @@ class MessageListController extends GetxController {
   }
 
   Future<bool> showSeenIndicator() async {
-    if (chatLog.last.isMessage && !chatLog.last.asMessage.fromMe) return false;
+    if (chatLog.last is Message && !chatLog.last.asMessage.fromMe) {
+      return false;
+    }
     return _chatLogDb.isViewedByAll(_chat, chatLog.last.sentTimestamp);
   }
 

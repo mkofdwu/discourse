@@ -47,7 +47,11 @@ class _MessageViewState extends State<MessageView> {
     if (widget.message.photo != null) {
       Get.to(
         () => ExaminePhotoView(
-            photo: widget.message.photo!, caption: widget.message.text),
+          photo: widget.message.photo!,
+          caption: widget.message.text,
+          // prevent hero transition between chat view and user profile view / group details view
+          heroTag: 'MessageView:${widget.message.photo!.heroTag}',
+        ),
         transition: Transition.fadeIn,
       );
     }
@@ -190,7 +194,7 @@ class _MessageViewState extends State<MessageView> {
   Widget _buildPhotoView(Photo photo) => GestureDetector(
         onTap: viewPhoto,
         child: Hero(
-          tag: photo.heroTag,
+          tag: 'MessageView:${photo.heroTag}',
           child: CachedNetworkImage(imageUrl: photo.url!, width: 200),
         ),
       );
