@@ -15,8 +15,15 @@ import 'package:discourse/views/chat/widgets/reply_gesture.dart';
 import 'package:discourse/views/examine_photo/examine_photo_view.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
+final urlRegex = RegExp(
+  r'((?:^https?:\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*))',
+  caseSensitive: false,
+);
 
 class MessageView extends StatefulWidget {
   final Message message;
@@ -88,7 +95,7 @@ class _MessageViewState extends State<MessageView> {
         onTap: onTap,
         onLongPress: toggleSelectMessage,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
           child: Row(
             mainAxisAlignment: widget.message.fromMe
                 ? MainAxisAlignment.end
@@ -97,7 +104,7 @@ class _MessageViewState extends State<MessageView> {
               Stack(
                 children: [
                   Container(
-                    constraints: BoxConstraints(maxWidth: 200),
+                    constraints: BoxConstraints(maxWidth: 240),
                     margin: EdgeInsets.only(
                       left: widget.message.fromMe ? 12 : 0,
                       right: widget.message.fromMe ? 0 : 12,
@@ -114,7 +121,7 @@ class _MessageViewState extends State<MessageView> {
                         if (widget.message.photo != null)
                           _buildPhotoView(widget.message.photo!),
                         SizedBox(
-                          width: widget.message.photo != null ? 200 : null,
+                          width: widget.message.photo != null ? 240 : null,
                           child: IntrinsicWidth(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,7 +202,7 @@ class _MessageViewState extends State<MessageView> {
         onTap: viewPhoto,
         child: Hero(
           tag: 'MessageView:${photo.heroTag}',
-          child: CachedNetworkImage(imageUrl: photo.url!, width: 200),
+          child: CachedNetworkImage(imageUrl: photo.url!, width: 240),
         ),
       );
 
@@ -248,40 +255,75 @@ class _MessageViewState extends State<MessageView> {
         ),
       );
 
-  Widget _buildFancyTextAndTimestampWrap() => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Stack(
-          children: [
-            RichText(
-              text: TextSpan(
-                text: '${widget.message.text!}  ',
-                style: TextStyle(
-                  fontFamily: 'Avenir',
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  TextSpan(
-                    text: formatTime(widget.message.sentTimestamp),
-                    style: TextStyle(
-                      color: Colors.transparent,
-                      fontSize: 12,
-                    ),
+  Widget _buildFancyTextAndTimestampWrap() {
+    final textSpans = <TextSpan>[];
+    if (widget.message.text != null) {
+      int prev = 0;
+      for (final match in urlRegex.allMatches(widget.message.text!)) {
+        final text = widget.message.text!.substring(prev, match.start);
+        final url = match.group(0)!;
+        final fullUrl =
+            url.startsWith(RegExp(r'https?://')) ? url : 'https://$url';
+        textSpans.add(TextSpan(text: text));
+        textSpans.add(TextSpan(
+          text: url,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.6),
+            fontWeight: FontWeight.w700,
+            decoration: TextDecoration.underline,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              launchUrlString(fullUrl, mode: LaunchMode.externalApplication);
+            },
+        ));
+        prev = match.end;
+      }
+      if (prev == 0) {
+        // no links in message
+        textSpans.add(TextSpan(text: '${widget.message.text!}  '));
+      } else {
+        // add remaining text
+        textSpans.add(TextSpan(
+          text: '${widget.message.text!.substring(prev)}  ',
+        ));
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Stack(
+        children: [
+          RichText(
+            text: TextSpan(
+              style: TextStyle(
+                fontFamily: 'Avenir',
+                fontWeight: FontWeight.w500,
+              ),
+              children: [
+                ...textSpans,
+                TextSpan(
+                  text: formatTime(widget.message.sentTimestamp),
+                  style: TextStyle(
+                    color: Colors.transparent,
+                    fontSize: 12,
                   ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Text(
-                formatTime(widget.message.sentTimestamp),
-                style: TextStyle(
-                  color: Get.theme.primaryColor.withOpacity(0.6),
-                  fontSize: 12,
                 ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Text(
+              formatTime(widget.message.sentTimestamp),
+              style: TextStyle(
+                color: Get.theme.primaryColor.withOpacity(0.6),
+                fontSize: 12,
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 }
