@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_alert.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/message_link.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -27,7 +28,6 @@ abstract class BaseGroupChatDbService {
   Future<void> revokeAdmin(String chatId, DiscourseUser user);
   Future<void> transferOwnership(String chatId, DiscourseUser user);
   Future<void> leaveGroup(String chatId);
-  Future<void> disbandGroup(String chatId);
 }
 
 // this class is also responsible for adding chat alerts to the log
@@ -55,7 +55,12 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
         role: MemberRole.values[mData['role']],
       ));
     }
-    return GroupChatData.fromDoc(doc, members);
+    final linksSnapshot = await doc.reference.collection('links').get();
+    final links = <MessageLink>[];
+    for (final linkDoc in linksSnapshot.docs) {
+      links.add(MessageLink.fromDoc(linkDoc));
+    }
+    return GroupChatData.fromDoc(doc, members, links);
   }
 
   Future<void> updateName(
@@ -250,10 +255,5 @@ class GroupChatDbService extends GetxService implements BaseGroupChatDbService {
       ChatAction.memberLeave,
       '${_auth.currentUser.username} left this group',
     );
-  }
-
-  @override
-  Future<void> disbandGroup(String chatId) async {
-    // TODO: or lock group?
   }
 }

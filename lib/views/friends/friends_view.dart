@@ -1,5 +1,4 @@
 import 'package:discourse/widgets/app_bar.dart';
-import 'package:discourse/widgets/icon_button.dart';
 import 'package:discourse/widgets/list_tile.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';

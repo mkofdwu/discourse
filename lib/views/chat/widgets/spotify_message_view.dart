@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:discourse/constants/palette.dart';
 import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/utils/date_time.dart';
 import 'package:discourse/utils/url_preview.dart';
 import 'package:discourse/views/chat/widgets/message_view.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
@@ -73,6 +74,8 @@ class _SpotifyMessageViewState extends State<SpotifyMessageView> {
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
+        // for some reason Clip.antiAlias causes a subtle problem (adds a thin 1px padding below the gradient)
+        clipBehavior: Clip.hardEdge,
         child: Stack(
           children: [
             CachedNetworkImage(
@@ -115,6 +118,17 @@ class _SpotifyMessageViewState extends State<SpotifyMessageView> {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+            Positioned(
+              right: 14,
+              bottom: 12,
+              child: Text(
+                formatTime(widget.message.sentTimestamp),
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.4),
+                  fontSize: 12,
                 ),
               ),
             ),

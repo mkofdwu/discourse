@@ -1,4 +1,5 @@
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/message_media_url.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
@@ -6,6 +7,8 @@ import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/media.dart';
 import 'package:discourse/services/storage.dart';
+import 'package:discourse/views/chat/chat_controller.dart';
+import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:discourse/views/custom_form/custom_form.dart';
 import 'package:discourse/views/custom_form/custom_form_view.dart';
 import 'package:discourse/views/examine_photo/examine_photo_view.dart';
@@ -52,11 +55,11 @@ class GroupDetailsController extends GetxController
   }
 
   void viewGroupPhoto() async {
-    if (_chat.photoUrl != null) {
+    if (_chat.photoUrl.value != null) {
       await Get.to(
         () => ExaminePhotoView(
           title: 'Group photo',
-          photo: Photo.url(_chat.photoUrl),
+          photo: Photo.url(_chat.photoUrl.value),
           suffixIcons: {
             FluentIcons.more_vertical_24_regular: () async {
               final choice = await Get.bottomSheet(ChoiceBottomSheet(
@@ -96,8 +99,7 @@ class GroupDetailsController extends GetxController
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
       await _groupChatDb.updatePhoto(_chat.id, newPhoto.url);
-      _chat.groupData.photoUrl = newPhoto.url;
-      update();
+      _chat.groupData.photoUrl.value = newPhoto.url;
       return true;
     }
     return false;
@@ -110,7 +112,7 @@ class GroupDetailsController extends GetxController
     ));
     if (confirmed ?? false) {
       await _groupChatDb.updatePhoto(_chat.id, null);
-      _chat.groupData.photoUrl = null;
+      _chat.groupData.photoUrl.value = null;
       Get.back();
       update();
     }
@@ -124,50 +126,51 @@ class GroupDetailsController extends GetxController
       );
       return;
     }
-    Get.to(() => CustomFormView(
-          form: CustomForm(
-            title: 'Group details',
-            fields: [
-              Field(
-                'name',
-                _chat.groupData.name,
-                textFieldBuilder(label: 'Name'),
+    Get.to(
+      () => CustomFormView(
+        form: CustomForm(
+          title: 'Group details',
+          fields: [
+            Field(
+              'name',
+              _chat.groupData.name.value,
+              textFieldBuilder(label: 'Name'),
+            ),
+            Field(
+              'description',
+              _chat.groupData.description.value,
+              textFieldBuilder(
+                label: 'Description',
+                isMultiline: true,
+                isLast: true,
               ),
-              Field(
-                'description',
-                _chat.groupData.description,
-                textFieldBuilder(
-                  label: 'Description',
-                  isMultiline: true,
-                  isLast: true,
-                ),
-              ),
-            ],
-            onSubmit: (inputs, setErrors) async {
-              if (inputs['name'].isEmpty) {
-                setErrors({'name': 'Your group needs to have a name'});
-                return;
-              }
-              if (inputs['name'] != _chat.groupData.name) {
-                await _groupChatDb.updateName(
-                  _chat.id,
-                  inputs['name'],
-                  oldName: _chat.groupData.name,
-                );
-                _chat.groupData.name = inputs['name'];
-              }
-              if (inputs['description'] != _chat.groupData.description) {
-                await _groupChatDb.updateDescription(
-                  _chat.id,
-                  inputs['description'],
-                );
-                _chat.groupData.description = inputs['description'];
-              }
-              Get.back();
-              update();
-            },
-          ),
-        ));
+            ),
+          ],
+          onSubmit: (inputs, setErrors) async {
+            if (inputs['name'].isEmpty) {
+              setErrors({'name': 'Your group needs to have a name'});
+              return;
+            }
+            if (inputs['name'] != _chat.groupData.name.value) {
+              await _groupChatDb.updateName(
+                _chat.id,
+                inputs['name'],
+                oldName: _chat.groupData.name.value,
+              );
+              _chat.groupData.name.value = inputs['name'];
+            }
+            if (inputs['description'] != _chat.groupData.description.value) {
+              await _groupChatDb.updateDescription(
+                _chat.id,
+                inputs['description'],
+              );
+              _chat.groupData.description.value = inputs['description'];
+            }
+            Get.back();
+          },
+        ),
+      ),
+    );
   }
 
   void showMemberOptions(Member member) async {
@@ -252,16 +255,31 @@ class GroupDetailsController extends GetxController
         ));
   }
 
-  void toExaminePhoto(String photoUrl) {
+  void toExaminePhoto(MessageMedia media) {
     Get.to(
-      () => ExaminePhotoView(photo: Photo.url(photoUrl)),
+      () => ExaminePhotoView(
+        photo: Photo.url(media.photoUrl),
+        suffixIcons: {
+          FluentIcons.arrow_circle_right_24_regular: () {
+            Get.back();
+            Get.back();
+            Get.find<MessageListController>().scrollToMessage(media.messageId);
+            Get.find<ChatController>().highlightMessage(media.messageId);
+          },
+        },
+      ),
       transition: Transition.fadeIn,
     );
   }
 
   void toPhotosAndVideos() {
-    Get.to(
-        () => MediaListView(photoUrls: _chat.data.mediaUrls.reversed.toList()));
+    Get.to(() => MediaListView(media: _chat.data.media));
+  }
+
+  void showLinkInChat(String messageId) {
+    Get.back();
+    Get.find<MessageListController>().scrollToMessage(messageId);
+    Get.find<ChatController>().highlightMessage(messageId);
   }
 
   void showGroupOptions() async {

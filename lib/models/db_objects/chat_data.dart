@@ -1,44 +1,59 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/message_link.dart';
+import 'package:discourse/models/db_objects/message_media_url.dart';
+import 'package:get/get.dart';
 
 enum ChatType { private, group }
 
 abstract class ChatData {
-  List<String> mediaUrls; // photos and videos (just photos for now)
+  RxList<MessageMedia> media; // photos and videos (just photos for now)
+  RxList<MessageLink> links;
 
-  ChatData(this.mediaUrls);
+  ChatData(this.media, this.links);
 }
 
 class PrivateChatData extends ChatData {
-  PrivateChatData({required List<String> mediaUrls}) : super(mediaUrls);
+  PrivateChatData({
+    required List<MessageMedia> mediaUrls,
+    required List<MessageLink> links,
+  }) : super(mediaUrls.obs, links.obs);
 
-  factory PrivateChatData.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory PrivateChatData.fromDoc(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+    List<MessageLink> links,
+  ) {
     final data = doc.data()!;
-    return PrivateChatData(mediaUrls: List<String>.from(data['mediaUrls']));
-  }
-
-  Map<String, dynamic> toData() {
-    return {'mediaUrls': mediaUrls};
+    return PrivateChatData(
+      mediaUrls: List<MessageMedia>.from(
+          data['mediaUrls'].map((map) => MessageMedia.fromMap(map))),
+      links: links,
+    );
   }
 }
 
 class GroupChatData extends ChatData {
-  String name;
-  String description;
-  String? photoUrl;
+  RxString name;
+  RxString description;
+  Rx<String?> photoUrl;
   final List<Member> members;
 
   GroupChatData({
-    required this.name,
-    required this.description,
-    this.photoUrl,
+    required String name,
+    required String description,
+    String? photoUrl,
     required this.members,
-    required List<String> mediaUrls,
-  }) : super(mediaUrls);
+    required List<MessageMedia> mediaUrls,
+    required List<MessageLink> links,
+  })  : name = name.obs,
+        description = description.obs,
+        photoUrl = photoUrl.obs,
+        super(mediaUrls.obs, links.obs);
 
   factory GroupChatData.fromDoc(
     DocumentSnapshot<Map<String, dynamic>> doc,
     List<Member> members,
+    List<MessageLink> links,
   ) {
     final data = doc.data()!;
     return GroupChatData(
@@ -46,7 +61,9 @@ class GroupChatData extends ChatData {
       description: data['description'],
       photoUrl: data['photoUrl'],
       members: members,
-      mediaUrls: List<String>.from(data['mediaUrls']),
+      mediaUrls: List<MessageMedia>.from(
+          data['mediaUrls'].map((map) => MessageMedia.fromMap(map))),
+      links: links,
     );
   }
 
@@ -55,11 +72,11 @@ class GroupChatData extends ChatData {
       'name': name,
       'description': description,
       'photoUrl': photoUrl,
-      'mediaUrls': mediaUrls,
+      'mediaUrls': media.map((m) => m.photoUrl).toList(),
     };
   }
 }
 
 class NonExistentChatData extends ChatData {
-  NonExistentChatData() : super([]);
+  NonExistentChatData() : super(<MessageMedia>[].obs, <MessageLink>[].obs);
 }

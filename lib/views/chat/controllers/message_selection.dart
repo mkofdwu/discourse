@@ -2,6 +2,7 @@ import 'package:discourse/models/db_objects/message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
+import 'package:discourse/services/storage.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/widgets/bottom_sheets/yesno_bottom_sheet.dart';
@@ -11,6 +12,7 @@ class MessageSelectionController extends GetxController {
   final _messageSender = Get.find<MessageSenderController>();
   final _chatLogDb = Get.find<ChatLogDbService>();
   final _commonChatDb = Get.find<CommonChatDbService>();
+  final _storage = Get.find<StorageService>();
 
   final selectedMessages = <Message>[].obs;
 
@@ -45,13 +47,29 @@ class MessageSelectionController extends GetxController {
     ));
     if (confirmed ?? false) {
       await _chatLogDb.deleteMessages(selectedMessages);
-      final photoUrls = selectedMessages
-          .where((message) => message.photo != null)
-          .map((message) => message.photo!.url!)
-          .toList();
-      await _commonChatDb.deletePhotos(photoUrls, _chat);
-      for (final photoUrl in photoUrls) {
-        _chat.data.mediaUrls.remove(photoUrl);
+      // remove photos from list
+      _chat.data.media.removeWhere(
+        (m) => selectedMessages.any((message) => message.id == m.messageId),
+      );
+      await _commonChatDb.updateMediaList(_chat);
+      // remove links from list
+      for (int i = 0; i < _chat.data.links.length;) {
+        final link = _chat.data.links[i];
+        for (final message in selectedMessages) {
+          if (link.messageId == message.id) {
+            await _commonChatDb.removeLink(_chat, link);
+            // this prevents concurrent modification error
+            _chat.data.links.removeAt(i);
+          } else {
+            i++;
+          }
+        }
+      }
+      // firebase storage
+      for (final message in selectedMessages) {
+        if (message.photo != null) {
+          await _storage.deletePhoto(message.photo!.url!);
+        }
       }
       cancelSelection();
     }

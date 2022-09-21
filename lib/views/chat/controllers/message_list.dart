@@ -20,8 +20,8 @@ class MessageListController extends GetxController {
   final listController = FlutterListViewController();
 
   final chatLog = RxList<ChatLogObject>();
-  bool _reachedTop = false; // whether all messages have been loaded until top
-  bool _reachedBottom = false;
+  bool reachedTop = false; // whether all messages have been loaded until oldest
+  bool reachedBottom = false;
   StreamSubscription? _lastMessageSubscription;
   int numNewMessages =
       0; // used if user has not scrolled to bottom; this number is displayed on the scroll to bottom FAB
@@ -34,7 +34,7 @@ class MessageListController extends GetxController {
     // required to specify timestamp since there are no messages yet
     await _fetchMoreMessages(true,
         timestamp: DateTime.now().add(Duration(hours: 1)));
-    _reachedBottom = true;
+    reachedBottom = true;
     update();
     watchLastMessage();
   }
@@ -69,9 +69,9 @@ class MessageListController extends GetxController {
       chatLog.insertAll(0, moreMessages.reversed);
     }
     if (fetchOlder) {
-      _reachedTop = moreMessages.length < chunkSize;
+      reachedTop = moreMessages.length < chunkSize;
     } else {
-      _reachedBottom = moreMessages.length < chunkSize;
+      reachedBottom = moreMessages.length < chunkSize;
     }
     update();
   }
@@ -81,7 +81,7 @@ class MessageListController extends GetxController {
     _lastMessageSubscription =
         _chatLogDb.streamLastChatObject(_chat.id).listen((chatObject) {
       if (chatLog.isEmpty || chatObject.id != chatLog.first.id) {
-        if (_reachedBottom) {
+        if (reachedBottom) {
           chatLog.insert(0, chatObject);
         }
         if (showGoToBottomArrow.value) {
@@ -92,7 +92,7 @@ class MessageListController extends GetxController {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollToBottom();
           });
-        } else if (_reachedBottom && !showGoToBottomArrow.value) {
+        } else if (reachedBottom && !showGoToBottomArrow.value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             listController.animateTo(
               listController.position.minScrollExtent,
@@ -145,16 +145,16 @@ class MessageListController extends GetxController {
     if (listController.position.atEdge) {
       if (listController.position.pixels >= 0) {
         // scrolled to the top
-        if (!_reachedTop) _fetchMoreMessages(true);
+        if (!reachedTop) _fetchMoreMessages(true);
       } else {
         // scrolled to the bottom
-        if (!_reachedBottom) _fetchMoreMessages(false);
+        if (!reachedBottom) _fetchMoreMessages(false);
       }
     }
   }
 
   void scrollToBottom() {
-    if (!_reachedBottom) {
+    if (!reachedBottom) {
       jumpToTimestamp(DateTime.now());
       return;
     }

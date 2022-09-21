@@ -80,7 +80,8 @@ class _ChatViewState extends State<ChatView> {
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 0,
+                            // for some mysterious reason flutter sometimes adds 1px spacing at the bottom
+                            bottom: -1,
                             child: IgnorePointer(
                               child: Container(
                                 height: 80,
@@ -159,11 +160,13 @@ class _ChatViewState extends State<ChatView> {
                   : messageListController.chatLog[i + 1];
               final nextObject =
                   i - 1 < 0 ? null : messageListController.chatLog[i - 1];
-              final showDate = prevObject == null ||
-                  !isSameDay(
-                    prevObject.sentTimestamp,
-                    chatObject.sentTimestamp,
-                  );
+              final showDate =
+                  (prevObject == null && messageListController.reachedTop) ||
+                      (prevObject != null &&
+                          !isSameDay(
+                            prevObject.sentTimestamp,
+                            chatObject.sentTimestamp,
+                          ));
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,12 +421,14 @@ class _ChatViewState extends State<ChatView> {
         onPressed: controller.toChatDetails,
         child: Row(
           children: [
-            PhotoOrIcon(
-              photoUrl: widget.chat.photoUrl,
-              placeholderIcon: controller.isPrivateChat
-                  ? FluentIcons.person_16_regular
-                  : FluentIcons.people_community_16_regular,
-              hero: true,
+            Obx(
+              () => PhotoOrIcon(
+                photoUrl: widget.chat.photoUrl.value,
+                placeholderIcon: controller.isPrivateChat
+                    ? FluentIcons.person_16_regular
+                    : FluentIcons.people_community_16_regular,
+                hero: true,
+              ),
             ),
             SizedBox(width: 20),
             Expanded(
@@ -431,9 +436,12 @@ class _ChatViewState extends State<ChatView> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.chat.title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  Obx(
+                    () => Text(
+                      widget.chat.title.value,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
                   ),
                   SizedBox(height: 4),
                   StreamBuilder<String?>(

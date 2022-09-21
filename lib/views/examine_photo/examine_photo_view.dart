@@ -63,16 +63,16 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
             ),
           ),
           Positioned(
-            left: 30,
+            left: 24,
             top: 24 + Get.mediaQuery.padding.top,
-            right: 30,
+            right: 24,
             child: Row(
               children: [
                 MyIconButton(
                   FluentIcons.chevron_left_24_regular,
                   onPressed: Get.back,
                 ),
-                SizedBox(width: 4),
+                SizedBox(width: 8),
                 Text(
                   widget.title,
                   style: TextStyle(
@@ -91,30 +91,31 @@ class _ExaminePhotoViewState extends State<ExaminePhotoView> {
               ],
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: IgnorePointer(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(50, 80, 50, 42),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.6),
-                      Colors.black.withOpacity(0),
-                    ],
+          if (widget.caption != null)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(50, 80, 50, 42),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.6),
+                        Colors.black.withOpacity(0),
+                      ],
+                    ),
                   ),
-                ),
-                child: Text(
-                  widget.caption!,
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  child: Text(
+                    widget.caption!,
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

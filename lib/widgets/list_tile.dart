@@ -113,18 +113,20 @@ class MyListTile extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: subtitle == null ? 18 : 16,
-                            fontWeight: isActionTile
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: TextStyle(
+                              fontSize: subtitle == null ? 18 : 16,
+                              fontWeight: isActionTile
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
                           ),
                         ),
-                        Spacer(),
                         if (tag != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -151,7 +153,8 @@ class MyListTile extends StatelessWidget {
                       Text(
                         subtitle!,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
                         style: TextStyle(
                           color: Get.theme.primaryColor.withOpacity(0.6),
                           fontSize: 14,
@@ -161,7 +164,7 @@ class MyListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: 8),
+              if (extraWidgets.isNotEmpty) SizedBox(width: 12),
               ...extraWidgets,
             ],
           ),

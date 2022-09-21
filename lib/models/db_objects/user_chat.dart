@@ -18,8 +18,8 @@ abstract class UserChat {
     required this.data,
   });
 
-  String? get photoUrl;
-  String get title;
+  Rx<String?> get photoUrl;
+  RxString get title;
   Stream<String?> get subtitle;
 
   PrivateChatData get privateData => data as PrivateChatData;
@@ -50,10 +50,10 @@ class UserPrivateChat extends UserChat {
         );
 
   @override
-  String? get photoUrl => otherUser.photoUrl;
+  Rx<String?> get photoUrl => otherUser.photoUrl.obs;
 
   @override
-  String get title => otherUser.username;
+  RxString get title => otherUser.username.obs;
 
   @override
   Stream<String?> get subtitle => Get.find<UserDbService>()
@@ -78,10 +78,10 @@ class UserGroupChat extends UserChat {
         );
 
   @override
-  String? get photoUrl => groupData.photoUrl;
+  Rx<String?> get photoUrl => groupData.photoUrl;
 
   @override
-  String get title => groupData.name;
+  RxString get title => groupData.name;
 
   @override
   Stream<String> get subtitle =>
@@ -102,10 +102,10 @@ class NonExistentChat extends UserChat {
         );
 
   @override
-  String? get photoUrl => otherUser.photoUrl;
+  Rx<String?> get photoUrl => otherUser.photoUrl.obs;
 
   @override
-  String get title => otherUser.username;
+  RxString get title => otherUser.username.obs;
 
   @override
   Stream<String?> get subtitle => Get.find<UserDbService>()

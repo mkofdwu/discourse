@@ -132,13 +132,13 @@ class GroupInviteRequestController extends RequestController {
   }
 
   @override
-  String get title => _chatData!.name;
+  String get title => _chatData!.name.value;
 
   @override
   String get subtitle => '${_chatData!.members.length} members';
 
   @override
-  String? get photoUrl => _chatData!.photoUrl;
+  String? get photoUrl => _chatData!.photoUrl.value;
 
   @override
   Future<void> performAction() async {

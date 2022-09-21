@@ -64,22 +64,24 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
     return FlexibleSpaceBar(
       background: GestureDetector(
         onTap: controller.viewGroupPhoto,
-        child: widget.chat.photoUrl != null
-            ? Hero(
-                tag: widget.chat.photoUrl!,
-                child: Image.network(
-                  widget.chat.photoUrl!,
-                  fit: BoxFit.cover,
+        child: Obx(
+          () => widget.chat.photoUrl.value != null
+              ? Hero(
+                  tag: widget.chat.photoUrl.value!,
+                  child: Image.network(
+                    widget.chat.photoUrl.value!,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Container(
+                  color: Palette.orange.withOpacity(0.6),
+                  child: Icon(
+                    FluentIcons.people_community_28_regular,
+                    color: Colors.white.withOpacity(0.1),
+                    size: 96,
+                  ),
                 ),
-              )
-            : Container(
-                color: Palette.orange.withOpacity(0.6),
-                child: Icon(
-                  FluentIcons.people_community_28_regular,
-                  color: Colors.white.withOpacity(0.1),
-                  size: 96,
-                ),
-              ),
+        ),
       ),
     );
   }
@@ -122,26 +124,32 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
                     extent,
                   ),
                 ),
-                child: Text(
-                  widget.chat.title,
-                  style: TextStyle(
-                    fontSize: lerp(16, 24, extent),
-                    fontWeight:
-                        extent < 0.1 ? FontWeight.w500 : FontWeight.w700,
+                child: Obx(
+                  () => Text(
+                    widget.chat.title.value,
+                    style: TextStyle(
+                      fontSize: lerp(16, 24, extent),
+                      fontWeight:
+                          extent < 0.1 ? FontWeight.w500 : FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
               SizedBox(height: 12),
-              if (widget.chat.groupData.description.isNotEmpty)
-                Opacity(
-                  opacity: lerp(0, 1, extent),
-                  child: Text(
-                    widget.chat.groupData.description,
-                    key: _descriptionTextKey,
-                  ),
-                ),
-              if (widget.chat.groupData.description.isNotEmpty)
-                SizedBox(height: 20),
+              Obx(
+                () => widget.chat.groupData.description.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Opacity(
+                          opacity: lerp(0, 1, extent),
+                          child: Text(
+                            widget.chat.groupData.description.value,
+                            key: _descriptionTextKey,
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
+              ),
               Text(
                 // TODO
                 'Created by you, 19/04/2021',
@@ -160,7 +168,7 @@ class _GroupDetailsAppBarState extends State<GroupDetailsAppBar> {
   Widget _buildTopButtons(double extent) {
     return Container(
       decoration: BoxDecoration(
-        gradient: widget.chat.photoUrl == null
+        gradient: widget.chat.photoUrl.value == null
             ? null
             : LinearGradient(
                 begin: Alignment.topCenter,

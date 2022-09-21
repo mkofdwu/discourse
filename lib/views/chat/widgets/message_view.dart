@@ -7,6 +7,7 @@ import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/utils/date_time.dart';
+import 'package:discourse/utils/url.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:discourse/views/chat/controllers/message_selection.dart';
@@ -19,11 +20,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
-final urlRegex = RegExp(
-  r'((?:^https?:\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*))',
-  caseSensitive: false,
-);
 
 class MessageView extends StatefulWidget {
   final Message message;

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
 import 'package:discourse/models/db_objects/chat_member.dart';
+import 'package:discourse/models/db_objects/message_link.dart';
 import 'package:discourse/models/unsent_request.dart';
 import 'package:discourse/models/db_objects/user.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -15,7 +16,6 @@ abstract class BasePrivateChatDbService {
   Future<UserPrivateChat> createChatWith(DiscourseUser otherUser);
   Future<void> addUserPrivateChat(String chatId, String otherUserId);
   Future<PrivateChatData> getChatData(String chatId);
-  Future<void> updateChatData(String chatId, PrivateChatData newData);
 }
 
 class PrivateChatDbService extends GetxService
@@ -98,7 +98,7 @@ class PrivateChatDbService extends GetxService
       lastReadAt: null,
       pinned: false,
       otherUser: otherUser,
-      data: PrivateChatData(mediaUrls: []),
+      data: PrivateChatData(mediaUrls: [], links: []),
     );
   }
 
@@ -115,11 +115,11 @@ class PrivateChatDbService extends GetxService
   @override
   Future<PrivateChatData> getChatData(String chatId) async {
     final doc = await _privateChatsRef.doc(chatId).get();
-    return PrivateChatData.fromDoc(doc);
-  }
-
-  @override
-  Future<void> updateChatData(String chatId, PrivateChatData newData) async {
-    await _privateChatsRef.doc(chatId).update(newData.toData());
+    final linksSnapshot = await doc.reference.collection('links').get();
+    final links = <MessageLink>[];
+    for (final linkDoc in linksSnapshot.docs) {
+      links.add(MessageLink.fromDoc(linkDoc));
+    }
+    return PrivateChatData.fromDoc(doc, links);
   }
 }

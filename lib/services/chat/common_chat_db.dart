@@ -1,30 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:discourse/models/db_objects/chat_data.dart';
+import 'package:discourse/models/db_objects/message_link.dart';
+import 'package:discourse/models/db_objects/message_media_url.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
 import 'package:discourse/services/auth.dart';
 import 'package:discourse/services/chat/group_chat_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
-import 'package:discourse/services/storage.dart';
 import 'package:discourse/services/user_db.dart';
 import 'package:get/get.dart';
 
-abstract class BaseCommonChatService {
-  Future<List<UserChat>> myChats();
-  Future<void> setPinChat(String chatId, bool pinned);
-  Future<void> stopReadingChat(String chatId);
-  Future<void> startReadingChat(String chatId);
-}
-
-class CommonChatDbService extends GetxService implements BaseCommonChatService {
+class CommonChatDbService extends GetxService {
   final _auth = Get.find<AuthService>();
   final _userDb = Get.find<UserDbService>();
   final _groupChatDb = Get.find<GroupChatDbService>();
   final _privateChatDb = Get.find<PrivateChatDbService>();
-  final _storage = Get.find<StorageService>();
 
   final _usersRef = FirebaseFirestore.instance.collection('users');
 
-  @override
   Future<List<UserChat>> myChats() async {
     final chatsSnapshot = await _usersRef
         .doc(_auth.id)
@@ -56,7 +48,6 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
     return userChats;
   }
 
-  @override
   Future<void> setPinChat(String chatId, bool pinned) async {
     await _usersRef
         .doc(_auth.id)
@@ -65,7 +56,6 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
         .update({'pinned': pinned});
   }
 
-  @override
   Future<void> stopReadingChat(String chatId) async {
     await _usersRef
         .doc(_auth.id)
@@ -74,7 +64,6 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
         .update({'lastReadAt': DateTime.now()});
   }
 
-  @override
   Future<void> startReadingChat(String chatId) async {
     await _usersRef
         .doc(_auth.id)
@@ -87,22 +76,38 @@ class CommonChatDbService extends GetxService implements BaseCommonChatService {
     // safe to assume user user will not leave page open for this long
   }
 
-  Future<void> deletePhotos(List<String> photoUrls, UserChat chat) async {
+  Future<void> updateMediaList(UserChat chat) async {
+    // called when deleting photos
     await FirebaseFirestore.instance
         .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
         .doc(chat.id)
-        .update({'mediaUrls': FieldValue.arrayRemove(photoUrls)});
-    for (final photoUrl in photoUrls) {
-      await _storage.deletePhoto(photoUrl);
-    }
+        .update({'mediaUrls': chat.data.media.map((m) => m.toData()).toList()});
   }
 
-  Future<void> addMediaUrl(UserChat chat, String mediaUrl) async {
+  Future<void> addMedia(UserChat chat, MessageMedia media) async {
     await FirebaseFirestore.instance
         .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
         .doc(chat.id)
         .update({
-      'mediaUrls': FieldValue.arrayUnion([mediaUrl])
+      'mediaUrls': FieldValue.arrayUnion([media.toData()]),
     });
+  }
+
+  Future<void> addLink(UserChat chat, MessageLink link) async {
+    final doc = await FirebaseFirestore.instance
+        .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
+        .doc(chat.id)
+        .collection('links')
+        .add(link.toData());
+    link.id = doc.id;
+  }
+
+  Future<void> removeLink(UserChat chat, MessageLink link) async {
+    await FirebaseFirestore.instance
+        .collection(chat is UserGroupChat ? 'groupChats' : 'privateChats')
+        .doc(chat.id)
+        .collection('links')
+        .doc(link.id)
+        .delete();
   }
 }

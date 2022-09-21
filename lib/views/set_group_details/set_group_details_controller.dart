@@ -108,6 +108,7 @@ class SetGroupDetailsController extends GetxController {
         // and add the current user as owner
         members: [],
         mediaUrls: [],
+        links: [],
       ),
       sendInvitesTo,
       addMembers,

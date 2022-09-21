@@ -1,3 +1,6 @@
+import 'package:discourse/models/db_objects/message.dart';
+import 'package:discourse/models/db_objects/message_link.dart';
+import 'package:discourse/models/db_objects/message_media_url.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/models/unsent_message.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -5,6 +8,8 @@ import 'package:discourse/services/chat/common_chat_db.dart';
 import 'package:discourse/services/chat/chat_log_db.dart';
 import 'package:discourse/services/chat/private_chat_db.dart';
 import 'package:discourse/services/misc_cache.dart';
+import 'package:discourse/utils/url.dart';
+import 'package:discourse/utils/url_preview.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_list.dart';
 import 'package:flutter/material.dart';
@@ -51,9 +56,11 @@ class MessageSenderController extends GetxController {
 
   Future<void> _actuallySendMessage(
       UnsentMessage unsentMessage, UserChat chat) async {
-    await _uploadMessagePhoto(unsentMessage, chat);
-    await _chatLogDb.sendMessage(unsentMessage);
+    await _uploadMessagePhoto(chat, unsentMessage);
+    final message = await _chatLogDb.sendMessage(unsentMessage);
     unsentMessages.remove(unsentMessage);
+    await _addPhotoToList(chat, message);
+    await _addLinksToList(chat, message);
   }
 
   Future<void> _createChatThenSendUnsentMessages(NonExistentChat chat) async {
@@ -68,14 +75,36 @@ class MessageSenderController extends GetxController {
     Get.find<MiscCache>().chats.insert(0, privateChat);
   }
 
-  Future<void> _uploadMessagePhoto(UnsentMessage message, UserChat chat) async {
+  Future<void> _uploadMessagePhoto(UserChat chat, UnsentMessage message) async {
     if (message.photo != null && message.photo!.isLocal) {
       await _storage.uploadPhoto(message.photo!, 'messagephoto');
     }
+  }
+
+  Future<void> _addPhotoToList(UserChat chat, Message message) async {
+    // called after message is sent, to add to group details internal record
     if (message.photo != null) {
-      await _commonChatDb.addMediaUrl(chat, message.photo!.url!);
-      chat.data.mediaUrls.add(message.photo!.url!);
-      update();
+      final media = MessageMedia(message.id, message.photo!.url!);
+      await _commonChatDb.addMedia(chat, media);
+      chat.data.media.add(media);
+    }
+  }
+
+  Future<void> _addLinksToList(UserChat chat, Message message) async {
+    // called after message is sent, to add to group details internal record
+    for (final match in urlRegex.allMatches(message.text ?? '')) {
+      final url = match.group(0)!;
+      final fullUrl =
+          url.startsWith(RegExp('https?://')) ? url : 'https://$url';
+      final urlData = await getUrlData(fullUrl);
+      final link = MessageLink(
+        '',
+        message.id,
+        fullUrl,
+        urlData ?? UrlData(url, fullUrl, null),
+      );
+      await _commonChatDb.addLink(chat, link);
+      chat.data.links.add(link);
     }
   }
 }

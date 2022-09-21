@@ -41,9 +41,9 @@ class ChatsList extends StatelessWidget {
                       return Obx(
                         () => MyListTile(
                           isSelected: controller.selectedChats.contains(chat),
-                          title: chat.title,
+                          title: chat.title.value,
                           subtitle: subtitle,
-                          photoUrl: chat.photoUrl,
+                          photoUrl: chat.photoUrl.value,
                           iconData: FluentIcons.person_16_regular,
                           extraWidgets: [
                             Column(
