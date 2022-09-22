@@ -117,7 +117,7 @@ class TextStoryView extends StatelessWidget {
             color: Colors.white.withOpacity(0.4),
           ),
         ),
-        maxLines: 12,
+        maxLines: null,
         autofocus: true,
         cursorColor: Colors.white,
       );

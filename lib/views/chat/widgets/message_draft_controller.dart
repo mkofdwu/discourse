@@ -1,3 +1,4 @@
+import 'package:discourse/models/db_objects/chat_member.dart';
 import 'package:discourse/views/chat/chat_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/models/db_objects/user_chat.dart';
@@ -21,10 +22,23 @@ class MessageDraftController extends GetxController {
   bool get hasRepliedMessage => _messageSender.repliedMessage.value != null;
 
   bool showAttachOptions = false;
+  List<Member> pingOptions = [];
 
   @override
   void onReady() {
-    textController.addListener(() => update());
+    textController.addListener(() {
+      if (_chat is UserGroupChat) {
+        final index = textController.text.lastIndexOf('@');
+        if (index != -1) {
+          final query = textController.text.substring(index).toLowerCase();
+          pingOptions = _chat.groupData.members
+              .where((member) =>
+                  member.user.username.toLowerCase().contains(query))
+              .toList();
+        }
+      }
+      update();
+    });
   }
 
   void toggleShowAttachOptions() {

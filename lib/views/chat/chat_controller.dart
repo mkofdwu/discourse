@@ -140,15 +140,20 @@ class ChatController extends GetxController {
       chat as UserGroupChat,
       message.sentTimestamp,
     );
-    // TODO: show actual time (?)
-    final viewedAt = {for (var user in viewedBy) user: DateTime.now()};
     showModalBottomSheet(
       context: Get.context!,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => ViewedByModal(viewedAt: viewedAt),
+      builder: (context) => ViewedByModal(
+        viewedBy: viewedBy,
+        placeholderMessage: 'No one has seen your message yet',
+      ),
     );
     onStartReading();
+  }
+
+  void forwardMessage() {
+    // TODO: select chat to forward to
   }
 
   void highlightMessage(String messageId) {

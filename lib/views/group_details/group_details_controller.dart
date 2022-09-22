@@ -99,6 +99,10 @@ class GroupDetailsController extends GetxController
     if (newPhoto != null) {
       await _storage.uploadPhoto(newPhoto, 'groupphoto');
       await _groupChatDb.updatePhoto(_chat.id, newPhoto.url);
+      // delete old photo
+      if (_chat.photoUrl.value != null) {
+        await _storage.deletePhoto(_chat.photoUrl.value!);
+      }
       _chat.groupData.photoUrl.value = newPhoto.url;
       return true;
     }

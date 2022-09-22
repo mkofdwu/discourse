@@ -21,93 +21,100 @@ class MyStoryView extends StatelessWidget {
       builder: (controller) => Material(
         child: Stack(
           children: [
-            Scaffold(
-              resizeToAvoidBottomInset: false,
-              appBar: myAppBar(
-                title: 'Your story',
-                actions: {FluentIcons.eye_24_regular: controller.viewMyStory},
-              ),
-              floatingActionButton: Padding(
-                padding: const EdgeInsets.only(bottom: 16, right: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MyFloatingActionButton(
-                      iconData: FluentIcons.edit_24_regular,
-                      onPressed: controller.newTextPost,
-                    ),
-                    SizedBox(height: 20),
-                    MyFloatingActionButton(
-                      iconData: FluentIcons.camera_24_regular,
-                      isPrimary: false,
-                      onPressed: controller.newPhotoPost,
-                    ),
-                  ],
-                ),
-              ),
-              body: Obx(
-                () => controller.myStory.isEmpty
-                    ? _buildPlaceholder(controller)
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 24, top: 24),
-                            child: Text(
-                              'Click to view, long press for more options',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.4),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: MyAnimatedList(
-                              controller: controller.listAnimationController,
-                              list: controller.myStory,
-                              listTileBuilder: (i, story) {
-                                story as StoryPage;
-                                return Obx(
-                                  // for selected state
-                                  () => MyListTile(
-                                    increaseWidthFactor: false,
-                                    title: '${story.viewedAt.length} views',
-                                    subtitle: timeTodayOrYesterday(
-                                        story.sentTimestamp),
-                                    photoUrl: story.type == StoryType.photo
-                                        ? story.content
-                                        : null,
-                                    iconData:
-                                        FluentIcons.text_description_20_regular,
-                                    isSelected: controller.selectedStories
-                                        .contains(story),
-                                    onPressed: () =>
-                                        controller.onTapStory(story),
-                                    onLongPress: () =>
-                                        controller.toggleSelectStory(story),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+            _buildPage(controller),
+            Obx(
+              () => SelectionOptionsBar(
+                numSelected: controller.selectedStories.length,
+                options: {
+                  if (controller.selectedStories.length == 1)
+                    FluentIcons.eye_24_regular: controller.showViewedBy,
+                  if (controller.selectedStories.length == 1)
+                    FluentIcons.edit_24_regular: controller.editSelectedStory,
+                  FluentIcons.delete_24_regular:
+                      controller.deleteSelectedStories,
+                },
+                onDismiss: controller.cancelSelection,
               ),
             ),
-            Obx(() => SelectionOptionsBar(
-                  numSelected: controller.selectedStories.length,
-                  options: {
-                    if (controller.selectedStories.length == 1)
-                      FluentIcons.eye_24_regular: controller.showViewedBy,
-                    if (controller.selectedStories.length == 1)
-                      FluentIcons.edit_24_regular: controller.editSelectedStory,
-                    FluentIcons.delete_24_regular:
-                        controller.deleteSelectedStories,
-                  },
-                  onDismiss: controller.cancelSelection,
-                )),
           ],
         ),
+      ),
+    );
+  }
+
+  Scaffold _buildPage(MyStoryController controller) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: myAppBar(
+        title: 'Your story',
+        actions: {FluentIcons.eye_24_regular: controller.viewMyStory},
+      ),
+      floatingActionButton: _buildTextAndPhotoButtons(controller),
+      body: Obx(
+        () => controller.myStory.isEmpty
+            ? _buildPlaceholder(controller)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 24, top: 24),
+                    child: Text(
+                      'Click to view, long press for more options',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.4),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildList(controller),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  MyAnimatedList _buildList(MyStoryController controller) {
+    return MyAnimatedList(
+      controller: controller.listAnimationController,
+      list: controller.myStory,
+      listTileBuilder: (i, story) {
+        story as StoryPage;
+        return Obx(
+          // for selected state
+          () => MyListTile(
+            increaseWidthFactor: false,
+            title: '${story.viewedByIds.length} views',
+            subtitle: timeTodayOrYesterday(story.sentTimestamp),
+            photoUrl: story.type == StoryType.photo ? story.content : null,
+            iconData: FluentIcons.text_description_20_regular,
+            isSelected: controller.selectedStories.contains(story),
+            onPressed: () => controller.onTapStory(story),
+            onLongPress: () => controller.toggleSelectStory(story),
+          ),
+        );
+      },
+    );
+  }
+
+  Padding _buildTextAndPhotoButtons(MyStoryController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, right: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MyFloatingActionButton(
+            iconData: FluentIcons.edit_24_regular,
+            onPressed: controller.newTextPost,
+          ),
+          SizedBox(height: 20),
+          MyFloatingActionButton(
+            iconData: FluentIcons.camera_24_regular,
+            isPrimary: false,
+            onPressed: controller.newPhotoPost,
+          ),
+        ],
       ),
     );
   }

@@ -11,7 +11,7 @@ class StoryPage {
   DateTime sentTimestamp;
   DateTime? editedTimestamp;
   List<String> sentToIds;
-  Map<String, DateTime> viewedAt;
+  List<String> viewedByIds;
 
   StoryPage({
     required this.id,
@@ -20,10 +20,10 @@ class StoryPage {
     required this.sentTimestamp,
     this.editedTimestamp,
     required this.sentToIds,
-    required this.viewedAt,
+    required this.viewedByIds,
   });
 
-  bool get viewedByMe => viewedAt.containsKey(Get.find<AuthService>().id);
+  bool get viewedByMe => viewedByIds.contains(Get.find<AuthService>().id);
 
   factory StoryPage.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
@@ -34,8 +34,7 @@ class StoryPage {
       sentTimestamp: data['sentTimestamp'].toDate(),
       editedTimestamp: data['editedTimestamp']?.toDate(),
       sentToIds: List<String>.from(data['sentToIds']),
-      viewedAt: Map<String, Timestamp>.from(data['viewedAt'])
-          .map((userId, viewedAt) => MapEntry(userId, viewedAt.toDate())),
+      viewedByIds: List<String>.from(data['viewedBy']),
     );
   }
 
@@ -45,6 +44,6 @@ class StoryPage {
         'sentTimestamp': sentTimestamp,
         'editedTimestamp': editedTimestamp,
         'sentToIds': sentToIds,
-        'viewedAt': viewedAt,
+        'viewedBy': viewedByIds,
       };
 }

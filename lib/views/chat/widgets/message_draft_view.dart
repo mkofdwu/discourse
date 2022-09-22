@@ -210,8 +210,12 @@ class _MessageDraftViewState extends State<MessageDraftView> {
                       builder: (isTypingController) => TextField(
                         controller: controller.textController,
                         onChanged: (_) => isTypingController.onTyping(),
+                        maxLines: 6,
+                        minLines: 1,
                         style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                         decoration: InputDecoration(
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(vertical: 4),

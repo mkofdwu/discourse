@@ -140,16 +140,19 @@ class MyStoryController extends GetxController {
   void showViewedBy() async {
     assert(selectedStories.length == 1);
     final story = selectedStories.removeAt(0);
-    final viewedAt = <DiscourseUser, DateTime>{};
-    for (final entry in story.viewedAt.entries) {
-      final user = await _userDb.getUser(entry.key);
-      viewedAt[user] = entry.value;
+    final viewedBy = <DiscourseUser>[];
+    for (final userId in story.viewedByIds) {
+      final user = await _userDb.getUser(userId);
+      viewedBy.add(user);
     }
     showModalBottomSheet(
       context: Get.context!,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => ViewedByModal(viewedAt: viewedAt),
+      builder: (context) => ViewedByModal(
+        viewedBy: viewedBy,
+        placeholderMessage: 'No one has seen your story yet',
+      ),
     );
   }
 
