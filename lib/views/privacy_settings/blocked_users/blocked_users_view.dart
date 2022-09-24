@@ -23,7 +23,7 @@ class BlockedUsersView extends StatelessWidget {
           initialData: const [],
           builder: (context, snapshot) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+              padding: const EdgeInsets.all(30),
               child: Column(
                 children: snapshot.data!
                     .map(

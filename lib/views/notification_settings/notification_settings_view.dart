@@ -17,7 +17,7 @@ class NotificationSettingsView extends StatelessWidget {
       builder: (controller) => Scaffold(
         appBar: myAppBar(title: 'Notification Settings'),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+          padding: const EdgeInsets.all(30),
           child: Column(
             children: [
               SettingTile(
