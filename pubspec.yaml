@@ -33,6 +33,7 @@ dependencies:
   flutter_list_view: ^1.1.18
   url_launcher: ^6.1.5
   html: ^0.15.0 # for fetching url preview data
+  flutter_keyboard_visibility: ^5.3.0 # to tell when to close the ping suggestions overlay
 
 dev_dependencies:
   flutter_lints: ^2.0.1

@@ -27,16 +27,6 @@ class MessageDraftController extends GetxController {
   @override
   void onReady() {
     textController.addListener(() {
-      if (_chat is UserGroupChat) {
-        final index = textController.text.lastIndexOf('@');
-        if (index != -1) {
-          final query = textController.text.substring(index).toLowerCase();
-          pingOptions = _chat.groupData.members
-              .where((member) =>
-                  member.user.username.toLowerCase().contains(query))
-              .toList();
-        }
-      }
       update();
     });
   }

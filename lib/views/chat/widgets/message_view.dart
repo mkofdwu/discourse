@@ -14,6 +14,7 @@ import 'package:discourse/views/chat/controllers/message_selection.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
 import 'package:discourse/views/chat/widgets/reply_gesture.dart';
 import 'package:discourse/views/examine_photo/examine_photo_view.dart';
+import 'package:discourse/views/user_profile/user_profile_view.dart';
 import 'package:discourse/widgets/pressed_builder.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/gestures.dart';
@@ -254,25 +255,55 @@ class _MessageViewState extends State<MessageView> {
   Widget _buildFancyTextAndTimestampWrap() {
     final textSpans = <TextSpan>[];
     if (widget.message.text != null) {
+      final regex =
+          RegExp('(?<ping>(?<=\\s|^)@.*?(?=\\s|\$))|(?<url>$urlRegex)');
       int prev = 0;
-      for (final match in urlRegex.allMatches(widget.message.text!)) {
+      for (final match in regex.allMatches(widget.message.text!)) {
         final text = widget.message.text!.substring(prev, match.start);
-        final url = match.group(0)!;
-        final fullUrl =
-            url.startsWith(RegExp(r'https?://')) ? url : 'https://$url';
-        textSpans.add(TextSpan(text: text));
-        textSpans.add(TextSpan(
-          text: url,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.6),
-            fontWeight: FontWeight.w700,
-            decoration: TextDecoration.underline,
-          ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              launchUrlString(fullUrl, mode: LaunchMode.externalApplication);
-            },
-        ));
+        if (text.isNotEmpty) textSpans.add(TextSpan(text: text));
+
+        final ping = match.namedGroup('ping');
+        final url = match.namedGroup('url');
+        if (ping != null) {
+          if (_chatController.chat is UserGroupChat) {
+            final member = _chatController.chat.groupData.members
+                .firstWhereOrNull(
+                    (member) => member.user.username == ping.substring(1));
+            if (member != null) {
+              textSpans.add(TextSpan(
+                text: ping,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontWeight: FontWeight.w700,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Get.to(UserProfileView(user: member.user));
+                  },
+              ));
+            } else {
+              textSpans.add(TextSpan(text: ping));
+            }
+          } else {
+            textSpans.add(TextSpan(text: ping));
+          }
+        } else if (url != null) {
+          final fullUrl =
+              url.startsWith(RegExp(r'https?://')) ? url : 'https://$url';
+          textSpans.add(TextSpan(
+            text: url,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                launchUrlString(fullUrl, mode: LaunchMode.externalApplication);
+              },
+          ));
+        }
+
         prev = match.end;
       }
       if (prev == 0) {

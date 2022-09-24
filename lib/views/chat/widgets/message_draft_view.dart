@@ -6,6 +6,7 @@ import 'package:discourse/models/photo.dart';
 import 'package:discourse/models/replied_message.dart';
 import 'package:discourse/views/chat/controllers/is_typing_controller.dart';
 import 'package:discourse/views/chat/controllers/message_sender.dart';
+import 'package:discourse/views/chat/widgets/text_field_with_ping_suggestions.dart';
 import 'package:discourse/widgets/opacity_feedback.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -207,25 +208,11 @@ class _MessageDraftViewState extends State<MessageDraftView> {
                   : GetBuilder<IsTypingController>(
                       global: false,
                       init: IsTypingController(),
-                      builder: (isTypingController) => TextField(
-                        controller: controller.textController,
-                        onChanged: (_) => isTypingController.onTyping(),
-                        maxLines: 6,
-                        minLines: 1,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 4),
-                          border: InputBorder.none,
-                          hintText: 'Send a message...',
-                          hintStyle: TextStyle(
-                            color: Get.theme.primaryColor.withOpacity(0.4),
-                          ),
-                        ),
-                      ),
+                      builder: (isTypingController) {
+                        return TextFieldWithPingSuggestions(
+                          controller: controller.textController,
+                        );
+                      },
                     ),
             ),
           ],

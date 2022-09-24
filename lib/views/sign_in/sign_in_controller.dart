@@ -59,6 +59,8 @@ class SignInController extends GetxController {
             final username = inputs['username'] as String;
             if (username.isEmpty) {
               setErrors({'username': 'Please enter a username'});
+            } else if (username.contains(RegExp(r'\s'))) {
+              setErrors({'username': 'Username cannot contain spaces'});
             } else if (await _userDb.getUserByUsername(username) != null) {
               setErrors({'username': 'This username is already taken'});
             } else {
